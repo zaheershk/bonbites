@@ -10,7 +10,7 @@ header .brand {
 }
 
 header .brand-description {
-    font-size: 0.8rem;
+    font-size: 1.1rem;
     color: #666;
     margin-top: 2px;
     margin-bottom: 5px;
@@ -39,21 +39,21 @@ header .brand-description {
 }
 
 .product .product-name {
+    font-size: 1rem;
+    color: #332d2d;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+.product .product-description {
     font-size: 0.9rem;
     color: #666;
     margin-top: 2px;
     margin-bottom: 5px;
 }
 
-.product .product-description {
-    font-size: 0.7rem;
-    color: #666;
-    margin-top: 2px;
-    margin-bottom: 5px;
-}
-
 .product .product-price {
-    font-size: 0.9rem;  
+    font-size: 1rem;  
     color: #139781;      
     margin-top: 10px;
     margin-bottom: 10px;
@@ -70,7 +70,7 @@ button {
     padding: 8px 16px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 18px;
     /*margin-top: 10px;*/
     display: inline-flex;
     align-items: center;
@@ -151,7 +151,7 @@ input[type="text"], input[type="tel"], input[type="email"] {
 #place-order-btn {
     width: auto;
     color: white;
-    font-size: large;
+    font-size:16px;
     font-weight: bold;
     background-color: rgb(189, 79, 79);
 }
@@ -233,7 +233,7 @@ button.remove-item {
 
 .error-message {
     color: red;
-    font-size: 12px;
+    font-size: 16px;
     margin-top: 5px;
 }
 
