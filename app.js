@@ -1,10 +1,10 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbw5uFvVeqDMd1l2iejXyX3yg97KmOBldp_imEbzpMf9ynUyP1DciZwG8s5J8n7X4dcu/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxMyvGf20f5uVYORYFJZih0zDlEBfRVx0pUUFO_Z45Pq3GV_3uaxCC2WFvnERNbKRbX/exec';
 
 let cart = [];
 
 window.onload = function() {
     fetchProducts();
-    updateInterestedItems();
+    clearExistingData();
 };
 
 async function fetchProducts() {
@@ -142,7 +142,7 @@ async function placeOrder(event) {
 
     // Combine cartItems and interestedItems into a single array
     const combinedItems = [
-        ...cartItems.map(item => ({ ...item, type: 'cart' })),
+        ...cartItems.map(item => ({ ...item, type: 'ordered' })),
         ...interestedItems.map(item => ({ name: item, type: 'interested' }))
     ];
     
@@ -170,16 +170,20 @@ async function placeOrder(event) {
         const result = await response.json();
         if (result.status === 'success') {
             alert(`Order placed! Your order ID is ${result.orderId}.`);
-            localStorage.clear();  // Clear local storage
-            clearCustomerInfo(); // Clear customer inputs
-            clearOrderSummary();  // Clear order summary UI
-            clearInterestedItems();  // Clear interested items UI
+            clearExistingData();
         } else {
             alert('Failed to place the order.');
         }
     } catch (error) {
         console.error('Failed to place order:', error);
     }
+}
+
+function clearExistingData() {
+    localStorage.clear();  // Clear local storage
+    clearCustomerInfo(); // Clear customer inputs
+    clearOrderSummary();  // Clear order summary UI
+    clearInterestedItems();  // Clear interested items UI
 }
 
 function clearCustomerInfo() {
