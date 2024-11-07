@@ -16,6 +16,13 @@ header .brand-description {
     margin-bottom: 5px;
 }
 
+header .brand-hashtags {
+    font-size: 1.1rem;
+    color: #775ef3;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
 #brand-logo {
     width: 200px; /* or any size you prefer */
     height: auto; /* maintains the aspect ratio */
