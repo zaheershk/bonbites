@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Food Business</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <img id="brand-logo" src="resources/logo.png"/>
+            <p class="brand-description" id="brand-desc">Explore a world of flavorful indulgence with our lovingly crafted homemade food products which provide a unique culinary journey. Each product is made using natural ingredients to bring traditional and fusion flavors right to your table. Perfect for those looking to add a touch of gourmet to everyday meals or to serve something special at their next gathering, our homemade delights are sure to impress with their quality and taste.</p>
+        </div>
+    </header>
+
+    <main>
+        <hr class="separator">
+        <section id="products">
+            <!-- Product segments and products will be injected here by JavaScript -->
+        </section>
+        <hr class="separator">
+        <section id="order-summary">
+            <h2>My Order Summary</h2>
+            <div class="order-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Action</th>
+                            <th>Unit Price</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items">
+                        <!-- Cart items will be injected here by JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">Total Amount:</td>
+                            <td id="total-amount">₹0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <hr class="separator">
+            <div id="interested-section">
+                <h2>I'm also interested in these products</h2>
+                <ul id="interested-list">
+                    <!-- Interested products will be injected here by JavaScript -->
+                </ul>
+            </div>
+            <hr class="separator">
+            <div class="customer-form">
+                <h2>Here's my information</h2>
+                <input type="text" id="name" name="name" placeholder="My Name" required class="form-input">
+                <input type="tel" id="phone" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}" class="form-input">
+                <input type="email" id="email" name="email" placeholder="Email" required class="form-input">
+
+                <div></div>
+                <button type="button" id="place-order-btn" onclick="validateAndPlaceOrder(event)">Place Order</button>
+            </div>
+            <p id="order-message"></p>
+        </section>
+    </main>
+
+    <div id="loader" class="loader">Fetching products from the kitchen...</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
