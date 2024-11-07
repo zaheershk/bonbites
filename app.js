@@ -9,19 +9,26 @@ window.onload = function() {
 
 async function fetchProducts() {
     try {
-        showLoader(true);
+        showLoader(true, "pageLoad");
         const response = await fetch(API_URL + '?type=inventory');
         const products = await response.json();
         renderProducts(products);
-        showLoader(false);
+        showLoader(false, "pageLoad");
     } catch (error) {
         console.error('Failed to fetch products:', error);
-        showLoader(false);
+        showLoader(false, "pageLoad");
     }
 }
 
-function showLoader(visible) {
+function showLoader(visible, event) {
     const loader = document.getElementById('loader');
+    if(event === "pageLoad") {
+        loader.textContent = "Fetching products from our kitchen...";
+    }
+    if(event === "orderPlaced") {
+        loader.textContent = "Submitting your order to our kitchen...";
+    }
+    
     loader.style.display = visible ? 'flex' : 'none';
 }
 
@@ -137,6 +144,7 @@ function validateAndPlaceOrder(event) {
 
 async function placeOrder(event) {
     event.preventDefault();
+    showLoader(true, "orderPlaced");
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
 
@@ -168,6 +176,7 @@ async function placeOrder(event) {
             body: JSON.stringify(formData)
         });
         const result = await response.json();
+        showLoader(false, "orderPlaced");
         if (result.status === 'success') {
             alert(`Order placed! Your order ID is ${result.orderId}.`);
             clearExistingData();
@@ -175,6 +184,8 @@ async function placeOrder(event) {
             alert('Failed to place the order.');
         }
     } catch (error) {
+        showLoader(false, "orderPlaced");
+        alert('Failed to place the order. Check console for logs..');
         console.error('Failed to place order:', error);
     }
 }
