@@ -236,3 +236,21 @@ button.remove-item {
     font-size: 12px;
     margin-top: 5px;
 }
+
+.increase-quantity, .decrease-quantity {
+    border: none;
+    background-color: #ded8cb;
+    color: black;
+    padding: 5px 10px;  /* Suitable for touch devices */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.increase-quantity {
+    margin-left: 5px; /* Give some spacing between the quantity number and increase button */
+}
+
+.decrease-quantity {
+    margin-right: 5px; /* Give some spacing between decrease button and the quantity number */
+}

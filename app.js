@@ -75,7 +75,11 @@ function updateCartUI() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${item.name}</td>
-            <td><input type="number" value="${item.quantity}" min="1" onchange="updateQuantity('${item.name}', this.value)"></td>
+            <td>
+              <button class="decrease-quantity" onclick="updateQuantity('${item.name}', ${item.quantity - 1})">-</button>
+              <span>${item.quantity}</span>
+              <button class="increase-quantity" onclick="updateQuantity('${item.name}', ${item.quantity + 1})">+</button>
+            </td>
             <td><button class="remove-item" onclick="removeItemFromCart('${item.name}')"><i class="fa fa-trash"></i></button></td>
             <td>₹${item.price}</td>
             <td>₹${item.price * item.quantity}</td>
@@ -85,10 +89,11 @@ function updateCartUI() {
     updateTotal();
 }
 
-function updateQuantity(name, quantity) {
+function updateQuantity(name, newQuantity) {
+    if (newQuantity < 1) return; // Prevent negative or zero quantities
     let item = cart.find(item => item.name === name);
     if (item) {
-        item.quantity = quantity;
+        item.quantity = newQuantity;
     }
     updateCartUI();
 }
