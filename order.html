@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Order</title>
+    <meta name="store-type" content="local">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <h1>Order Intake Form</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="customer-form">
+            <input type="text" id="name" name="name" placeholder="Customer Name" required class="form-input">
+        </div>
+
+        <div style="margin-top: 20px;"></div>
+        <section id="order-summary">
+            <h2>Order Details</h2>
+            <div class="order-table-wrapper">
+                <table id="order-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="predefined-items">
+                        <!-- Predefined items will be injected here by JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">Total Amount:</td>
+                            <td id="total-amount">₹0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <div style="margin-top: 20px;"></div>
+            <button type="button" id="place-order-btn" onclick="validateAndPlaceLocalOrder(event)">Place Order</button>
+        </section>
+    </main>
+
+    <div id="loader" class="loader">loading...</div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

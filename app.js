@@ -1,42 +1,62 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzDCL2fT7Cr5JKcwevnoE9it1xEzH_RAFg4Z_MKt0eUOBcvUmhMYleXUN0ef6UrLpnG/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbycNm5WtjsZhxgUgWM_9BTYJSUO-LEq_vmL_L00ChO1--LJ1Sm_ctX_xJIGbJhliQ4/exec';
 
+let products = [];
 let cart = [];
 
-window.onload = function() {
-    fetchProducts();
-    clearExistingData();
+window.onload = async function () {
+    const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
+
+    showLoader(true, "pageLoad");
+    products = await fetchProducts(storeType);
+
+    if (!products) {
+        showLoader(false, "pageLoad");
+        console.error('Failed to load products.');
+        return;
+    }
+
+    if (storeType === 'online') {
+        loadProductsForOnlineStore();
+        clearExistingDataForOnlineStore();
+    } else if (storeType === 'local') {
+        loadProductsForLocalStore();
+        clearExistingDataForLocalStore();
+    }
+
+    showLoader(false, "pageLoad");
 };
 
-async function fetchProducts() {
+async function fetchProducts(storeType) {
     try {
-        showLoader(true, "pageLoad");
-        const response = await fetch(API_URL + '?type=inventory');
+        const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}`);
         const products = await response.json();
-        renderProducts(products);
-        showLoader(false, "pageLoad");
+        return Array.isArray(products) ? products : [];
     } catch (error) {
         console.error('Failed to fetch products:', error);
+        return [];
         showLoader(false, "pageLoad");
     }
 }
 
 function showLoader(visible, event) {
     const loader = document.getElementById('loader');
-    if(event === "pageLoad") {
+    if (event === "pageLoad") {
         loader.textContent = "Fetching products from our kitchen...";
     }
-    if(event === "orderPlaced") {
+    if (event === "orderPlaced") {
         loader.textContent = "Submitting your order to our kitchen...";
     }
-    
+
     loader.style.display = visible ? 'flex' : 'none';
 }
 
-function renderProducts(data) {
+//------------ONLINE STORE LOGIC
+
+function loadProductsForOnlineStore() {
     const productsContainer = document.getElementById('products');
     let segments = {};
 
-    data.forEach(product => {
+    products.forEach(product => {
         if (!segments[product.segment]) {
             segments[product.segment] = document.createElement('div');
             segments[product.segment].className = 'segment';
@@ -76,9 +96,9 @@ function updateCartUI() {
         row.innerHTML = `
             <td>${item.name}</td>
             <td>
-              <button class="decrease-quantity" onclick="updateQuantity('${item.name}', ${item.quantity - 1})">-</button>
+              <button class="decrease-quantity" onclick="updateQuantityForOnlineStore('${item.name}', ${item.quantity - 1})">-</button>
               <span>${item.quantity}</span>
-              <button class="increase-quantity" onclick="updateQuantity('${item.name}', ${item.quantity + 1})">+</button>
+              <button class="increase-quantity" onclick="updateQuantityForOnlineStore('${item.name}', ${item.quantity + 1})">+</button>
             </td>
             <td><button class="remove-item" onclick="removeItemFromCart('${item.name}')"><i class="fa fa-trash"></i></button></td>
             <td>₹${item.price}</td>
@@ -86,10 +106,10 @@ function updateCartUI() {
         `;
         cartItemsContainer.appendChild(row);
     });
-    updateTotal();
+    updateTotalForOnlineStore();
 }
 
-function updateQuantity(name, newQuantity) {
+function updateQuantityForOnlineStore(name, newQuantity) {
     if (newQuantity < 1) return; // Prevent negative or zero quantities
     let item = cart.find(item => item.name === name);
     if (item) {
@@ -103,7 +123,7 @@ function removeItemFromCart(name) {
     updateCartUI();
 }
 
-function updateTotal() {
+function updateTotalForOnlineStore() {
     let total = 0;
     cart.forEach(item => {
         total += item.price * item.quantity;
@@ -111,7 +131,9 @@ function updateTotal() {
     document.getElementById('total-amount').innerText = `₹${total}`;
 }
 
-function validateAndPlaceOrder(event) {
+function validateAndPlaceOnlineOrder(event) {
+    event.preventDefault();
+
     const name = document.getElementById('name');
     const phone = document.getElementById('phone');
     const email = document.getElementById('email');
@@ -141,14 +163,13 @@ function validateAndPlaceOrder(event) {
     }
 
     if (isFormValid) {
-        placeOrder(event);
+        placeOnlineOrder();
     } else {
         console.error("Form validation failed.");
     }
 }
 
-async function placeOrder(event) {
-    event.preventDefault();
+async function placeOnlineOrder() {
     showLoader(true, "orderPlaced");
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
@@ -158,8 +179,9 @@ async function placeOrder(event) {
         ...cartItems.map(item => ({ ...item, type: 'ordered' })),
         ...interestedItems.map(item => ({ name: item, type: 'interested' }))
     ];
-    
+
     const formData = {
+        storeType: 'online',
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
@@ -180,11 +202,13 @@ async function placeOrder(event) {
             redirect: "follow",
             body: JSON.stringify(formData)
         });
+
         const result = await response.json();
         showLoader(false, "orderPlaced");
+
         if (result.status === 'success') {
             alert(`Order placed! Your order ID is ${result.orderId}.`);
-            clearExistingData();
+            clearExistingDataForOnlineStore();
         } else {
             alert('Failed to place the order.');
         }
@@ -195,27 +219,26 @@ async function placeOrder(event) {
     }
 }
 
-function clearExistingData() {
+function clearExistingDataForOnlineStore() {
     localStorage.clear();  // Clear local storage
-    clearCustomerInfo(); // Clear customer inputs
-    clearOrderSummary();  // Clear order summary UI
-    clearInterestedItems();  // Clear interested items UI
+    clearCustomerInfoForOnlineStore(); // Clear customer inputs
+    clearOrderDetailsForOnlineStore();  // Clear order details
+    clearInterestedItemsForOnlineStore();  // Clear interested items
 }
 
-function clearCustomerInfo() {
+function clearCustomerInfoForOnlineStore() {
     document.getElementById('name').value = '';
     document.getElementById('phone').value = '';
     document.getElementById('email').value = '';
 }
 
-function clearOrderSummary() {
-    // Also assume here that updateCartUI() handles DOM clearing for you
-    cart = []; // Clear internal cart representation
+function clearOrderDetailsForOnlineStore() {
+    cart = [];
     updateCartUI();
     document.getElementById('total-amount').innerText = '₹0'; // Reset total amount
 }
 
-function clearInterestedItems() {
+function clearInterestedItemsForOnlineStore() {
     const list = document.getElementById('interested-list');
     list.innerHTML = ''; // Clear inner HTML to remove all items
 }
@@ -245,7 +268,7 @@ function updateInterestedItems() {
         const removeBtn = document.createElement('button');
         removeBtn.className = "remove-item";
         removeBtn.innerHTML = '<i class="fa fa-remove">';
-        removeBtn.onclick = function() { removeInterested(item); };
+        removeBtn.onclick = function () { removeInterested(item); };
         li.appendChild(removeBtn);
         list.appendChild(li);
     });
@@ -256,4 +279,143 @@ function removeInterested(name) {
     const filteredItems = interestedItems.filter(item => item !== name);
     localStorage.setItem('interestedItems', JSON.stringify(filteredItems));
     updateInterestedItems();
+}
+
+//------------LOCAL STORE LOGIC
+
+function loadProductsForLocalStore() {
+    const itemsContainer = document.getElementById('predefined-items');
+    products.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.name}</td>
+            <td>
+                <button class="decrease-quantity" onclick="updateQuantityForLocalStore(${index}, -1)">-</button>
+                <span id="quantity-${index}">0</span>
+                <button class="increase-quantity" onclick="updateQuantityForLocalStore(${index}, 1)">+</button>
+            </td>
+            <td>₹${item.price}</td>
+            <td id="total-${index}">₹${item.quantity * item.price}</td>
+        `;
+        itemsContainer.appendChild(row);
+    });
+
+    updateTotalForLocalStore();
+}
+
+function updateQuantityForLocalStore(index, change) {
+    let product = products[index];
+    product.quantity += change;
+    if (product.quantity < 0) product.quantity = 0;
+
+    const quantityElement = document.getElementById(`quantity-${index}`);
+    const totalElement = document.getElementById(`total-${index}`);
+
+    quantityElement.innerText = product.quantity;
+    totalElement.innerText = `₹${product.quantity * product.price}`;
+
+    updateTotalForLocalStore();
+}
+
+function updateTotalForLocalStore() {
+    const totalAmount = products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+    const totalAmountElement = document.getElementById('total-amount');
+    totalAmountElement.innerText = `₹${totalAmount}`;
+}
+
+function validateAndPlaceLocalOrder(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name');
+
+    let isFormValid = true;
+
+    // Reset previous tooltips
+    [name].forEach(input => {
+        input.classList.remove('error');
+        input.removeAttribute('data-error');
+    });
+
+    if (!name.value.trim()) {
+        name.classList.add('error');
+        name.setAttribute('data-error', 'Please enter customer name');
+        isFormValid = false;
+    }
+
+    if (isFormValid) {
+        placeLocalOrder();
+    } else {
+        console.error("Form validation failed.");
+    }
+}
+
+async function placeLocalOrder() {
+    showLoader(true, "orderPlaced");
+
+    const formData = {
+        storeType: 'local',
+        name: document.getElementById('name').value,
+        items: products.filter(item => item.quantity > 0).map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+        })),
+        totalAmount: document.getElementById('total-amount').textContent.split('₹')[1]
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: "cors",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "text/plain",
+            },
+            redirect: "follow",
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        showLoader(false, "orderPlaced");
+
+        if (result.status === 'success') {
+            alert(`Order placed! Your order ID is ${result.orderId}.`);
+            clearExistingDataForLocalStore();
+        } else {
+            alert('Failed to place the order.');
+        }
+    } catch (error) {
+        showLoader(false, "orderPlaced");
+        alert('Failed to place the order. Check console for logs..');
+        console.error('Failed to place order:', error);
+    }
+}
+
+function clearExistingDataForLocalStore() {
+    localStorage.clear();  // Clear local storage
+    clearCustomerInfoForLocalStore(); // Clear customer inputs
+    clearOrderDetailsForLocalStore();  // Clear order details
+}
+
+function clearCustomerInfoForLocalStore() {
+    document.getElementById('name').value = '';
+}
+
+function clearOrderDetailsForLocalStore() {
+    products.forEach((product, index) => {
+        product.quantity = 0;  // Reset quantity
+        updateRowForLocalStore(index); // Update UI for each product
+    });
+
+    updateTotalForLocalStore();
+}
+
+function updateRowForLocalStore(index) {
+    const quantityElement = document.getElementById(`quantity-${index}`);
+    const totalElement = document.getElementById(`total-${index}`);
+
+    if (quantityElement && totalElement) {
+        quantityElement.innerText = products[index].quantity;
+        totalElement.innerText = `₹${products[index].quantity * products[index].price}`;
+    }
 }
