@@ -84,12 +84,26 @@ button {
     justify-content: center;
 }
 
+button.add-to-cart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 button.add-to-cart i.fa-plus {
     color: black;
+    margin: auto; 
+}
+
+button.interested {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 button.interested i.fa-heart {
     color: rgb(189, 79, 79);
+    margin: auto; 
 }
 
 button.remove-item i.fa-trash {
