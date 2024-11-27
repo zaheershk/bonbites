@@ -1,29 +1,45 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbycNm5WtjsZhxgUgWM_9BTYJSUO-LEq_vmL_L00ChO1--LJ1Sm_ctX_xJIGbJhliQ4/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxqKZBjxRrAGAPeDKg9aHro70ZGi_ztRJvRFb4WXmeB6J-himOwSSeyb8YgO6bXcmfc/exec';
 
 let products = [];
+let orders = [];
 let cart = [];
 
 window.onload = async function () {
-    const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
+    const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
+    showLoader(true);
 
-    showLoader(true, "pageLoad");
-    products = await fetchProducts(storeType);
+    if (workflowContext.toLowerCase() === 'intake') {
+        const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
+        products = await fetchProducts(storeType);
 
-    if (!products) {
-        showLoader(false, "pageLoad");
-        console.error('Failed to load products.');
-        return;
+        if (!products) {
+            showLoader(false);
+            console.error('Failed to load products.');
+            return;
+        }
+
+        if (storeType === 'online') {
+            loadProductsForOnlineStore();
+            clearExistingDataForOnlineStore();
+        } else if (storeType === 'local') {
+            loadProductsForLocalStore();
+            clearExistingDataForLocalStore();
+        }
     }
 
-    if (storeType === 'online') {
-        loadProductsForOnlineStore();
-        clearExistingDataForOnlineStore();
-    } else if (storeType === 'local') {
-        loadProductsForLocalStore();
-        clearExistingDataForLocalStore();
+    if (workflowContext.toLowerCase() === 'process') {
+        orders = await fetchOrders();
+
+        if (!orders) {
+            showLoader(false);
+            console.error('Failed to load orders.');
+            return;
+        }
+
+        loadOrders();
     }
 
-    showLoader(false, "pageLoad");
+    showLoader(false);
 };
 
 async function fetchProducts(storeType) {
@@ -33,20 +49,13 @@ async function fetchProducts(storeType) {
         return Array.isArray(products) ? products : [];
     } catch (error) {
         console.error('Failed to fetch products:', error);
+        showLoader(false);
         return [];
-        showLoader(false, "pageLoad");
     }
 }
 
-function showLoader(visible, event) {
+function showLoader(visible) {
     const loader = document.getElementById('loader');
-    if (event === "pageLoad") {
-        loader.textContent = "Fetching products from our kitchen...";
-    }
-    if (event === "orderPlaced") {
-        loader.textContent = "Submitting your order to our kitchen...";
-    }
-
     loader.style.display = visible ? 'flex' : 'none';
 }
 
@@ -70,7 +79,7 @@ function loadProductsForOnlineStore() {
             <p class="product-name">${product.name}</p> 
             <p class="product-description">${product.description}</p> 
             <p class="product-price">Price: ₹${product.price}</p> 
-            <button title="Add this item to cart" class="add-to-cart" onclick="addToCart('${product.name}', ${product.price})"><i class="fa fa-plus"></i></button>
+            <!-- <button title="Add this item to cart" class="add-to-cart" onclick="addToCart('${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> -->
             <button title="Express interest to buy this later" class="interested" onclick="markAsInterested('${product.name}')"><i class="fa fa-heart"></i></button>
         `;
         segments[product.segment].appendChild(productDiv);
@@ -156,11 +165,11 @@ function validateAndPlaceOnlineOrder(event) {
         phone.setAttribute('data-error', 'Please enter your phone number');
         isFormValid = false;
     }
-    if (!email.value.trim()) {
+    /* if (!email.value.trim()) {
         email.classList.add('error');
         email.setAttribute('data-error', 'Please enter your email');
         isFormValid = false;
-    }
+    } */
 
     if (isFormValid) {
         placeOnlineOrder();
@@ -170,7 +179,7 @@ function validateAndPlaceOnlineOrder(event) {
 }
 
 async function placeOnlineOrder() {
-    showLoader(true, "orderPlaced");
+    showLoader(true);
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     const interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
 
@@ -181,6 +190,7 @@ async function placeOnlineOrder() {
     ];
 
     const formData = {
+        action: 'insert',
         storeType: 'online',
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
@@ -204,16 +214,17 @@ async function placeOnlineOrder() {
         });
 
         const result = await response.json();
-        showLoader(false, "orderPlaced");
+        showLoader(false);
 
         if (result.status === 'success') {
-            alert(`Order placed! Your order ID is ${result.orderId}.`);
+            //alert(`Order placed! Your order ID is ${result.orderId}.`);
+            alert(`Data submitted, Thank you!`);
             clearExistingDataForOnlineStore();
         } else {
             alert('Failed to place the order.');
         }
     } catch (error) {
-        showLoader(false, "orderPlaced");
+        showLoader(false);
         alert('Failed to place the order. Check console for logs..');
         console.error('Failed to place order:', error);
     }
@@ -222,7 +233,7 @@ async function placeOnlineOrder() {
 function clearExistingDataForOnlineStore() {
     localStorage.clear();  // Clear local storage
     clearCustomerInfoForOnlineStore(); // Clear customer inputs
-    clearOrderDetailsForOnlineStore();  // Clear order details
+    //clearOrderDetailsForOnlineStore();  // Clear order details
     clearInterestedItemsForOnlineStore();  // Clear interested items
 }
 
@@ -350,9 +361,10 @@ function validateAndPlaceLocalOrder(event) {
 }
 
 async function placeLocalOrder() {
-    showLoader(true, "orderPlaced");
+    showLoader(true);
 
     const formData = {
+        action: 'insert',
         storeType: 'local',
         name: document.getElementById('name').value,
         items: products.filter(item => item.quantity > 0).map(item => ({
@@ -376,7 +388,7 @@ async function placeLocalOrder() {
         });
 
         const result = await response.json();
-        showLoader(false, "orderPlaced");
+        showLoader(false);
 
         if (result.status === 'success') {
             alert(`Order placed! Your order ID is ${result.orderId}.`);
@@ -385,7 +397,7 @@ async function placeLocalOrder() {
             alert('Failed to place the order.');
         }
     } catch (error) {
-        showLoader(false, "orderPlaced");
+        showLoader(false);
         alert('Failed to place the order. Check console for logs..');
         console.error('Failed to place order:', error);
     }
@@ -419,3 +431,77 @@ function updateRowForLocalStore(index) {
         totalElement.innerText = `₹${products[index].quantity * products[index].price}`;
     }
 }
+
+//------------ORDER PROCESSING LOGIC
+
+async function fetchOrders() {
+    try {
+        const storeType = 'local';  // TODO - hardcoded to local for now
+        const response = await fetch(API_URL + `?type=orders&storeType=${storeType}`);
+        const orders = await response.json();
+        return Array.isArray(orders) ? orders : [];
+    } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        showLoader(false);
+        return [];
+    }
+}
+
+function loadOrders() {
+    const container = document.getElementById('orders-container');
+    container.innerHTML = ''; // Clear previous entries
+    orders.forEach(order => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+                    <h3>${order.customerName}</h3>
+                    <ul>
+                        ${order.items.map(item => `<li>${item.name}</li>`).join('')}
+                    </ul>
+                    <div class="button-container">
+                    <button class="big-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Complete')"><i class="fas fa-check"></i>Done</button>
+                    <button class="small-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')"><i class="fas fa-times"></i></button>
+                    </div>
+                `;
+        container.appendChild(card);
+    });
+}
+
+async function updateStatus(storeType, orderId, status) {
+
+    const formData = {
+        action: 'update',
+        storeType: storeType,
+        orderId: orderId,
+        status: status
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: "cors",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "text/plain",
+            },
+            redirect: "follow",
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        showLoader(false);
+
+        if (result.status === 'success') {
+            alert(`Order status updated!`);
+            fetchOrders(); // Refetch orders after updating status
+        } else {
+            alert('Failed to update the order.');
+        }
+    } catch (error) {
+        showLoader(false);
+        alert('Failed to update the order. Check console for logs..');
+        console.error('Failed to update order:', error);
+    }
+}
+
+setInterval(fetchOrders, 5000); // Fetch orders every 5 seconds
