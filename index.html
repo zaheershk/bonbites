@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>BonBites</title>
+    <meta name="workflow-context" content="intake">
     <meta name="store-type" content="online">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -23,8 +24,8 @@
             <!-- Product segments and products will be injected here by JavaScript -->
         </section>
         <section id="order-summary">
-            <h2>My Order Summary</h2>
-            <div class="order-table-wrapper">
+            <!-- <h2>My Order Summary</h2> -->
+            <div class="order-table-wrapper" style="display: none;">
                 <table>
                     <thead>
                         <tr>
@@ -48,7 +49,7 @@
             </div>
             <hr class="separator">
             <div id="interested-section">
-                <h2>I'm also interested in these products</h2>
+                <h2>I'm interested in these products</h2>
                 <ul id="interested-list">
                     <!-- Interested products will be injected here by JavaScript -->
                 </ul>
@@ -61,13 +62,13 @@
                 <input type="email" id="email" name="email" placeholder="Email" required class="form-input">
 
                 <div style="margin-top: 20px;"></div>
-                <button type="button" id="place-order-btn" onclick="validateAndPlaceOnlineOrder(event)">Place Order</button>
+                <button type="button" id="place-order-btn" onclick="validateAndPlaceOnlineOrder(event)">Submit</button>
             </div>
             <p id="order-message"></p>
         </section>
     </main>
 
-    <div id="loader" class="loader">loading...</div>
+    <div id="loader" class="loader">Please wait...</div>
 
     <script src="app.js"></script>
 </body>
