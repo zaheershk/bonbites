@@ -261,3 +261,59 @@ button.remove-item {
 .decrease-quantity {
     margin-right: 5px; /* Give some spacing between decrease button and the quantity number */
 }
+
+#orders-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin: 10px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.card ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.button-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between; /* This will ensure buttons are spaced out over the container width */
+    align-items: center; /* Aligns buttons centered vertically */
+    gap: 10px; /* Adds spacing between the elements inside the flex container */
+}
+
+.big-button, .small-button {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    flex: 1;  /* Allows the buttons to grow and fill the space, respecting the gap */
+}
+
+.small-button {
+    flex: none; /* This will prevent the cancel button from growing */
+    width: 20%; /* Smaller width, can adjust percentage based on design preference */
+    padding: 15px;
+    background-color: #f44336; /* Red color */
+}
+
+.big-button {
+    padding: 15px; /* More padding for a larger button */
+    background-color: #4CAF50; /* Green color */
+}
+
+button i {
+    margin-right: 8px;
+}
