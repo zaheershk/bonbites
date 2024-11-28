@@ -80,7 +80,7 @@ function loadProductsForOnlineStore() {
             <p class="product-description">${product.description}</p> 
             <p class="product-price">Price: ₹${product.price}</p> 
             <!-- <button title="Add this item to cart" class="add-to-cart" onclick="addToCart('${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> -->
-            <button title="Express interest to buy this later" class="interested" onclick="markAsInterested('${product.name}')"><i class="fa fa-heart"></i></button>
+            <button title="Express interest to buy this later" class="interested" onclick="markAsInterested(this, '${product.name}')"><i class="fa fa-heart"></i></button>
         `;
         segments[product.segment].appendChild(productDiv);
     });
@@ -260,13 +260,35 @@ async function fetchIPAddress() {
     return data.ip;
 }
 
-function markAsInterested(name) {
+function markAsInterested(button, productName) {
+    // console.log("Expressed interest in:", productName); 
+
+    // Create a tooltip element and add it to the button
+    let tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+
     let interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
-    if (!interestedItems.includes(name)) {
-        interestedItems.push(name);
+    if (!interestedItems.includes(productName)) {
+        interestedItems.push(productName);
         localStorage.setItem('interestedItems', JSON.stringify(interestedItems));
         updateInterestedItems();
+        tooltip.innerText = 'Added to Wishlist';
     }
+    else {
+        tooltip.innerText = 'Already in Wishlist';
+    }
+
+    // Show tooltip
+    button.parentNode.appendChild(tooltip);
+    tooltip.style.visibility = 'visible';
+    tooltip.style.opacity = '1';
+
+    // Remove the tooltip after a few seconds
+    setTimeout(() => {
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.opacity = '0';
+        button.parentNode.removeChild(tooltip);
+    }, 1000);  // 1 second
 }
 
 function updateInterestedItems() {
