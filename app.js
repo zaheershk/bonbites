@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbxqKZBjxRrAGAPeDKg9aHro70ZGi_ztRJvRFb4WXmeB6J-himOwSSeyb8YgO6bXcmfc/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmjcMU8YyBLqRTcngGefv1r4nPGTJm_KrNLh1w3AZFW7r8rZT1HaHr_O-nzpQIaQcq/exec';
 
 let products = [];
 let orders = [];
@@ -460,8 +460,11 @@ async function fetchOrders() {
     try {
         const storeType = 'local';  // TODO - hardcoded to local for now
         const response = await fetch(API_URL + `?type=orders&storeType=${storeType}`);
-        const orders = await response.json();
-        return Array.isArray(orders) ? orders : [];
+        orders = await response.json();
+        orders = Array.isArray(orders) ? orders : []; 
+
+        loadOrders();
+        return orders;
     } catch (error) {
         console.error('Failed to fetch orders:', error);
         showLoader(false);
@@ -478,11 +481,11 @@ function loadOrders() {
         card.innerHTML = `
                     <h3>${order.customerName}</h3>
                     <ul>
-                        ${order.items.map(item => `<li>${item.name}</li>`).join('')}
+                        ${order.items.map(item => `<li>${item.quantity} x ${item.name}</li>`).join('')}
                     </ul>
                     <div class="button-container">
-                    <button class="big-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Complete')"><i class="fas fa-check"></i>Done</button>
-                    <button class="small-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')"><i class="fas fa-times"></i></button>
+                        <button class="big-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Complete')"><i class="fas fa-check"></i>Done</button>
+                        <button class="small-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')"><i class="fas fa-times"></i></button>
                     </div>
                 `;
         container.appendChild(card);
@@ -490,6 +493,7 @@ function loadOrders() {
 }
 
 async function updateStatus(storeType, orderId, status) {
+    showLoader(true);
 
     const formData = {
         action: 'update',
@@ -526,4 +530,4 @@ async function updateStatus(storeType, orderId, status) {
     }
 }
 
-setInterval(fetchOrders, 5000); // Fetch orders every 5 seconds
+setInterval(fetchOrders, 10000); // Fetch orders every 10 seconds
