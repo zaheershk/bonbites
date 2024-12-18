@@ -24,8 +24,8 @@
             <!-- Product segments and products will be injected here by JavaScript -->
         </section>
         <section id="order-summary">
-            <!-- <h2>My Order Summary</h2> -->
-            <div class="order-table-wrapper" style="display: none;">
+            <h2>My Order Summary</h2>
+            <div class="order-table-wrapper">
                 <table>
                     <thead>
                         <tr>
@@ -47,8 +47,8 @@
                     </tfoot>
                 </table>
             </div>
-            <hr class="separator">
-            <div id="interested-section">
+            <!-- <hr class="separator"> -->
+            <div id="interested-section" style="display: none;">
                 <h2>My Wishlist:</h2>
                 <ul id="interested-list">
                     <!-- Interested products will be injected here by JavaScript -->
@@ -58,11 +58,12 @@
             <div class="customer-form">
                 <h2>Here's my information</h2>
                 <input type="text" id="name" name="name" placeholder="My Name" required class="form-input">
+                <input type="text" id="flat" name="flat" placeholder="My Flat No." required class="form-input">
                 <input type="tel" id="phone" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}" class="form-input">
                 <input type="email" id="email" name="email" placeholder="Email" required class="form-input">
 
                 <div style="margin-top: 20px;"></div>
-                <button type="button" id="place-order-btn" onclick="validateAndPlaceOnlineOrder(event)">Submit</button>
+                <button type="button" id="place-order-btn" onclick="validateAndPlaceOnlineOrder(event)">Place Order</button>
             </div>
             <p id="order-message"></p>
         </section>

@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwmjcMU8YyBLqRTcngGefv1r4nPGTJm_KrNLh1w3AZFW7r8rZT1HaHr_O-nzpQIaQcq/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzRSKMHPLlqIy58Pch6WQvoyd5IHsFjVOnRjKiyyJd9aMdSx8Uw44wohjPeJvFegMNd/exec';
 
 let products = [];
 let orders = [];
@@ -79,21 +79,40 @@ function loadProductsForOnlineStore() {
             <p class="product-name">${product.name}</p> 
             <p class="product-description">${product.description}</p> 
             <p class="product-price">Price: ₹${product.price}</p> 
-            <!-- <button title="Add this item to cart" class="add-to-cart" onclick="addToCart('${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> -->
-            <button title="Express interest to buy this later" class="interested" onclick="markAsInterested(this, '${product.name}')"><i class="fa fa-heart"></i></button>
+            <button title="Add this item to cart" class="add-to-cart" onclick="addToCart(this, '${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> 
+            <!-- <button title="Express interest to buy this later" class="interested" onclick="markAsInterested(this, '${product.name}')"><i class="fa fa-heart"></i></button> -->
         `;
         segments[product.segment].appendChild(productDiv);
     });
 }
 
-function addToCart(name, price) {
+function addToCart(button, name, price) {
+    // Create a tooltip element and add it to the button
+    let tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+
     let item = cart.find(item => item.name === name);
     if (item) {
         item.quantity++;
     } else {
         cart.push({ name, price, quantity: 1 });
     }
+
     localStorage.setItem('cart', JSON.stringify(cart));  // store cart into local storage
+    tooltip.innerText = 'Added to Cart';
+
+    // Show tooltip
+    button.parentNode.appendChild(tooltip);
+    tooltip.style.visibility = 'visible';
+    tooltip.style.opacity = '1';
+
+    // Remove the tooltip after a few seconds
+    setTimeout(() => {
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.opacity = '0';
+        button.parentNode.removeChild(tooltip);
+    }, 1000);  // 1 second
+
     updateCartUI();
 }
 
@@ -144,13 +163,14 @@ function validateAndPlaceOnlineOrder(event) {
     event.preventDefault();
 
     const name = document.getElementById('name');
+    const flat = document.getElementById('flat');
     const phone = document.getElementById('phone');
     const email = document.getElementById('email');
 
     let isFormValid = true;
 
     // Reset previous tooltips
-    [name, phone, email].forEach(input => {
+    [name, flat, phone, email].forEach(input => {
         input.classList.remove('error');
         input.removeAttribute('data-error');
     });
@@ -160,16 +180,21 @@ function validateAndPlaceOnlineOrder(event) {
         name.setAttribute('data-error', 'Please enter your name');
         isFormValid = false;
     }
+    if (!flat.value.trim()) {
+        flat.classList.add('error');
+        flat.setAttribute('data-error', 'Please enter your Tower & Flat No.');
+        isFormValid = false;
+    }
     if (!phone.value.trim()) {
         phone.classList.add('error');
         phone.setAttribute('data-error', 'Please enter your phone number');
         isFormValid = false;
     }
-    /* if (!email.value.trim()) {
+    if (!email.value.trim()) {
         email.classList.add('error');
         email.setAttribute('data-error', 'Please enter your email');
         isFormValid = false;
-    } */
+    }
 
     if (isFormValid) {
         placeOnlineOrder();
@@ -193,6 +218,7 @@ async function placeOnlineOrder() {
         action: 'insert',
         storeType: 'online',
         name: document.getElementById('name').value,
+        flat: document.getElementById('flat').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
         items: combinedItems,  // Pass the combined items array
@@ -217,8 +243,8 @@ async function placeOnlineOrder() {
         showLoader(false);
 
         if (result.status === 'success') {
-            //alert(`Order placed! Your order ID is ${result.orderId}.`);
-            alert(`Data submitted, Thank you!`);
+            alert(`Order placed! Your order ID is ${result.orderId}.`);
+            //alert(`Data submitted, Thank you!`);
             clearExistingDataForOnlineStore();
         } else {
             alert('Failed to place the order.');
@@ -233,12 +259,13 @@ async function placeOnlineOrder() {
 function clearExistingDataForOnlineStore() {
     localStorage.clear();  // Clear local storage
     clearCustomerInfoForOnlineStore(); // Clear customer inputs
-    //clearOrderDetailsForOnlineStore();  // Clear order details
-    clearInterestedItemsForOnlineStore();  // Clear interested items
+    clearOrderDetailsForOnlineStore();  // Clear order details
+    //clearInterestedItemsForOnlineStore();  // Clear interested items
 }
 
 function clearCustomerInfoForOnlineStore() {
     document.getElementById('name').value = '';
+    document.getElementById('flat').value = '';
     document.getElementById('phone').value = '';
     document.getElementById('email').value = '';
 }
@@ -530,4 +557,4 @@ async function updateStatus(storeType, orderId, status) {
     }
 }
 
-setInterval(fetchOrders, 10000); // Fetch orders every 10 seconds
+// setInterval(fetchOrders, 10000); // Fetch orders every 10 seconds
