@@ -1,8 +1,13 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzRSKMHPLlqIy58Pch6WQvoyd5IHsFjVOnRjKiyyJd9aMdSx8Uw44wohjPeJvFegMNd/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyHjH6chzQmPVOQm5xVliFIpQ-5G9kCXe8HA4Xq0K9Pwxz1LFFfGwAARPYsW4vjJfQb/exec';
 
 let products = [];
 let orders = [];
 let cart = [];
+
+function getUrlParameter(name) {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    return urlSearchParams.get(name);
+}
 
 window.onload = async function () {
     const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
@@ -28,6 +33,12 @@ window.onload = async function () {
     }
 
     if (workflowContext.toLowerCase() === 'process') {
+
+        const storeType = getUrlParameter('storeType'); 
+        if (storeType) {
+            document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
+        }
+
         orders = await fetchOrders();
 
         if (!orders) {
@@ -485,7 +496,7 @@ function updateRowForLocalStore(index) {
 
 async function fetchOrders() {
     try {
-        const storeType = 'local';  // TODO - hardcoded to local for now
+        const storeType = getUrlParameter('storeType') || 'local'; 
         const response = await fetch(API_URL + `?type=orders&storeType=${storeType}`);
         orders = await response.json();
         orders = Array.isArray(orders) ? orders : []; 
