@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>BonBites</title>
@@ -9,11 +10,13 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="brand">
-            <img id="brand-logo" src="resources/logo.png"/>
-            <p class="brand-description" id="brand-desc">Explore a world of flavorful indulgence with our lovingly crafted homemade food & products which provide a unique culinary journey.</p>
+            <img id="brand-logo" src="resources/logo.png" />
+            <p class="brand-description" id="brand-desc">Explore a world of flavorful indulgence with our lovingly
+                crafted homemade food & products which provide a unique culinary journey.</p>
             <p class="brand-hashtags">#Foodie #LoveForFood #GourmetGoodness</p>
         </div>
     </header>
@@ -59,18 +62,51 @@
                 <h2>Here's my information</h2>
                 <input type="text" id="name" name="name" placeholder="My Name" required class="form-input">
                 <input type="text" id="flat" name="flat" placeholder="My Flat No." required class="form-input">
-                <input type="tel" id="phone" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}" class="form-input">
+                <input type="tel" id="phone" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}"
+                    class="form-input">
                 <input type="email" id="email" name="email" placeholder="Email" required class="form-input">
 
+                <!-- Preferred Delivery Slot Section -->
+                <div id="deliveryOptionsContainer">
+                    <select id="delivery-time-dropdown" required class="form-input">
+                        <option value="">[Preferred Delivery Slot]</option>
+                        <!-- Options will be dynamically inserted here -->
+                    </select>
+                </div>
                 <div style="margin-top: 20px;"></div>
-                <button type="button" id="place-order-btn" onclick="validateAndPlaceOnlineOrder(event)">Place Order</button>
+                <button type="button" id="place-order-btn" onclick="validateAndPlaceOnlineOrder(event)">Place
+                    Order</button>
             </div>
             <p id="order-message"></p>
         </section>
+
     </main>
+
+    <div style="margin-top: 30px;"></div>
+    <hr class="separator">
+
+    <footer>
+        <div class="footer-left">
+            <p><strong>About Us</strong></p>
+            <p>Hi There 👋🏼, we are Sagufta, Zaheer & Hamza, residing in Z1 Vyom.</p>
+            <p><strong>BonBites</strong> is our small venture, to offer freshly made, gourmet world cuisine & artisanal
+                food products, at a reasonable price! Our menu is focused on food from around the world, and we are
+                starting with few comfort food options.</p>
+            <p>FSSAI registration number: <strong>30241028118023297</strong></p>
+            <p style="display: flex; align-items: center;">Follow us on &nbsp;
+                <a style="display: flex; align-items: center;" href="https://www.instagram.com/bonstudio.store/profilecard/?igsh=NW5lMm1wZDhhNTd1" target="_blank">
+                    <img src="resources/insta-logo.png" height="30px" , width="30px" />
+                </a>
+            </p>
+        </div>
+        <div class="footer-right">
+            <img id="fam-pic" src="resources/fam-pic.png" height="200px" , width="180px" />
+        </div>
+    </footer>
 
     <div id="loader" class="loader">Please wait...</div>
 
     <script src="app.js"></script>
 </body>
+
 </html>

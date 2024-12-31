@@ -2,7 +2,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: #f4f4f9;
     color: #444;
-    padding: 20px;
+    padding: 10px;
 }
 
 header .brand {
@@ -43,6 +43,9 @@ header .brand-hashtags {
     width: 200px;
     margin: 5px;
     text-align: left;
+    position: relative;
+    padding-top: 30px; 
+    padding-bottom: 30px;
 }
 
 .product .product-name {
@@ -59,6 +62,13 @@ header .brand-hashtags {
     margin-bottom: 5px;
 }
 
+.product .product-ingredients {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
 .product .product-price {
     font-size: 1rem;  
     color: #139781;      
@@ -68,6 +78,14 @@ header .brand-hashtags {
 
 .product img {
     max-height: 120px;
+}
+
+.type-logo {
+    position: absolute;
+    right: 10px;
+    top: 10px; 
+    height: 30px; /* Adjust size as needed */
+    width: 25px; /* Maintain aspect ratio */
 }
 
 button {
@@ -138,7 +156,7 @@ button.remove-item i.fa-trash {
     border-radius: 4px;
 }
 
-.customer-form input.form-input {
+.customer-form input.form-input, .customer-form select.form-input {
     width: 100%;
     padding: 8px;
     margin-top: 12px;
@@ -146,7 +164,7 @@ button.remove-item i.fa-trash {
     border: 1px solid #ccc;
 }
 
-.customer-form input.error {
+.customer-form input.error, .customer-form select.error {
     border: 2px solid red; 
     background-color: #fcffdc; 
 }
@@ -164,7 +182,7 @@ button.remove-item i.fa-trash {
     z-index: 10;
 }
 
-input[type="text"], input[type="tel"], input[type="email"] {
+input[type="text"], input[type="tel"], input[type="email"], input[type="select"] {
     border: 1px solid #ccc;
     background: #f8f8f8;
 }
@@ -320,7 +338,28 @@ button.remove-item {
     flex: none; /* This will prevent the cancel button from growing */
     width: 20%; /* Smaller width, can adjust percentage based on design preference */
     padding: 15px;
-    background-color: #f44336; /* Red color */
+}
+
+.bg-red {
+    background-color: #f44336;
+}
+
+.bg-blue {
+    background-color: #3cbeed;
+}
+
+.bg-brown {
+    background-color: #c0843f;
+}
+
+.bg-green {
+    background-color: #4CAF50;
+}
+
+.small-button:disabled {
+    background-color: #c0c0c0;  
+    cursor: not-allowed;        
+    opacity: 0.7;               
 }
 
 .big-button {
@@ -330,4 +369,39 @@ button.remove-item {
 
 button i {
     margin-right: 8px;
+}
+
+footer {
+    display: flex;
+    background-color: #fff;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+    color: #444;
+}
+
+.footer-left, .footer-right {
+    padding: 10px;
+}
+
+.footer-left {
+    width: 75%;
+    text-align: left;
+}
+
+.footer-right {
+    width: 25%;
+    text-align: right;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.social-icons a {
+    text-decoration: none;
+    color: #775ef3;
+    font-size: 32px;
+    margin: 0 15px;
 }

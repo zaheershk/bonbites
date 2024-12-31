@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbyHjH6chzQmPVOQm5xVliFIpQ-5G9kCXe8HA4Xq0K9Pwxz1LFFfGwAARPYsW4vjJfQb/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzYQNWJpNL6bBIRK-9GOieUTiMg4hHI0z9umChJlwz9dozA-ab1rWt5HkyKwc8_gekp/exec';
 
 let products = [];
 let orders = [];
@@ -25,6 +25,7 @@ window.onload = async function () {
 
         if (storeType === 'online') {
             loadProductsForOnlineStore();
+            getDeliveryOptions();
             clearExistingDataForOnlineStore();
         } else if (storeType === 'local') {
             loadProductsForLocalStore();
@@ -34,7 +35,7 @@ window.onload = async function () {
 
     if (workflowContext.toLowerCase() === 'process') {
 
-        const storeType = getUrlParameter('storeType'); 
+        const storeType = getUrlParameter('storeType');
         if (storeType) {
             document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
         }
@@ -85,28 +86,40 @@ function loadProductsForOnlineStore() {
         }
         const productDiv = document.createElement('div');
         productDiv.className = 'product';
+        let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
         productDiv.innerHTML = `
             <img src="resources/product-images/${product.imageName}" alt="${product.name}">
             <p class="product-name">${product.name}</p> 
-            <p class="product-description">${product.description}</p> 
+            <!-- <p class="product-description">${product.description}</p> -->
+            <p class="product-ingredients"><strong>Contains:</strong> ${product.ingredients}</p> 
             <p class="product-price">Price: ₹${product.price}</p> 
-            <button title="Add this item to cart" class="add-to-cart" onclick="addToCart(this, '${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> 
+            <button title="Add this item to cart" class="add-to-cart" onclick="addToCart(this, '${product.segment}', '${product.type}', '${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> 
             <!-- <button title="Express interest to buy this later" class="interested" onclick="markAsInterested(this, '${product.name}')"><i class="fa fa-heart"></i></button> -->
+            <img src="${typeLogoSrc}" alt="${product.type}" class="type-logo">
         `;
         segments[product.segment].appendChild(productDiv);
     });
 }
 
-function addToCart(button, name, price) {
+function getDeliveryOptions() {
+    const url = API_URL + '?type=deliveryOptions';
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            localStorage.setItem('deliveryOptions', JSON.stringify(data));
+        });
+}
+
+function addToCart(button, segment, type, name, price) {
     // Create a tooltip element and add it to the button
     let tooltip = document.createElement('span');
     tooltip.className = 'tooltip';
 
-    let item = cart.find(item => item.name === name);
+    let item = cart.find(item => item.type === type && item.name === name);
     if (item) {
         item.quantity++;
     } else {
-        cart.push({ name, price, quantity: 1 });
+        cart.push({ segment, type, name, price, quantity: 1 });
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));  // store cart into local storage
@@ -130,35 +143,68 @@ function addToCart(button, name, price) {
 function updateCartUI() {
     const cartItemsContainer = document.getElementById('cart-items');
     cartItemsContainer.innerHTML = '';
+
+    // console.log(cart);
+
     cart.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${item.name}</td>
             <td>
-              <button class="decrease-quantity" onclick="updateQuantityForOnlineStore('${item.name}', ${item.quantity - 1})">-</button>
+              <button class="decrease-quantity" onclick="updateQuantityForOnlineStore('${item.type}', '${item.name}', ${item.quantity - 1})">-</button>
               <span>${item.quantity}</span>
-              <button class="increase-quantity" onclick="updateQuantityForOnlineStore('${item.name}', ${item.quantity + 1})">+</button>
+              <button class="increase-quantity" onclick="updateQuantityForOnlineStore('${item.type}', '${item.name}', ${item.quantity + 1})">+</button>
             </td>
-            <td><button class="remove-item" onclick="removeItemFromCart('${item.name}')"><i class="fa fa-trash"></i></button></td>
+            <td><button class="remove-item" onclick="removeItemFromCart('${item.type}', '${item.name}')"><i class="fa fa-trash"></i></button></td>
             <td>₹${item.price}</td>
             <td>₹${item.price * item.quantity}</td>
         `;
         cartItemsContainer.appendChild(row);
     });
     updateTotalForOnlineStore();
+
+    // Update delivery-options based on items chosen
+    const deliveryOptions = JSON.parse(localStorage.getItem('deliveryOptions') || '{}');
+    const segments = new Set(Object.values(cart).map(item => item.segment));
+
+    let allDeliveryOptions = [];
+    segments.forEach(segment => {
+        if (deliveryOptions[segment]) {
+            deliveryOptions[segment].forEach(option => {
+                if (!allDeliveryOptions.includes(option)) {
+                    allDeliveryOptions.push(option);
+                }
+            });
+        }
+    });
+
+    // Filter to keep only PM options if both AM and PM options exist
+    let pmOptions = allDeliveryOptions.filter(option => option.includes('PM'));
+    if (pmOptions.length > 0 && pmOptions.length !== allDeliveryOptions.length) {
+        allDeliveryOptions = pmOptions;  // Use only PM options if presentand mixed with AM
+    }
+
+    let optionsHtml = `<select id="delivery-time-dropdown" required class="form-input">
+                       <option value="">[Preferred Delivery Slot]</option>`;
+    allDeliveryOptions.forEach(option => {
+        optionsHtml += `<option value="${option}">${option}</option>`;
+    });
+    optionsHtml += '</select>';
+
+    document.getElementById('deliveryOptionsContainer').innerHTML = optionsHtml;
 }
 
-function updateQuantityForOnlineStore(name, newQuantity) {
+function updateQuantityForOnlineStore(type, name, newQuantity) {
     if (newQuantity < 1) return; // Prevent negative or zero quantities
-    let item = cart.find(item => item.name === name);
+    let item = cart.find(item => item.type === type && item.name === name);
     if (item) {
         item.quantity = newQuantity;
     }
     updateCartUI();
 }
 
-function removeItemFromCart(name) {
-    cart = cart.filter(item => item.name !== name);
+function removeItemFromCart(type, name) {
+    cart = cart.filter(item => item.type !== type || item.name !== name);
     updateCartUI();
 }
 
@@ -177,11 +223,12 @@ function validateAndPlaceOnlineOrder(event) {
     const flat = document.getElementById('flat');
     const phone = document.getElementById('phone');
     const email = document.getElementById('email');
+    const deliveryDropdown = document.getElementById('delivery-time-dropdown');
 
     let isFormValid = true;
 
     // Reset previous tooltips
-    [name, flat, phone, email].forEach(input => {
+    [name, flat, phone, email, deliveryDropdown].forEach(input => {
         input.classList.remove('error');
         input.removeAttribute('data-error');
     });
@@ -206,6 +253,11 @@ function validateAndPlaceOnlineOrder(event) {
         email.setAttribute('data-error', 'Please enter your email');
         isFormValid = false;
     }
+    if (deliveryDropdown.value === "") {
+        deliveryDropdown.classList.add('error');
+        deliveryDropdown.setAttribute('data-error', 'Please select a delivery slot');
+        isFormValid = false;
+    }
 
     if (isFormValid) {
         placeOnlineOrder();
@@ -221,8 +273,8 @@ async function placeOnlineOrder() {
 
     // Combine cartItems and interestedItems into a single array
     const combinedItems = [
-        ...cartItems.map(item => ({ ...item, type: 'ordered' })),
-        ...interestedItems.map(item => ({ name: item, type: 'interested' }))
+        ...cartItems.map(item => ({ ...item, mode: 'ordered' })),
+        ...interestedItems.map(item => ({ name: item, mode: 'interested' }))
     ];
 
     const formData = {
@@ -232,6 +284,7 @@ async function placeOnlineOrder() {
         flat: document.getElementById('flat').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
+        deliveryOption: document.getElementById('delivery-time-dropdown').value,
         items: combinedItems,  // Pass the combined items array
         totalAmount: document.getElementById('total-amount').textContent.split('₹')[1],
         userAgent: navigator.userAgent,
@@ -496,10 +549,12 @@ function updateRowForLocalStore(index) {
 
 async function fetchOrders() {
     try {
-        const storeType = getUrlParameter('storeType') || 'local'; 
+        const storeType = getUrlParameter('storeType') || 'local';
         const response = await fetch(API_URL + `?type=orders&storeType=${storeType}`);
         orders = await response.json();
-        orders = Array.isArray(orders) ? orders : []; 
+        orders = Array.isArray(orders) ? orders : [];
+
+        // console.log(orders);
 
         loadOrders();
         return orders;
@@ -510,6 +565,17 @@ async function fetchOrders() {
     }
 }
 
+function isPastStatus(currentStatus, checkStatus) {
+    const statusLevels = {
+        'Received': 1,
+        'Cooking': 2,
+        'Packed': 3,
+        'Delivered': 4,
+        'Cancelled': 5
+    };
+    return statusLevels[currentStatus] >= statusLevels[checkStatus];
+}
+
 function loadOrders() {
     const container = document.getElementById('orders-container');
     container.innerHTML = ''; // Clear previous entries
@@ -518,12 +584,21 @@ function loadOrders() {
         card.className = 'card';
         card.innerHTML = `
                     <h3>${order.customerName}</h3>
+                    <p><strong>Flat:</strong> ${order.customerFlat} 
+                        <br/><strong>Phone:</strong> ${order.phoneNumber} 
+                        <br/><strong>Delivery Slot:</strong> ${order.deliveryOption} 
+                        <br/><strong>Status:</strong> ${order.status} 
+                        <br/><br/><strong>Items:</strong>
+                    </p>
                     <ul>
-                        ${order.items.map(item => `<li>${item.quantity} x ${item.name}</li>`).join('')}
+                        ${order.items.map(item => `<li>${item.quantity} x ${item.name} (${item.type})</li>`).join('')}
                     </ul>
+                    <p style="color: #c1464c;"><strong>Total Amount: ₹${order.totalAmount}</strong></p> 
                     <div class="button-container">
-                        <button class="big-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Complete')"><i class="fas fa-check"></i>Done</button>
-                        <button class="small-button" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')"><i class="fas fa-times"></i></button>
+                        <button class="small-button bg-blue" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
+                        <button class="small-button bg-brown" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
+                        <button class="small-button bg-green" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
+                        <button class="small-button bg-red" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
                     </div>
                 `;
         container.appendChild(card);
