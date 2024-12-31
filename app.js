@@ -185,7 +185,7 @@ function updateCartUI() {
     }
 
     let optionsHtml = `<select id="delivery-time-dropdown" required class="form-input">
-                       <option value="">[Preferred Delivery Slot]</option>`;
+                       <option value="">[Select]</option>`;
     allDeliveryOptions.forEach(option => {
         optionsHtml += `<option value="${option}">${option}</option>`;
     });
