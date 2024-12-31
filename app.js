@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzYQNWJpNL6bBIRK-9GOieUTiMg4hHI0z9umChJlwz9dozA-ab1rWt5HkyKwc8_gekp/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwaOb2qzbFsPMneQbVMlLcx8y0qK55AY5DsyHIYSnOZXLqJORy9B2Lz1bAOB_S1E1Ck/exec';
 
 let products = [];
 let orders = [];
@@ -582,25 +582,35 @@ function loadOrders() {
     orders.forEach(order => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-                    <h3>${order.customerName}</h3>
-                    <p><strong>Flat:</strong> ${order.customerFlat} 
-                        <br/><strong>Phone:</strong> ${order.phoneNumber} 
-                        <br/><strong>Delivery Slot:</strong> ${order.deliveryOption} 
-                        <br/><strong>Status:</strong> ${order.status} 
-                        <br/><br/><strong>Items:</strong>
-                    </p>
-                    <ul>
-                        ${order.items.map(item => `<li>${item.quantity} x ${item.name} (${item.type})</li>`).join('')}
-                    </ul>
-                    <p style="color: #c1464c;"><strong>Total Amount: ₹${order.totalAmount}</strong></p> 
-                    <div class="button-container">
-                        <button class="small-button bg-blue" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
-                        <button class="small-button bg-brown" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
-                        <button class="small-button bg-green" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
-                        <button class="small-button bg-red" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
-                    </div>
-                `;
+
+        // Create a content div that wraps all card content except the button container
+        const content = document.createElement('div');
+        content.innerHTML = `
+            <h3>${order.customerName}</h3>
+            <p><strong>Flat:</strong> ${order.customerFlat} 
+                <br/><strong>Phone:</strong> ${order.phoneNumber} 
+                <br/><strong>Delivery Slot:</strong> ${order.deliveryOption} 
+                <br/><strong>Status:</strong> ${order.status} 
+                <br/><br/><strong>Items:</strong>
+            </p>
+            <ul>
+                ${order.items.map(item => `<li>${item.quantity} x ${item.name} (${item.type})</li>`).join('')}
+            </ul>
+            <p style="color: #c1464c;"><strong>Total Amount: ₹${order.totalAmount}</strong></p> 
+        `;
+        card.appendChild(content);
+
+        // Append button container at the bottom
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'button-container';
+        buttonContainer.innerHTML = `
+            <button class="small-button bg-blue" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
+            <button class="small-button bg-brown" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
+            <button class="small-button bg-green" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
+            <button class="small-button bg-red" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
+        `;
+        card.appendChild(buttonContainer);
+
         container.appendChild(card);
     });
 }
