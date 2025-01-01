@@ -1,0 +1,128 @@
+body, html {
+    font-family: "Outfit", serif;
+    padding: 20px;
+    font-size: 16px;
+    background: #28282B;
+    display: flex;      
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+}
+
+#customContextMenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#customContextMenu li {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#customContextMenu li:hover {
+    background-color: #f0f0f0;
+}
+
+.main-container {
+    width: 60%;         
+    display: flex;
+    flex-direction: column; 
+    align-items: stretch; 
+    background: inherit; 
+    color: inherit;      
+}
+
+.segment {
+    page-break-inside: avoid;
+    margin-bottom: 10px;
+    padding: 10px;
+    /* border-radius: 10px; */
+    /* border: 1px solid #ddd; */
+}
+
+.segment-title {
+    font-family: "Pridi", serif;
+    font-size: 60px;
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px;
+    background-image: radial-gradient(circle, #e08d79, #ab6e56, #775144);
+    border-radius: 10px;
+}
+
+.sub-segment {
+    font-family: "Pridi", serif;
+    font-size: 30px;
+    text-align: center;
+}
+
+.sub-segment-v {
+    color: #07ae63;
+}
+
+.sub-segment-nv {
+    color: #e0ae26;
+}
+
+.product {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 5px;
+    margin-bottom: 20px;
+    display: inline-block;
+    width: 200px;
+    text-align: left;
+    position: relative;
+}
+
+.product .product-name {
+    font-family: "Playwrite NG Modern", serif;
+    font-size: 1rem;
+    font-weight: normal;
+    color: #177dcb;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+.product .product-description {
+    font-family: "Outfit", serif;
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: #666;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+.product .product-ingredients {
+    font-family: "Outfit", serif;
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: #666;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+.product .product-price {
+    font-family: "Outfit", serif;
+    font-size: 1rem;
+    font-weight: normal; 
+    color: #139781;      
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.product img {
+    max-height: 120px;
+}
+
+.type-logo {
+    position: absolute;
+    right: 10px;
+    top: 10px; 
+    height: 30px; 
+    width: 25px; 
+}
