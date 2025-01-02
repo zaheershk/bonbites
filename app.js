@@ -25,8 +25,9 @@ window.onload = async function () {
             return;
         }
 
-        // store agnostic code
-        loadProductsForMenu();
+        if (workflowContextLC === 'menu') {
+            loadProductsForMenu();
+        }
 
         if (workflowContextLC === 'intake') {
             getDeliveryOptions();
