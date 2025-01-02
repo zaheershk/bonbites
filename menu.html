@@ -13,17 +13,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Italiana&family=Pridi:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Italiana&family=Playwrite+NG+Modern:wght@100..400&family=Pridi:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Italiana&family=Outfit:wght@100..900&family=Playwrite+NG+Modern:wght@100..400&family=Pridi:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="menustyles.css">
 </head>
 
 <body>
-    <div id="customContextMenu" style="display: none; position: fixed; z-index: 1000; background: white; border: 1px solid black; padding: 8px;">
+    <div id="customContextMenu"
+        style="display: none; position: fixed; z-index: 1000; background: white; border: 1px solid black; padding: 8px;">
         <ul>
             <li id="generatePdfOption">Export to PDF</li>
         </ul>
     </div>
-    <div class="main-container">
-        <div id="products"></div>
+    <div class="page-container">
+        <div class="static-content">
+            <div style="padding-top: 10px;">
+                <img src="resources/logo.png" alt="BonBites" height="200px" , width="200px"/>
+            </div>
+            <div style="padding-top: 10px;">
+                <i class="fa fa-globe"></i>  <a class="static-title" href="https://food.bonstudio.store">food.bonstudio.store</a>
+            </div>
+            <div style="padding-top: 10px;">
+                <i class="fab fa-instagram"></i>  <a class="static-title" href="https://www.instagram.com/bonstudio.store/profilecard/?igsh=NW5lMm1wZDhhNTd1">@bonstudio.store</a>
+            </div>
+            <div style="padding-top: 10px;">
+                <i class="fa fa-map-marker"></i>  <span>E-502, Z1 Apartments (Vyom)</span> 
+            </div>
+            <h1 class="menu-title">Winter Menu</h1>
+        </div>
+        <div class="main-container">
+            <div id="products"></div>
+        </div>
     </div>
     <div id="loader" class="loader">Please wait...</div>
 

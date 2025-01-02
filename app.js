@@ -119,151 +119,88 @@ function loadProductsForMenu() {
     });
 }
 
-/* function generatePDF() {
-    const content = document.querySelector('.main-container'); // Ensure this targets your content container
+/* document.addEventListener('contextmenu', function (event) {
+    event.preventDefault();
+    showContextMenu(event.pageX, event.pageY);
+});
 
-    html2canvas(content, { scale: 1 }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
+document.addEventListener('click', function () {
+    document.getElementById('customContextMenu').style.display = 'none';
+});
 
-        // Using jsPDF from the window.jspdf.jsPDF due to UMD module formatting
-        const { jsPDF } = window.jspdf;  // Destructure to extract jsPDF into a constant
-        const doc = new jsPDF('p', 'mm', 'a4'); // Initialize jsPDF instance
+document.getElementById('generatePdfOption').addEventListener('click', function () {
+    generatePDF();
+    document.getElementById('customContextMenu').style.display = 'none';
+});
 
-        const pdfWidth = 210; // A4 width in mm
-        const pdfHeight = 297; // A4 height in mm
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+function showContextMenu(x, y) {
+    const menu = document.getElementById('customContextMenu');
+    menu.style.left = `${x}px`; // Position menu at mouse coordinates
+    menu.style.top = `${y}px`;
+    menu.style.display = 'block';
+} 
 
-        let heightLeft = imgHeight;
-        let position = 0;
+async function generatePDF() {
+    const staticContent = document.querySelector('.static-content');
+    const segments = document.querySelectorAll('.segment');
+    const backgroundColor = "#28282B";
 
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            doc.addPage();
-            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pdfHeight;
-        }
-
-        doc.save('download.pdf');
-    }).catch(error => {
-        console.error('Error in generating PDF:', error);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
     });
+
+    // Render static content as the first page
+    const staticCanvas = await html2canvas(staticContent, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: 'transparent',
+        logging: true
+    });
+
+    let imgWidth = 210;  // A4 width in mm
+    let imgHeight = (staticCanvas.height * imgWidth) / staticCanvas.width;
+    let yOffset = (297 - imgHeight) / 2;  // Center the image vertically
+
+    doc.setFillColor(backgroundColor);
+    doc.rect(0, 0, 210, 297, 'F');  // Fill the page with the background color
+
+    let imgData = staticCanvas.toDataURL('image/png');
+    doc.addImage(imgData, 'PNG', 0, yOffset, imgWidth, imgHeight);
+
+    // Render menu content starting from the second page
+    for (let index = 0; index < segments.length; index++) {
+        const segment = segments[index];
+        const products = segment.querySelectorAll('.product');
+
+        products.forEach(product => {
+            product.style.backgroundColor = '#FFFFFF';
+            product.style.boxShadow = 'none';
+        });
+
+        const canvas = await html2canvas(segment, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: 'transparent'
+        });
+
+        imgHeight = (canvas.height * imgWidth) / canvas.width;
+        doc.addPage();  // Add a new page for each segment
+        doc.setFillColor(backgroundColor);
+        doc.rect(0, 0, 210, 297, 'F');
+
+        imgData = canvas.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+        products.forEach(product => {
+            product.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+        });
+    }
+
+    doc.save('download.pdf');
 } */
-
-    /* async function generatePDF() {
-        const mainContainer = document.querySelector('.main-container');
-        const segments = document.querySelectorAll('.segment');
-        const containerStyles = window.getComputedStyle(mainContainer);
-        const backgroundColor = "#28282B";
-        
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({
-            orientation: 'p',
-            unit: 'mm',
-            format: 'a4'
-        });
-        
-        for (let index = 0; index < segments.length; index++) {
-            let segment = segments[index];
-    
-            const canvas = await html2canvas(segment, { 
-                scale: 1, 
-                useCORS: true, 
-                backgroundColor: 'transparent', 
-                logging: true 
-            });
-            
-            const imgWidth = 210;  // A4 width in mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            if (index > 0) {
-                doc.addPage();
-            }
-            doc.setFillColor(backgroundColor); 
-            doc.rect(0, 0, 210, 297, 'F');  // Fill the page with background color
-            
-            const imgData = canvas.toDataURL('image/png');
-            doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        }
-    
-        doc.save('download.pdf');
-    } */
-
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-            showContextMenu(event.pageX, event.pageY);
-        });
-        
-        document.addEventListener('click', function() {
-            document.getElementById('customContextMenu').style.display = 'none';
-        });
-        
-        document.getElementById('generatePdfOption').addEventListener('click', function() {
-            generatePDF();
-            document.getElementById('customContextMenu').style.display = 'none';
-        });
-        
-        function showContextMenu(x, y) {
-            const menu = document.getElementById('customContextMenu');
-            menu.style.left = `${x}px`; // Position menu at mouse coordinates
-            menu.style.top = `${y}px`;
-            menu.style.display = 'block';
-        }
-
-        async function generatePDF() {
-            const mainContainer = document.querySelector('.main-container');
-            const segments = document.querySelectorAll('.segment');
-            const backgroundColor = "#28282B"; // Dark background for the page
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'p',
-                unit: 'mm',
-                format: 'a4'
-            });
-        
-            for (let index = 0; index < segments.length; index++) {
-                const segment = segments[index];
-                const products = segment.querySelectorAll('.product');
-                
-                // Temporarily remove box shadows
-                products.forEach(product => {
-                    product.style.backgroundColor = '#FFFFFF';
-                    product.style.boxShadow = 'none'; // Disable box-shadow
-                });
-                
-                const canvas = await html2canvas(segment, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: 'transparent',
-                    logging: true
-                });
-        
-                const imgWidth = 210; // A4 width in mm
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-                if (index > 0) {
-                    doc.addPage();
-                }
-        
-                doc.setFillColor(backgroundColor);
-                doc.rect(0, 0, 210, 297, 'F'); // Fill the page with background color
-        
-                const imgData = canvas.toDataURL('image/png');
-                doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        
-                // Reset styles after rendering to canvas
-                products.forEach(product => {
-                    product.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)'; // Reapply box-shadow
-                });
-            }
-        
-            doc.save('download.pdf');
-        }
-    
 
 function loadProductsForOnlineStore() {
     const productsContainer = document.getElementById('products');
