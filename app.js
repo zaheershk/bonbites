@@ -83,7 +83,7 @@ function showLoader(visible) {
 //------------ONLINE STORE LOGIC
 
 function loadProductsForMenu() {
-    const productsContainer = document.getElementById('products');
+    const productsContainer = document.getElementById('products-menu');
     let segments = {};
 
     products.forEach(product => {
