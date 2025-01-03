@@ -100,7 +100,7 @@ function loadProductsForMenu() {
         if (!segments[segmentKey]) {
             segments[segmentKey] = document.createElement('div');
             segments[segmentKey].className = `sub-segment sub-segment-${productTypeCode.toLowerCase()}`;
-            segments[segmentKey].innerHTML = `<p>--- ${productType} ---</p>`;
+            segments[segmentKey].innerHTML = `<p>-- ${productType} --</p>`;
             segments[product.segment].appendChild(segments[segmentKey]);
         }
 
