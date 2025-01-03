@@ -220,8 +220,8 @@ function loadProductsForOnlineStore() {
         productDiv.innerHTML = `
             <img src="resources/product-images/${product.imageName}" alt="${product.name}">
             <p class="product-name">${product.name}</p> 
-            <!-- <p class="product-description">${product.description}</p> -->
             <p class="product-ingredients"><strong>Contains:</strong> ${product.ingredients}</p> 
+            <p class="product-description"><strong>Serving Info:</strong> ${product.description}</p>
             <p class="product-price">Price: ₹${product.price}</p> 
             <button title="Add this item to cart" class="add-to-cart" onclick="addToCart(this, '${product.segment}', '${product.type}', '${product.name}', ${product.price})"><i class="fa fa-plus"></i></button> 
             <!-- <button title="Express interest to buy this later" class="interested" onclick="markAsInterested(this, '${product.name}')"><i class="fa fa-heart"></i></button> -->
