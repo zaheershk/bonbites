@@ -328,6 +328,7 @@ button.remove-item {
     padding: 20px;
     border-radius: 8px;
     background-color: #fff;
+    color: #444;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

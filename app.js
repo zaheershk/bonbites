@@ -21,11 +21,6 @@ window.onload = async function () {
     const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
     showLoader(true);
 
-    user_agt = navigator.userAgent;
-    user_ip = await fetchIPAddress();
-
-    await captureTraffic();
-
     var workflowContextLC = workflowContext.toLowerCase();
 
     if (workflowContextLC === 'intake' || workflowContextLC === 'menu') {
@@ -43,9 +38,13 @@ window.onload = async function () {
         }
 
         if (workflowContextLC === 'intake') {
-            getDeliveryOptions();
-
             if (storeType === 'online') {
+                // capture traffic info
+                user_agt = navigator.userAgent;
+                user_ip = await fetchIPAddress();
+                await captureTraffic();
+
+                getDeliveryOptions();
                 loadProductsForOnlineStore();
                 clearExistingDataForOnlineStore();
             } else if (storeType === 'local') {
@@ -56,14 +55,12 @@ window.onload = async function () {
     }
 
     if (workflowContextLC === 'process') {
-
         const storeType = getUrlParameter('storeType');
         if (storeType) {
             document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
         }
 
         orders = await fetchOrders();
-
         if (!orders) {
             showLoader(false);
             console.error('Failed to load orders.');
@@ -347,6 +344,16 @@ function updateCartUI() {
                 }
             });
         }
+    });
+
+    allDeliveryOptions.sort((a, b) => {
+        const getHour = time => {
+            const [hour] = time.split('-'); 
+            return parseInt(hour.trim(), 10); 
+        };
+        
+        // Comparing hours for sorting
+        return getHour(a) - getHour(b);
     });
 
     // Filter to keep only PM options if both AM and PM options exist
