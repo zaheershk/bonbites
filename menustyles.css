@@ -1,6 +1,6 @@
 body, html {
     font-family: "Outfit", serif;
-    padding: 20px;
+    padding: 10px;
     font-size: 16px;
     background: #28282B;
     display: flex;      
@@ -53,7 +53,7 @@ body, html {
     max-width: 600px;
     text-align: center;
     margin: auto; 
-    padding: 20px;
+    padding: 5px;
     background: inherit;
 }
 
@@ -84,7 +84,7 @@ body, html {
 .segment {
     page-break-inside: avoid;
     margin-bottom: 10px;
-    padding: 10px;
+    padding: 5px;
     border-radius: 10px; 
     border: 1px solid #ddd; 
 }
@@ -95,7 +95,7 @@ body, html {
     color: white;
     text-align: center;
     margin-top: 10px;
-    padding: 10px;
+    padding: 5px;
     background-image: radial-gradient(circle, #e08d79, #ab6e56, #775144);
     border-radius: 10px;
 }
@@ -118,7 +118,7 @@ body, html {
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     border-radius: 8px;
-    padding: 10px;
+    padding: 5px;
     margin: 5px;
     margin-bottom: 20px;
     display: inline-block;
