@@ -1,17 +1,30 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzhQkIeJ-ckqKSzwB6POxy__to02K1a6s0UQUpjtdtGoRWXaH9IFgmz5OT6nSOQlnG3/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzAxFShhJBT1VkWK83B7ylXmDUWy_N6Ei-ToYx0S9tX9uHyVsOWyN6lDbcVn7WqUr-E/exec';
 
 let products = [];
 let orders = [];
 let cart = [];
+
+let user_agt = '';
+let user_ip = '';
 
 function getUrlParameter(name) {
     const urlSearchParams = new URLSearchParams(window.location.search);
     return urlSearchParams.get(name);
 }
 
+function showLoader(visible) {
+    const loader = document.getElementById('loader');
+    loader.style.display = visible ? 'flex' : 'none';
+}
+
 window.onload = async function () {
     const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
     showLoader(true);
+
+    user_agt = navigator.userAgent;
+    user_ip = await fetchIPAddress();
+
+    await captureTraffic();
 
     var workflowContextLC = workflowContext.toLowerCase();
 
@@ -63,6 +76,39 @@ window.onload = async function () {
     showLoader(false);
 };
 
+async function captureTraffic() {
+
+    const formData = {
+        action: 'traffic',
+        storeType: 'online',
+        userAgent: user_agt,
+        userIp: user_ip
+    };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: "cors",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "text/plain",
+            },
+            redirect: "follow",
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            // do nothing
+        } else {
+            console.warn('Failed to capture traffic info.');
+        }
+    } catch (error) {
+        showLoader(false);
+        console.warn('Failed to capture traffic info.');
+    }
+}
+
 async function fetchProducts(storeType) {
     try {
         const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}`);
@@ -73,11 +119,6 @@ async function fetchProducts(storeType) {
         showLoader(false);
         return [];
     }
-}
-
-function showLoader(visible) {
-    const loader = document.getElementById('loader');
-    loader.style.display = visible ? 'flex' : 'none';
 }
 
 //------------ONLINE STORE LOGIC
@@ -417,8 +458,8 @@ async function placeOnlineOrder() {
         deliveryOption: document.getElementById('delivery-time-dropdown').value,
         items: combinedItems,  // Pass the combined items array
         totalAmount: document.getElementById('total-amount').textContent.split('₹')[1],
-        userAgent: navigator.userAgent,
-        user_ip: await fetchIPAddress()
+        userAgent: user_agt,
+        userIp: user_ip
     };
 
     try {
