@@ -121,125 +121,99 @@ async function fetchProducts(storeType) {
 //------------ONLINE STORE LOGIC
 
 function loadProductsForMenu() {
-    const productsContainer = document.getElementById('products-menu');
-    let segments = {};
-
+    const segments = {};
+    // Organize products by segments
     products.forEach(product => {
-        const productType = product.type === "Veg" ? "Vegetarian" : "Non Vegetarian";
-        const productTypeCode = product.type === "Veg" ? "V" : "NV";
-        const segmentKey = `${product.segment} - ${productType}`;
-
         if (!segments[product.segment]) {
-            segments[product.segment] = document.createElement('div');
-            segments[product.segment].className = 'segment';
-            segments[product.segment].innerHTML = `<h2 class="segment-title">${product.segment}</h2>`;
-            productsContainer.appendChild(segments[product.segment]);
+            segments[product.segment] = [];
         }
-        if (!segments[segmentKey]) {
-            segments[segmentKey] = document.createElement('div');
-            segments[segmentKey].className = `sub-segment sub-segment-${productTypeCode.toLowerCase()}`;
-            segments[segmentKey].innerHTML = `<p>-- ${productType} --</p>`;
-            segments[product.segment].appendChild(segments[segmentKey]);
-        }
-
-        const productDiv = document.createElement('div');
-        productDiv.className = 'product';
-        let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
-        productDiv.innerHTML = `
-            <img src="resources/product-images/${product.imageName}" alt="${product.name}">
-            <p class="product-name">${product.name}</p> 
-            <p class="product-ingredients"><strong>Contains:</strong> ${product.ingredients}</p> 
-            <p class="product-description"><strong>Serving Info:</strong> ${product.description}</p>
-            <p class="product-price">Price: ₹${product.price}</p> 
-            <img src="${typeLogoSrc}" alt="${product.type}" class="type-logo">
-        `;
-        segments[segmentKey].appendChild(productDiv);
-
+        segments[product.segment].push(product);
     });
+
+    const menuContainer = document.getElementById('menu-products');
+
+    const menuHeaderDiv = document.createElement('div');
+    menuHeaderDiv.className = 'menu-header';
+
+    const menuBrandDiv = document.createElement('div');
+    menuBrandDiv.className = 'menu-hf-text';
+    menuBrandDiv.innerHTML = `<div><p>Tomorrow's Menu</p></div>`;
+
+    menuHeaderDiv.appendChild(menuBrandDiv);
+    menuContainer.appendChild(menuHeaderDiv);
+
+    Object.keys(segments).forEach(segment => {
+        const segmentDiv = document.createElement('div');
+        segmentDiv.className = 'menu-segment';
+
+        const title = document.createElement('div');
+        title.className = 'menu-segment-title';
+        title.textContent = segment;
+        segmentDiv.appendChild(title);
+
+        segments[segment].forEach(product => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'menu-product-card';
+
+            let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
+
+            cardDiv.innerHTML = `
+                    <img class="menu-product-image" src="resources/product-images/${product.imageName}" alt="${product.name}">
+                    <div class="menu-product-details">
+                        <h3>${product.name}</h3>
+                        <p><strong>Ingredients:</strong> ${product.ingredients}</p>
+                        <p><strong>Serving Info:</strong> ${product.description}</p>
+                    </div>
+                    <div class="menu-product-price">₹${product.price}</div>
+                    <img class="menu-product-logo" src="${typeLogoSrc}" alt="${product.type}">
+                `;
+
+            segmentDiv.appendChild(cardDiv);
+        });
+
+        menuContainer.appendChild(segmentDiv);
+    });
+
+    const menuFooterDiv = document.createElement('div');
+    menuFooterDiv.className = 'menu-footer';
+
+    const menuInfoDiv = document.createElement('div');
+    menuInfoDiv.className = 'menu-hf-text menu-footer-text';
+    menuInfoDiv.innerHTML = `
+            <div class="footer-left">
+            <p>To Order, please go to <a class="static-title" href="https://food.bonstudio.store" target="_blank">food.bonstudio.store</a></p>
+            <p style="display: flex; align-items: center;">Follow us on &nbsp;
+                <a style="display: flex; align-items: center;" href="https://www.instagram.com/bonstudio.store/profilecard/?igsh=NW5lMm1wZDhhNTd1" target="_blank">
+                    <img src="resources/insta-logo.png" height="30px" , width="30px" />
+                </a>
+            </p>
+            </div>
+            <div class="footer-right">
+                <img src="resources/logo.png" alt="BonBites" height="150px" , width="150px"/>
+            </div>
+        `;
+
+    menuFooterDiv.appendChild(menuInfoDiv);
+    menuContainer.appendChild(menuFooterDiv);
 }
 
-/* document.addEventListener('contextmenu', function (event) {
-    event.preventDefault();
-    showContextMenu(event.pageX, event.pageY);
-});
-
-document.addEventListener('click', function () {
-    document.getElementById('customContextMenu').style.display = 'none';
-});
-
-document.getElementById('generatePdfOption').addEventListener('click', function () {
-    generatePDF();
-    document.getElementById('customContextMenu').style.display = 'none';
-});
-
-function showContextMenu(x, y) {
-    const menu = document.getElementById('customContextMenu');
-    menu.style.left = `${x}px`; // Position menu at mouse coordinates
-    menu.style.top = `${y}px`;
-    menu.style.display = 'block';
-} 
-
 async function generatePDF() {
-    const staticContent = document.querySelector('.static-content');
-    const segments = document.querySelectorAll('.segment');
-    const backgroundColor = "#28282B";
+    const customMenu = document.querySelector('div.custom-menu');
+    if (customMenu) customMenu.style.display = 'none'; // Temporarily hide the context menu
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
+    const element = document.body; // Element to convert to PDF
+    const canvas = await html2canvas(element);
+    const imageData = canvas.toDataURL('image/png');
+    const pdf = new jspdf.jsPDF({
         orientation: 'p',
-        unit: 'mm',
-        format: 'a4'
+        unit: 'px',
+        format: [canvas.width, canvas.height]
     });
+    pdf.addImage(imageData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save('menu.pdf');
 
-    // Render static content as the first page
-    const staticCanvas = await html2canvas(staticContent, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: 'transparent',
-        logging: true
-    });
-
-    let imgWidth = 210;  // A4 width in mm
-    let imgHeight = (staticCanvas.height * imgWidth) / staticCanvas.width;
-    let yOffset = (297 - imgHeight) / 2;  // Center the image vertically
-
-    doc.setFillColor(backgroundColor);
-    doc.rect(0, 0, 210, 297, 'F');  // Fill the page with the background color
-
-    let imgData = staticCanvas.toDataURL('image/png');
-    doc.addImage(imgData, 'PNG', 0, yOffset, imgWidth, imgHeight);
-
-    // Render menu content starting from the second page
-    for (let index = 0; index < segments.length; index++) {
-        const segment = segments[index];
-        const products = segment.querySelectorAll('.product');
-
-        products.forEach(product => {
-            product.style.backgroundColor = '#FFFFFF';
-            product.style.boxShadow = 'none';
-        });
-
-        const canvas = await html2canvas(segment, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: 'transparent'
-        });
-
-        imgHeight = (canvas.height * imgWidth) / canvas.width;
-        doc.addPage();  // Add a new page for each segment
-        doc.setFillColor(backgroundColor);
-        doc.rect(0, 0, 210, 297, 'F');
-
-        imgData = canvas.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
-        products.forEach(product => {
-            product.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-        });
-    }
-
-    doc.save('download.pdf');
-} */
+    if (customMenu) customMenu.style.display = 'block';
+}
 
 function loadProductsForOnlineStore() {
     const productsContainer = document.getElementById('products');
@@ -348,10 +322,10 @@ function updateCartUI() {
 
     allDeliveryOptions.sort((a, b) => {
         const getHour = time => {
-            const [hour] = time.split('-'); 
-            return parseInt(hour.trim(), 10); 
+            const [hour] = time.split('-');
+            return parseInt(hour.trim(), 10);
         };
-        
+
         // Comparing hours for sorting
         return getHour(a) - getHour(b);
     });
