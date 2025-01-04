@@ -7,6 +7,10 @@ body {
 
 header .brand {
     text-align: left;
+    background: #033c3b;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    padding: 20px;
+    color: #B2AC88;
 }
 
 header .brand-description {
@@ -157,16 +161,27 @@ button.remove-item i.fa-trash {
 }
 
 .customer-form input.form-input, .customer-form select.form-input {
-    width: 100%;
+    width: 50%;
     padding: 8px;
     margin-top: 12px;
     border-radius: 4px;
     border: 1px solid #ccc;
+    background: #28282B;
+    color: #fff;
 }
+
+::placeholder {
+    color: #fff;
+    opacity: 1; 
+  }
+  
+  ::-ms-input-placeholder { 
+    color: #fff;
+  }
 
 .customer-form input.error, .customer-form select.error {
     border: 2px solid red; 
-    background-color: #fcffdc; 
+    background: #28282B;
 }
 
 .customer-form input[data-error]:hover::after {
@@ -184,7 +199,8 @@ button.remove-item i.fa-trash {
 
 input[type="text"], input[type="tel"], input[type="email"], input[type="select"] {
     border: 1px solid #ccc;
-    background: #f8f8f8;
+    background: #28282B;
+    color: #fff;
 }
 
 #place-order-btn {
@@ -238,6 +254,10 @@ th, td {
 th {
     background-color: #8fbc8f;
     color: #fff;
+}
+
+td {
+    color: #28282B;
 }
 
 thead th {
