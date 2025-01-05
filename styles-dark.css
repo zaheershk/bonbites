@@ -534,7 +534,7 @@ button i {
 }
 
 @media print {
-    .menu-segment-title .menu-product-card {
+    .menu-segment, .menu-segment-title, .menu-product-card {
         page-break-inside: avoid; /* Avoid page break inside these elements */
     }
 }
