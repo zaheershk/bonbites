@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbw0SZo7MbUTn4REpYKaaTSldQuXbmrjDq_8IzUo9Fq69oJhjyYC8cP9NjjpUVFuPYbK/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwM6dJzQSsfGcwems0LwFD3NjuMvTScALNQ1r4DNAWN6Q7u_jirsYAxi7R_kSGf8D9A/exec';
 
 let products = [];
 let orders = [];
@@ -18,59 +18,65 @@ function showLoader(visible) {
 }
 
 window.onload = async function () {
-    const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
-    showLoader(true);
+    const settings = await fetchAppSettings();
+    if (settings.MaintenanceMode === 'Y') {
+        window.location.href = 'maintenance.html';
+    }
+    else {
+        const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
+        showLoader(true);
 
-    var workflowContextLC = workflowContext.toLowerCase();
+        var workflowContextLC = workflowContext.toLowerCase();
 
-    if (workflowContextLC === 'intake' || workflowContextLC === 'menu') {
-        const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
-        products = await fetchProducts(storeType);
+        if (workflowContextLC === 'intake' || workflowContextLC === 'menu' || workflowContextLC === 'inventory') {
+            const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
 
-        if (!products) {
-            showLoader(false);
-            console.error('Failed to load products.');
-            return;
-        }
+            if (workflowContextLC === 'inventory') {
+                products = await fetchProducts(storeType, false);
+                loadInventory();
+            }
 
-        if (workflowContextLC === 'menu') {
-            loadProductsForMenu();
-        }
+            if (workflowContextLC === 'menu') {
+                products = await fetchProducts(storeType, true);
+                loadMenu();
+            }
 
-        if (workflowContextLC === 'intake') {
-            if (storeType === 'online') {
-                // capture traffic info
-                user_agt = navigator.userAgent;
-                user_ip = await fetchIPAddress();
-                await captureTraffic();
+            if (workflowContextLC === 'intake') {
+                products = await fetchProducts(storeType, true);
+                if (storeType === 'online') {
+                    // capture traffic info
+                    user_agt = navigator.userAgent;
+                    user_ip = await fetchIPAddress();
+                    //await captureTraffic();
 
-                getDeliveryOptions();
-                loadProductsForOnlineStore();
-                clearExistingDataForOnlineStore();
-            } else if (storeType === 'local') {
-                loadProductsForLocalStore();
-                clearExistingDataForLocalStore();
+                    getDeliveryOptions();
+                    loadProductsForOnlineStore();
+                    clearExistingDataForOnlineStore();
+                } else if (storeType === 'local') {
+                    loadProductsForLocalStore();
+                    clearExistingDataForLocalStore();
+                }
             }
         }
-    }
 
-    if (workflowContextLC === 'process') {
-        const storeType = getUrlParameter('storeType');
-        if (storeType) {
-            document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
+        if (workflowContextLC === 'process') {
+            const storeType = getUrlParameter('storeType');
+            if (storeType) {
+                document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
+            }
+
+            orders = await fetchOrders();
+            if (!orders) {
+                showLoader(false);
+                console.error('Failed to load orders.');
+                return;
+            }
+
+            loadOrders();
         }
 
-        orders = await fetchOrders();
-        if (!orders) {
-            showLoader(false);
-            console.error('Failed to load orders.');
-            return;
-        }
-
-        loadOrders();
+        showLoader(false);
     }
-
-    showLoader(false);
 };
 
 async function captureTraffic() {
@@ -106,11 +112,28 @@ async function captureTraffic() {
     }
 }
 
-async function fetchProducts(storeType) {
+async function fetchAppSettings() {
     try {
-        const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}`);
+        const response = await fetch(API_URL + '?type=appsettings');
+        const settings = await response.json();
+        return settings;
+    } catch (error) {
+        console.error('Failed to fetch app settings:', error);
+        return {};
+    }
+}
+
+async function fetchProducts(storeType, isAvailableFilter) {
+    try {
+        const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}&isAvailableFilter=${isAvailableFilter}`);
         const products = await response.json();
-        return Array.isArray(products) ? products : [];
+        const productsArray = Array.isArray(products) ? products : []
+        if (!productsArray.length) {
+            showLoader(false);
+            console.error('No products found.');
+        }
+        console.log('Fetched products:', productsArray);
+        return productsArray;
     } catch (error) {
         console.error('Failed to fetch products:', error);
         showLoader(false);
@@ -118,9 +141,139 @@ async function fetchProducts(storeType) {
     }
 }
 
+//------------INVENTORY MGMT LOGIC
+
+function loadInventory() {
+    const tbody = document.getElementById('productTableBody');
+    tbody.innerHTML = '';
+    products.forEach(product => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.segment}</td>
+            <td>${product.type}</td>
+            <td>${product.name}</td>
+            <td><img src="${product.imageName}" alt="${product.name}" width="50"></td>
+            <td>${product.price}</td>
+            <td>${product.isAvailableOnline}</td>
+            <td>
+                <i class="fas fa-edit action-icons" onclick="invmgmtEditProduct(${product.id})"></i>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+document.getElementById('invmgmtAddProductBtn').addEventListener('click', () => {
+    invmgmtOpenModal();
+});
+
+document.getElementById('invmgmtProductForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showLoader(true);
+
+    const formData = new FormData(e.target);
+    const productId = formData.get('productId');
+    const imageFile = formData.get('image');
+
+    if (imageFile && imageFile.size > 0) {
+        const uploadResponse = await fetch(`${API_URL}`, {
+            method: 'POST',
+            body: formData
+        });
+        const uploadResult = await uploadResponse.json();
+        formData.set('imageName', uploadResult.url);
+    }
+
+    if (productId) {
+        await invmgmtUpdateProduct(formData);
+    } else {
+        await invmgmtAddProduct(formData);
+    }
+
+    const products = await fetchProducts();
+    loadInventory(products);
+    invmgmtCloseModal();
+    showLoader(false);
+});
+
+async function invmgmtEditProduct(productId) {
+    showLoader(true);
+    const response = await fetch(`${API_URL}?action=getProduct&productId=${productId}`);
+    const product = await response.json();
+
+    document.getElementById('productId').value = product.id;
+    document.getElementById('segment').value = product.segment;
+    document.getElementById('type').value = product.type;
+    document.getElementById('name').value = product.name;
+    document.getElementById('ingredients').value = product.ingredients;
+    document.getElementById('description').value = product.description;
+    document.getElementById('price').value = product.price;
+    document.getElementById('isAvailableOnline').value = product.isAvailableOnline;
+    document.getElementById('isAvailableLocal').value = product.isAvailableLocal;
+
+    invmgmtOpenModal();
+    showLoader(false);
+}
+
+async function invmgmtToggleAvailability(productId, type) {
+    showLoader(true);
+    await fetch(`${API_URL}?action=toggleAvailability&productId=${productId}&type=${type}`, {
+        method: 'POST'
+    });
+    const products = await fetchProducts();
+    loadInventory(products);
+    showLoader(false);
+}
+
+async function invmgmtAddProduct(formData) {
+    await fetch(`${API_URL}?action=addProduct`, {
+        method: 'POST',
+        body: formData
+    });
+}
+
+async function invmgmtUpdateProduct(formData) {
+    await fetch(`${API_URL}?action=updateProduct`, {
+        method: 'POST',
+        body: formData
+    });
+}
+
+function sortInvTable(columnIndex) {
+    const table = document.getElementById('productTable');
+    const rows = Array.from(table.rows).slice(1);
+    const isAscending = table.rows[0].cells[columnIndex].classList.toggle('asc');
+
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.cells[columnIndex].innerText.toLowerCase();
+        const cellB = rowB.cells[columnIndex].innerText.toLowerCase();
+
+        if (cellA < cellB) return isAscending ? -1 : 1;
+        if (cellA > cellB) return isAscending ? 1 : -1;
+        return 0;
+    });
+
+    rows.forEach(row => table.appendChild(row));
+}
+
+function invmgmtOpenModal() {
+    const modal = document.getElementById('invmgmtProductModal');
+    modal.style.display = 'block';
+}
+
+function invmgmtCloseModal() {
+    const modal = document.getElementById('invmgmtProductModal');
+    modal.style.display = 'none';
+    document.getElementById('invmgmtProductForm').reset();
+}
+
+document.getElementById('invmgmtCloseModalBtn').addEventListener('click', invmgmtCloseModal);
+document.querySelector('.close').addEventListener('click', invmgmtCloseModal);
+
 //------------ONLINE STORE LOGIC
 
-function loadProductsForMenu() {
+function loadMenu() {
     const segments = {};
     // Organize products by segments
     products.forEach(product => {
@@ -230,7 +383,7 @@ function loadProductsForOnlineStore() {
         productDiv.className = 'product';
         let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
         productDiv.innerHTML = `
-            <img src="resources/product-images/${product.imageName}" alt="${product.name}">
+            <img src="${product.imageName}" alt="${product.name}">
             <p class="product-name">${product.name}</p> 
             <p class="product-ingredients"><strong>Contains:</strong> ${product.ingredients}</p> 
             <p class="product-description"><strong>Serving Info:</strong> ${product.description}</p>
@@ -241,6 +394,8 @@ function loadProductsForOnlineStore() {
         `;
         segments[product.segment].appendChild(productDiv);
     });
+
+    //<td><img src="${product.imageName}" alt="${product.name}" width="50"></td>
 }
 
 function getDeliveryOptions() {

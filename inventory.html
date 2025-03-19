@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Management</title>
+    <meta name="workflow-context" content="inventory">
+    <meta name="store-type" content="online">
+    <link rel="stylesheet" href="styles-dark.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <h1>Inventory Management</h1>
+        </div>
+    </header>
+    <main>
+        <button id="invmgmtAddProductBtn" class="action-icons"><i class="fas fa-plus"></i> Add Product</button>
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th onclick="sortInvTable(0)">Product ID</th>
+                    <th onclick="sortInvTable(1)">Segment</th>
+                    <th onclick="sortInvTable(2)">Type</th>
+                    <th onclick="sortInvTable(3)">Name</th>
+                    <th onclick="sortInvTable(4)">Image</th>
+                    <th onclick="sortInvTable(5)">Price</th>
+                    <th onclick="sortInvTable(6)">Available?</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <!-- Product rows will be populated here -->
+            </tbody>
+        </table>
+    </main>
+
+    <div id="invmgmtProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="invmgmtCloseModalBtn">&times;</span>
+            <form id="invmgmtProductForm">
+                <input type="hidden" id="productId" name="productId">
+                <label for="segment">Segment:</label>
+                <select id="segment" name="segment" required>
+                    <option value="Segment1">Segment1</option>
+                    <option value="Segment2">Segment2</option>
+                </select>
+                <label for="type">Type:</label>
+                <select id="type" name="type" required>
+                    <option value="Veg">Veg</option>
+                    <option value="Non-Veg">Non-Veg</option>
+                </select>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="ingredients">Ingredients:</label>
+                <input type="text" id="ingredients" name="ingredients" required>
+                <label for="description">Description:</label>
+                <input type="text" id="description" name="description" required>
+                <label for="image">Image:</label>
+                <input type="file" id="image" name="image" accept="image/*">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" required>
+                <label for="isAvailableOnline">Available Online:</label>
+                <select id="isAvailableOnline" name="isAvailableOnline" required>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+                <label for="isAvailableLocal">Available Local:</label>
+                <select id="isAvailableLocal" name="isAvailableLocal" required>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+                <button type="submit">Save</button>
+                <button type="button" id="invmgmtCloseModalBtn">Close</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="loader" class="loader">Please wait...</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
