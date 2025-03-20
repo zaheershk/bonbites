@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwM6dJzQSsfGcwems0LwFD3NjuMvTScALNQ1r4DNAWN6Q7u_jirsYAxi7R_kSGf8D9A/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwupqy5oBb0H5Txq_U99oE5T8DKtE--TJ_ah4zFAnkqkqhLQfBIz3NEp2SvfYZmV--7/exec';
 
 let products = [];
 let orders = [];
@@ -19,8 +19,8 @@ function showLoader(visible) {
 
 window.onload = async function () {
     const settings = await fetchAppSettings();
-    if (settings.MaintenanceMode === 'Y') {
-        window.location.href = 'maintenance.html';
+    if (settings.StoreClosed === 'Y') {
+        window.location.href = 'storeclosed.html';
     }
     else {
         const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
@@ -30,6 +30,9 @@ window.onload = async function () {
 
         if (workflowContextLC === 'intake' || workflowContextLC === 'menu' || workflowContextLC === 'inventory') {
             const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
+
+            console.log('workflowContextLC:', workflowContextLC);
+            console.log('storeType:', storeType);
 
             if (workflowContextLC === 'inventory') {
                 products = await fetchProducts(storeType, false);
@@ -125,6 +128,8 @@ async function fetchAppSettings() {
 
 async function fetchProducts(storeType, isAvailableFilter) {
     try {
+        console.log('isAvailableFilter:', isAvailableFilter);
+
         const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}&isAvailableFilter=${isAvailableFilter}`);
         const products = await response.json();
         const productsArray = Array.isArray(products) ? products : []
@@ -153,11 +158,11 @@ function loadInventory() {
             <td>${product.segment}</td>
             <td>${product.type}</td>
             <td>${product.name}</td>
-            <td><img src="${product.imageName}" alt="${product.name}" width="50"></td>
-            <td>${product.price}</td>
-            <td>${product.isAvailableOnline}</td>
+            <td><img src="${product.imageUrl}" alt="${product.name}" width="50"></td>
+            <td>₹ ${product.price}</td>
+            <td>${product.isAvailable}</td>
             <td>
-                <i class="fas fa-edit action-icons" onclick="invmgmtEditProduct(${product.id})"></i>
+                <i class="fas fa-edit action-icons" onclick="invmgmtEditProduct('${product.id}')"></i>
             </td>
         `;
         tbody.appendChild(row);
@@ -182,7 +187,7 @@ document.getElementById('invmgmtProductForm').addEventListener('submit', async (
             body: formData
         });
         const uploadResult = await uploadResponse.json();
-        formData.set('imageName', uploadResult.url);
+        formData.set('imageUrl', uploadResult.url);
     }
 
     if (productId) {
@@ -209,8 +214,7 @@ async function invmgmtEditProduct(productId) {
     document.getElementById('ingredients').value = product.ingredients;
     document.getElementById('description').value = product.description;
     document.getElementById('price').value = product.price;
-    document.getElementById('isAvailableOnline').value = product.isAvailableOnline;
-    document.getElementById('isAvailableLocal').value = product.isAvailableLocal;
+    document.getElementById('isAvailable').value = product.isAvailable;
 
     invmgmtOpenModal();
     showLoader(false);
@@ -311,7 +315,7 @@ function loadMenu() {
             let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
 
             cardDiv.innerHTML = `
-                    <img class="menu-product-image" src="resources/product-images/${product.imageName}" alt="${product.name}">
+                    <img class="menu-product-image" src="resources/product-images/${product.imageUrl}" alt="${product.name}">
                     <div class="menu-product-details">
                         <h3>${product.name}</h3>
                         <p><strong>Ingredients:</strong> ${product.ingredients}</p>
@@ -383,7 +387,7 @@ function loadProductsForOnlineStore() {
         productDiv.className = 'product';
         let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
         productDiv.innerHTML = `
-            <img src="${product.imageName}" alt="${product.name}">
+            <img src="${product.imageUrl}" alt="${product.name}">
             <p class="product-name">${product.name}</p> 
             <p class="product-ingredients"><strong>Contains:</strong> ${product.ingredients}</p> 
             <p class="product-description"><strong>Serving Info:</strong> ${product.description}</p>
@@ -394,8 +398,6 @@ function loadProductsForOnlineStore() {
         `;
         segments[product.segment].appendChild(productDiv);
     });
-
-    //<td><img src="${product.imageName}" alt="${product.name}" width="50"></td>
 }
 
 function getDeliveryOptions() {
