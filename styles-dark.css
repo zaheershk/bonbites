@@ -274,43 +274,6 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="select"]
     padding: 10px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse; /* Ensures borders between cells are shared */
-    table-layout: fixed; /* Helps keep columns sizes as set */
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd; /* Adds a subtle line between rows */
-}
-
-th {
-    background-color: #8fbc8f;
-    color: #fff;
-}
-
-td {
-    color: #28282B;
-}
-
-thead th {
-    position: sticky;
-    top: 0;
-    background-color: #8fbc8f; /* Keeps header background consistent when scrolling */
-}
-
-tfoot {
-    font-weight: bold;
-    background-color: #f4f4f9;
-    color: #333;
-}
-
-tfoot td {
-    padding: 12px 20px;
-}
-
 input[type=number] {
     width: 60px;
     padding: 8px;
@@ -544,33 +507,54 @@ button i {
     }
 }
 
-/* Add custom styles for the table and form */
+/* General table styles */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Ensures borders between cells are shared */
+    table-layout: auto; /* Adjust columns based on content length */
     margin-top: 20px;
     background-color: #fff; /* Light background for the table */
     color: #333; /* Dark text color */
-    table-layout: auto; /* Adjust columns based on content length */
 }
 
+/* Header and cell styles */
 th, td {
-    padding: 8px;
+    padding: 8px 12px; /* Consolidated padding */
     text-align: left;
-    border-bottom: 1px solid #ddd;
-    color: #fff; 
+    border-bottom: 1px solid #ddd; /* Adds a subtle line between rows */
     min-width: 50px; /* Minimum width for columns */
     max-width: 300px; /* Maximum width for columns */
     word-wrap: break-word; /* Wrap long words to the next line */
 }
 
+/* Header specific styles */
+th {
+    background-color: #8fbc8f;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Data cell specific styles */
 td {
     color: #333; /* Dark text color for table data */
 }
 
-th {
-    cursor: pointer;
-    background-color: #444; /* Darker background for table headers */
+/* Sticky header styles */
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #8fbc8f; /* Keeps header background consistent when scrolling */
+}
+
+/* Footer styles */
+tfoot {
+    font-weight: bold;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+tfoot td {
+    padding: 12px 12px;
 }
 
 form {
