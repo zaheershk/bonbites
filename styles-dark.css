@@ -549,8 +549,8 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: #333; /* Dark background for the table */
-    color: #fff; /* Light text color */
+    background-color: #fff; /* Light background for the table */
+    color: #333; /* Dark text color */
     table-layout: auto; /* Adjust columns based on content length */
 }
 
@@ -558,10 +558,14 @@ th, td {
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    color: #fff; /* Ensure text color is white */
+    color: #fff; 
     min-width: 50px; /* Minimum width for columns */
     max-width: 300px; /* Maximum width for columns */
     word-wrap: break-word; /* Wrap long words to the next line */
+}
+
+td {
+    color: #333; /* Dark text color for table data */
 }
 
 th {
