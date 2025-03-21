@@ -44,11 +44,12 @@
                 <input type="hidden" id="productId" name="productId">
                 <label for="segment">Segment:</label>
                 <select id="segment" name="segment" required>
-                    <option value="Segment1">Segment1</option>
-                    <option value="Segment2">Segment2</option>
+                    <option value="">[Select]</option>
+                    <!-- Options will be populated dynamically -->
                 </select>
                 <label for="type">Type:</label>
                 <select id="type" name="type" required>
+                    <option value="">[Select]</option>
                     <option value="Veg">Veg</option>
                     <option value="Non-Veg">Non-Veg</option>
                 </select>
@@ -61,14 +62,20 @@
                 <label for="image">Image:</label>
                 <input type="file" id="image" name="image" accept="image/*">
                 <label for="price">Price:</label>
-                <input type="number" id="price" name="price" required>
-                <label for="isAvailable">Available Online:</label>
-                <select id="isAvailable" name="isAvailable" required>
-                    <option value="Y">Yes</option>
-                    <option value="N">No</option>
-                </select>
-                <button type="submit">Save</button>
-                <button type="button" id="invmgmtCloseModalBtn">Close</button>
+                <div style="display: flex; align-items: center;">
+                    <span style="margin-right: 5px;">₹</span>
+                    <input type="number" id="price" name="price" required>
+                </div>
+                <label for="isAvailable">Available:</label>
+                <label class="switch">
+                    <input type="checkbox" id="isAvailable" name="isAvailable">
+                    <span class="slider"></span>
+                </label>
+                <hr class="separator">
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" id="invmgmtCancelModalBtn">Cancel</button>
+                </div>
             </form>
         </div>
     </div>

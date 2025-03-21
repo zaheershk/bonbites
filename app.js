@@ -1,5 +1,6 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwupqy5oBb0H5Txq_U99oE5T8DKtE--TJ_ah4zFAnkqkqhLQfBIz3NEp2SvfYZmV--7/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzQo-qsSeKGYAqBPYczjjzmGEv4TV1McWdFVD72J-BZnC_uFoOcKfpycsjZx8hjzZiW/exec';
 
+let settings = [];
 let products = [];
 let orders = [];
 let cart = [];
@@ -18,7 +19,7 @@ function showLoader(visible) {
 }
 
 window.onload = async function () {
-    const settings = await fetchAppSettings();
+    settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
         window.location.href = 'storeclosed.html';
     }
@@ -31,12 +32,13 @@ window.onload = async function () {
         if (workflowContextLC === 'intake' || workflowContextLC === 'menu' || workflowContextLC === 'inventory') {
             const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
 
-            console.log('workflowContextLC:', workflowContextLC);
-            console.log('storeType:', storeType);
+            //console.log('workflowContextLC:', workflowContextLC);
+            //console.log('storeType:', storeType);
 
             if (workflowContextLC === 'inventory') {
                 products = await fetchProducts(storeType, false);
                 loadInventory();
+                populateSegmentDropdown(settings.Segments);
             }
 
             if (workflowContextLC === 'menu') {
@@ -85,7 +87,7 @@ window.onload = async function () {
 async function captureTraffic() {
 
     const formData = {
-        action: 'traffic',
+        action: 'captureTraffic',
         storeType: 'online',
         userAgent: user_agt,
         userIp: user_ip
@@ -119,6 +121,8 @@ async function fetchAppSettings() {
     try {
         const response = await fetch(API_URL + '?type=appsettings');
         const settings = await response.json();
+
+        //console.log('Fetched settings:', settings);
         return settings;
     } catch (error) {
         console.error('Failed to fetch app settings:', error);
@@ -128,7 +132,7 @@ async function fetchAppSettings() {
 
 async function fetchProducts(storeType, isAvailableFilter) {
     try {
-        console.log('isAvailableFilter:', isAvailableFilter);
+        //console.log('isAvailableFilter:', isAvailableFilter);
 
         const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}&isAvailableFilter=${isAvailableFilter}`);
         const products = await response.json();
@@ -137,7 +141,7 @@ async function fetchProducts(storeType, isAvailableFilter) {
             showLoader(false);
             console.error('No products found.');
         }
-        console.log('Fetched products:', productsArray);
+        //console.log('Fetched products:', productsArray);
         return productsArray;
     } catch (error) {
         console.error('Failed to fetch products:', error);
@@ -169,6 +173,18 @@ function loadInventory() {
     });
 }
 
+function populateSegmentDropdown(segments) {
+    const segmentDropdown = document.getElementById('segment');
+    segmentDropdown.innerHTML = '<option value="">[Select]</option>'; // Clear existing options and add default
+    const segmentArray = segments.split(',');
+    segmentArray.forEach(segment => {
+        const option = document.createElement('option');
+        option.value = segment;
+        option.textContent = segment;
+        segmentDropdown.appendChild(option);
+    });
+}
+
 document.getElementById('invmgmtAddProductBtn').addEventListener('click', () => {
     invmgmtOpenModal();
 });
@@ -181,21 +197,75 @@ document.getElementById('invmgmtProductForm').addEventListener('submit', async (
     const productId = formData.get('productId');
     const imageFile = formData.get('image');
 
+    let imageUrl = '';
     if (imageFile && imageFile.size > 0) {
-        const uploadResponse = await fetch(`${API_URL}`, {
-            method: 'POST',
-            body: formData
-        });
-        const uploadResult = await uploadResponse.json();
-        formData.set('imageUrl', uploadResult.url);
+        try {
+            const fileName = `${Date.now()}_${imageFile.name}`;
+            const signedUrlResponse = await fetch(API_URL, {
+                method: 'POST',
+                mode: "cors",
+                cache: "no-cache",
+                headers: {
+                    "Content-Type": "text/plain",
+                },
+                redirect: "follow",
+                body: JSON.stringify({
+                    action: 'generateSignedUrl',
+                    fileName: fileName
+                })
+            });
+
+            if (!signedUrlResponse.ok) {
+                throw new Error(`HTTP error! status: ${signedUrlResponse.status}`);
+            }
+
+            const signedUrlResult = await signedUrlResponse.json();
+            const signedUrl = signedUrlResult.signedUrl;
+
+            if (!signedUrl) {
+                throw new Error("Signed URL is undefined in the response.");
+            }
+
+            //console.log('Signed URL:', signedUrl);
+
+            const uploadResponse = await fetch(signedUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/octet-stream'
+                },
+                body: imageFile
+            });
+
+            if (uploadResponse.ok) {
+                imageUrl = `https://storage.googleapis.com/bonbites-product-images/${fileName}`;
+            } else {
+                console.error('Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error processing image upload:', error);
+            showLoader(false); 
+            return; 
+        }
     }
 
-    if (productId) {
-        await invmgmtUpdateProduct(formData);
-    } else {
-        await invmgmtAddProduct(formData);
-    }
+    const productData = {
+        action: productId ? 'updateProduct' : 'addProduct',
+        storeType: document.querySelector('meta[name="store-type"]').getAttribute('content'),
+        productId: productId || '',
+        segment: formData.get('segment'),
+        type: formData.get('type'),
+        name: formData.get('name'),
+        ingredients: formData.get('ingredients'),
+        description: formData.get('description'),
+        imageUrl: imageUrl || formData.get('imageUrl'),
+        price: formData.get('price'),
+        isAvailable: formData.get('isAvailable') === 'on' ? 'Y' : 'N'
+    };
 
+    // save product data
+    await invmgmtSaveProduct(productData);
+
+    // reload inventory
     const products = await fetchProducts();
     loadInventory(products);
     invmgmtCloseModal();
@@ -214,33 +284,22 @@ async function invmgmtEditProduct(productId) {
     document.getElementById('ingredients').value = product.ingredients;
     document.getElementById('description').value = product.description;
     document.getElementById('price').value = product.price;
-    document.getElementById('isAvailable').value = product.isAvailable;
+    document.getElementById('isAvailable').checked = product.isAvailable === 'Y';
 
     invmgmtOpenModal();
     showLoader(false);
 }
 
-async function invmgmtToggleAvailability(productId, type) {
-    showLoader(true);
-    await fetch(`${API_URL}?action=toggleAvailability&productId=${productId}&type=${type}`, {
-        method: 'POST'
-    });
-    const products = await fetchProducts();
-    loadInventory(products);
-    showLoader(false);
-}
-
-async function invmgmtAddProduct(formData) {
-    await fetch(`${API_URL}?action=addProduct`, {
+async function invmgmtSaveProduct(productData) {
+    await fetch(`${API_URL}`, {
         method: 'POST',
-        body: formData
-    });
-}
-
-async function invmgmtUpdateProduct(formData) {
-    await fetch(`${API_URL}?action=updateProduct`, {
-        method: 'POST',
-        body: formData
+        mode: "cors",
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "text/plain",
+        },
+        redirect: "follow",
+        body: JSON.stringify(productData)
     });
 }
 
@@ -272,7 +331,7 @@ function invmgmtCloseModal() {
     document.getElementById('invmgmtProductForm').reset();
 }
 
-document.getElementById('invmgmtCloseModalBtn').addEventListener('click', invmgmtCloseModal);
+document.getElementById('invmgmtCancelModalBtn').addEventListener('click', invmgmtCloseModal);
 document.querySelector('.close').addEventListener('click', invmgmtCloseModal);
 
 //------------ONLINE STORE LOGIC
@@ -587,7 +646,7 @@ async function placeOnlineOrder() {
     ];
 
     const formData = {
-        action: 'insert',
+        action: 'insertOrder',
         storeType: 'online',
         name: document.getElementById('name').value,
         flat: document.getElementById('flat').value,
@@ -786,7 +845,7 @@ async function placeLocalOrder() {
     showLoader(true);
 
     const formData = {
-        action: 'insert',
+        action: 'insertOrder',
         storeType: 'local',
         name: document.getElementById('name').value,
         items: products.filter(item => item.quantity > 0).map(item => ({
@@ -928,7 +987,7 @@ async function updateStatus(storeType, orderId, status) {
     showLoader(true);
 
     const formData = {
-        action: 'update',
+        action: 'updateOrder',
         storeType: storeType,
         orderId: orderId,
         status: status

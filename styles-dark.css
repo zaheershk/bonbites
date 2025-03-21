@@ -239,7 +239,11 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="select"]
     color: #fff;
     font-size:16px;
     font-weight: bold;
-    background-color: rgb(189, 79, 79);
+    background-color: #dfa06b;
+}
+
+#place-order-btn:hover {
+    background-color: #ad805b;
 }
 
 .separator {
@@ -577,6 +581,19 @@ form {
     cursor: pointer;
 }
 
+#invmgmtAddProductBtn {
+    background-color: #dfa06b;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#invmgmtAddProductBtn:hover {
+    background-color: #ad805b;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -586,17 +603,75 @@ form {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
     padding-top: 60px;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
+    background-color: #1f1f1f;
+    margin: 2% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
+    width: 50%;
+    color: #ffffff;
+    border-radius: 10px;
+}
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content label {
+    margin-top: 10px;
+}
+
+.modal-content input,
+.modal-content select {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #333;
+    color: #ffffff;
+}
+
+.modal-content .separator {
+    border: 0;
+    height: 1px;
+    background: #444;
+    margin: 20px 0;
+}
+
+.modal-content .button-group {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.modal-content .button-group button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.modal-content .button-group .save-btn {
+    background-color: #dfa06b;
+    color: #ffffff;
+}
+
+.modal-content .button-group .save-btn:hover {
+    background-color: #ad805b;
+}
+
+.modal-content .button-group .cancel-btn {
+    background-color: rgb(189, 79, 79);
+    color: #ffffff;
+}
+
+.modal-content .button-group .cancel-btn:hover {
+    background-color: rgb(150, 50, 50);
 }
 
 .close {
@@ -608,7 +683,7 @@ form {
 
 .close:hover,
 .close:focus {
-    color: black;
+    color: #000;
     text-decoration: none;
     cursor: pointer;
 }
@@ -627,4 +702,51 @@ form {
     height: auto;
     max-height: 50vh; /* Ensure the image doesn't exceed 50% of the viewport height */
     width: auto;
+}
+
+/* Toggle Switch Styles */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-top: 5px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #59d1a5;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
 }
