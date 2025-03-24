@@ -47,24 +47,26 @@
 
             <button id="invmgmtResetFiltersBtn" class="invmgmt-btn-reset-filters">Reset Filters</button>
         </div>
-        <table id="invmgmtProductTable">
-            <thead>
-                <tr>
-                    <th data-column="image" data-sortable="false" class="invmgmt-image-column">Image</th>
-                    <th data-column="segment" class="invmgmt-sortable">Segment</th>
-                    <th data-column="type" class="invmgmt-sortable">Type</th>
-                    <th data-column="name" class="invmgmt-sortable">Name</th>
-                    <th data-column="ingredients" class="invmgmt-sortable">Ingredients</th>
-                    <th data-column="description" class="invmgmt-sortable">Description</th>
-                    <th data-column="price" class="invmgmt-sortable">Price</th>
-                    <th data-column="isAvailable" class="invmgmt-sortable">Available</th>
-                    <th data-sortable="false">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="invmgmtProductTableBody">
-                <!-- Product rows will be inserted here -->
-            </tbody>
-        </table>
+        <div class="inventory-table-wrapper">
+            <table id="invmgmtProductTable">
+                <thead>
+                    <tr>
+                        <th data-column="image" data-sortable="false" class="invmgmt-image-column">Image</th>
+                        <th data-column="segment" class="invmgmt-sortable">Segment</th>
+                        <th data-column="type" class="invmgmt-sortable">Type</th>
+                        <th data-column="name" class="invmgmt-sortable">Name</th>
+                        <th data-column="ingredients" class="invmgmt-sortable">Ingredients</th>
+                        <th data-column="description" class="invmgmt-sortable">Description</th>
+                        <th data-column="price" class="invmgmt-sortable">Price</th>
+                        <th data-column="isAvailable" class="invmgmt-sortable">Available</th>
+                        <th data-sortable="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invmgmtProductTableBody">
+                    <!-- Table content will be dynamically generated -->
+                </tbody>
+            </table>
+        </div>
     </main>
 
     <div id="invmgmtProductModal" class="modal">
@@ -92,14 +94,11 @@
                 <label for="image">Image:</label>
                 <div class="invmgmt-image-upload-container">
                     <input type="file" id="image" name="image" accept="image/*">
-                    <div id="invmgmtImagePreviewContainer" class="invmgmt-image-preview-container"
-                        style="display:none;">
-                        <div class="invmgmt-image-preview-wrapper">
-                            <img id="invmgmtImagePreview" src="" alt="Preview">
-                        </div>
-                        <button type="button" id="invmgmtRemoveImageBtn" class="invmgmt-remove-image-btn">×</button>
-                    </div>
                     <input type="hidden" id="imageUrl" name="imageUrl">
+                </div>
+                <div id="invmgmtImagePreviewContainer" style="margin-top: 10px; display: none;">
+                    <p>Image Preview:</p>
+                    <img id="invmgmtImagePreview" style="max-width: 150px; max-height: 100px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 3px;" />
                 </div>
                 <label for="price">Price:</label>
                 <div style="display: flex; align-items: center;">

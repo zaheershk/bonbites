@@ -37,6 +37,25 @@ function showLoader(visible) {
     loader.style.display = visible ? 'flex' : 'none';
 }
 
+async function callAPIviaPOST(data) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: "cors",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "text/plain",
+            },
+            redirect: "follow",
+            body: JSON.stringify(data)
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error occured in callAPIviaPOST method.', error);
+        throw error;
+    }
+}
+
 window.onload = async function () {
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
@@ -111,18 +130,7 @@ async function captureTraffic() {
     };
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
+        const result = await callAPIviaPOST(formData);
         if (result.status === 'success') {
             // do nothing
         } else {
@@ -137,10 +145,7 @@ async function captureTraffic() {
 async function fetchAppSettings() {
     try {
         const response = await fetch(API_URL + '?type=appsettings');
-        const settings = await response.json();
-
-        //console.log('Fetched settings:', settings);
-        return settings;
+        return await response.json();
     } catch (error) {
         console.error('Failed to fetch app settings:', error);
         return {};
@@ -172,10 +177,10 @@ async function fetchProducts(storeType, isAvailableFilter) {
 async function invmgmtLoadInventory(reapplyFilters = false) {
     try {
         showLoader(true);
-        
+
         // Fetch products from server
         products = await fetchProducts(storeType, false);
-        
+
         if (!reapplyFilters) {
             // Reset filters and use all products
             invmgmtFilteredProducts = [...products];
@@ -184,10 +189,10 @@ async function invmgmtLoadInventory(reapplyFilters = false) {
             // Re-apply current filters to the fresh data
             invmgmtApplyFilters();
         }
-        
+
         // Load the inventory display
         loadInventoryTable(invmgmtFilteredProducts);
-        
+
         // Ensure segment dropdown is populated
         if (settings && settings.Segments) {
             populateSegmentDropdown(settings.Segments);
@@ -269,49 +274,49 @@ function loadInventoryTable(products) {
 }
 
 function invmgmtInitFilters() {
-    // Get unique segments
-    const segments = [...new Set(products.map(p => p.segment))].sort();
-    const segmentFilter = document.getElementById('invmgmtSegmentFilter');
-    if (segmentFilter) {
-        segments.forEach(segment => {
+    // Get unique values for segments and types
+    const uniqueSegments = [...new Set(products.map(product => product.segment))].sort();
+    const uniqueTypes = [...new Set(products.map(product => product.type))].sort();
+
+    // Populate segment filter dropdown
+    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
+    if (segmentFilterEl) {
+        // Clear existing options first to prevent duplicates
+        segmentFilterEl.innerHTML = '<option value="">[All Segments]</option>';
+
+        uniqueSegments.forEach(segment => {
             const option = document.createElement('option');
             option.value = segment;
             option.textContent = segment;
-            segmentFilter.appendChild(option);
+            segmentFilterEl.appendChild(option);
         });
-    }
-
-    // Get unique types
-    const types = [...new Set(products.map(p => p.type))].sort();
-    const typeFilter = document.getElementById('invmgmtTypeFilter');
-    if (typeFilter) {
-        types.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            typeFilter.appendChild(option);
-        });
-    }
-
-    // Add event listeners
-    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
-    if (segmentFilterEl) {
         segmentFilterEl.addEventListener('change', invmgmtApplyFilters);
     }
 
+    // Populate type filter dropdown
     const typeFilterEl = document.getElementById('invmgmtTypeFilter');
     if (typeFilterEl) {
+        // Clear existing options first to prevent duplicates
+        typeFilterEl.innerHTML = '<option value="">[All Types]</option>';
+
+        uniqueTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            typeFilterEl.appendChild(option);
+        });
         typeFilterEl.addEventListener('change', invmgmtApplyFilters);
     }
 
+    // Set up available filter
     const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
     if (availableFilterEl) {
         availableFilterEl.addEventListener('change', invmgmtApplyFilters);
     }
 
-    const resetFiltersBtnEl = document.getElementById('invmgmtResetFiltersBtn');
-    if (resetFiltersBtnEl) {
-        resetFiltersBtnEl.addEventListener('click', invmgmtResetFilters);
+    const resetFiltersBtn = document.getElementById('invmgmtResetFiltersBtn');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', invmgmtResetFilters);
     }
 }
 
@@ -320,18 +325,18 @@ function invmgmtApplyFilters() {
     const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
     const typeFilterEl = document.getElementById('invmgmtTypeFilter');
     const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
-    
+
     invmgmtFilters.segment = segmentFilterEl ? segmentFilterEl.value : '';
     invmgmtFilters.type = typeFilterEl ? typeFilterEl.value : '';
     invmgmtFilters.available = availableFilterEl ? availableFilterEl.value : '';
-    
+
     // Apply filters to the products array
     invmgmtFilteredProducts = products.filter(product => {
         return (invmgmtFilters.segment === '' || product.segment === invmgmtFilters.segment) &&
-               (invmgmtFilters.type === '' || product.type === invmgmtFilters.type) &&
-               (invmgmtFilters.available === '' || product.isAvailable === invmgmtFilters.available);
+            (invmgmtFilters.type === '' || product.type === invmgmtFilters.type) &&
+            (invmgmtFilters.available === '' || product.isAvailable === invmgmtFilters.available);
     });
-    
+
     // Reload the table with filtered products
     loadInventoryTable(invmgmtFilteredProducts);
 }
@@ -442,142 +447,134 @@ function populateSegmentDropdown(segments) {
     });
 }
 
-document.getElementById('invmgmtAddProductBtn').addEventListener('click', () => {
-    invmgmtOpenModal();
-});
+const addProductBtn = document.getElementById('invmgmtAddProductBtn');
+if (addProductBtn) {
+    addProductBtn.addEventListener('click', () => {
+        invmgmtOpenModal();
+    });
+}
 
-document.getElementById('invmgmtProductForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+const productForm = document.getElementById('invmgmtProductForm');
+if (productForm) {
+    productForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Reset previous error states
-    invmgmtClearValidationErrors();
+        // Reset previous error states
+        invmgmtClearValidationErrors();
 
-    let hasErrors = false;
-    const formData = new FormData(e.target);
-    const productId = formData.get('productId');
+        let hasErrors = false;
+        const formData = new FormData(e.target);
+        const productId = formData.get('productId');
 
-    // Validate name
-    const name = formData.get('name').trim();
-    if (!name) {
-        displayValidationError('name', 'Product name is required');
-        hasErrors = true;
-    }
-
-    // Validate ingredients
-    const ingredients = formData.get('ingredients').trim();
-    if (!ingredients) {
-        displayValidationError('ingredients', 'Ingredients are required');
-        hasErrors = true;
-    }
-
-    // Validate description
-    const description = formData.get('description').trim();
-    if (!description) {
-        displayValidationError('description', 'Description is required');
-        hasErrors = true;
-    }
-
-    // Validate image
-    const imageFile = formData.get('image');
-    const existingImageUrl = formData.get('imageUrl');
-    if (!imageFile || imageFile.size === 0) {
-        if (!existingImageUrl && !document.getElementById('productId').value) {
-            displayValidationError('image', 'Image is required');
+        // Validate name
+        const name = formData.get('name').trim();
+        if (!name) {
+            displayValidationError('name', 'Product name is required');
             hasErrors = true;
         }
-    }
 
-    // Validate price
-    const price = formData.get('price').trim();
-    if (!price) {
-        displayValidationError('price', 'Price is required');
-        hasErrors = true;
-    } else if (!/^\d+(\.\d{1,2})?$/.test(price)) {
-        displayValidationError('price', 'Price must be a number with up to 2 decimal places');
-        hasErrors = true;
-    }
+        // Validate ingredients
+        const ingredients = formData.get('ingredients').trim();
+        if (!ingredients) {
+            displayValidationError('ingredients', 'Ingredients are required');
+            hasErrors = true;
+        }
 
-    // If there are errors, stop form submission
-    if (hasErrors) {
-        return;
-    }
+        // Validate description
+        const description = formData.get('description').trim();
+        if (!description) {
+            displayValidationError('description', 'Description is required');
+            hasErrors = true;
+        }
 
-    // Continue with form submission
-    showLoader(true);
-
-    let imageUrl = '';
-    if (imageFile && imageFile.size > 0) {
-        try {
-            const fileName = `${Date.now()}_${imageFile.name}`;
-            const signedUrlResponse = await fetch(API_URL, {
-                method: 'POST',
-                mode: "cors",
-                cache: "no-cache",
-                headers: {
-                    "Content-Type": "text/plain",
-                },
-                redirect: "follow",
-                body: JSON.stringify({
-                    action: 'generateSignedUrl',
-                    fileName: fileName
-                })
-            });
-
-            if (!signedUrlResponse.ok) {
-                throw new Error(`HTTP error! status: ${signedUrlResponse.status}`);
+        // Validate image
+        const imageFile = formData.get('image');
+        const existingImageUrl = formData.get('imageUrl');
+        if (!imageFile || imageFile.size === 0) {
+            if (!existingImageUrl && !document.getElementById('productId').value) {
+                displayValidationError('image', 'Image is required');
+                hasErrors = true;
             }
+        }
 
-            const signedUrlResult = await signedUrlResponse.json();
-            const signedUrl = signedUrlResult.signedUrl;
+        // Validate price
+        const price = formData.get('price').trim();
+        if (!price) {
+            displayValidationError('price', 'Price is required');
+            hasErrors = true;
+        } else if (!/^\d+(\.\d{1,2})?$/.test(price)) {
+            displayValidationError('price', 'Price must be a number with up to 2 decimal places');
+            hasErrors = true;
+        }
 
-            if (!signedUrl) {
-                throw new Error("Signed URL is undefined in the response.");
-            }
-
-            //console.log('Signed URL:', signedUrl);
-
-            const uploadResponse = await fetch(signedUrl, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/octet-stream'
-                },
-                body: imageFile
-            });
-
-            if (uploadResponse.ok) {
-                imageUrl = `https://storage.googleapis.com/bonbites-product-images/${fileName}`;
-            } else {
-                console.error('Failed to upload image');
-            }
-        } catch (error) {
-            console.error('Error processing image upload:', error);
-            showLoader(false);
+        // If there are errors, stop form submission
+        if (hasErrors) {
             return;
         }
-    }
 
-    const productData = {
-        action: productId ? 'updateProduct' : 'addProduct',
-        storeType: document.querySelector('meta[name="store-type"]').getAttribute('content'),
-        productId: productId || '',
-        segment: formData.get('segment'),
-        type: formData.get('type'),
-        name: formData.get('name'),
-        ingredients: formData.get('ingredients'),
-        description: formData.get('description'),
-        imageUrl: imageUrl || formData.get('imageUrl'),
-        price: formData.get('price'),
-        isAvailable: formData.get('isAvailable') === 'on' ? 'Y' : 'N'
-    };
+        // Continue with form submission
+        showLoader(true);
 
-    // save product data
-    await invmgmtSaveProduct(productData);
+        let imageUrl = '';
+        if (imageFile && imageFile.size > 0) {
+            try {
+                const fileName = `${imageFile.name}`;
+                const imageData = {
+                    action: 'generateSignedUrl',
+                    fileName: fileName
+                };
 
-    // reload inventory
-    await invmgmtLoadInventory(false);
-    invmgmtCloseModal();
-    showLoader(false);
-});
+                const signedUrlResult = await callAPIviaPOST(imageData);
+                const signedUrl = signedUrlResult.signedUrl;
+
+                if (!signedUrl) {
+                    throw new Error("Signed URL is undefined in the response.");
+                }
+
+                const uploadResponse = await fetch(signedUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/octet-stream'
+                    },
+                    body: imageFile
+                });
+
+                if (uploadResponse.ok) {
+                    imageUrl = `https://storage.googleapis.com/bonbites-product-images/${fileName}`;
+                } else {
+                    console.error('Failed to upload image');
+                }
+            } catch (error) {
+                console.error('Error processing image upload:', error);
+                showLoader(false);
+                return;
+            }
+        }
+
+        const productData = {
+            action: productId ? 'updateProduct' : 'addProduct',
+            storeType: document.querySelector('meta[name="store-type"]').getAttribute('content'),
+            productId: productId || '',
+            segment: formData.get('segment'),
+            type: formData.get('type'),
+            name: formData.get('name'),
+            ingredients: formData.get('ingredients'),
+            description: formData.get('description'),
+            imageUrl: imageUrl || formData.get('imageUrl'),
+            price: formData.get('price'),
+            isAvailable: formData.get('isAvailable') === 'on' ? 'Y' : 'N'
+        };
+
+        // save product data
+        await invmgmtSaveProduct(productData);
+
+        // reload inventory
+        await invmgmtLoadInventory(false);
+        invmgmtCloseModal();
+        showLoader(false);
+    });
+}
+
 
 function invmgmtDisplayValidationError(fieldId, message) {
     const field = document.getElementById(fieldId);
@@ -705,16 +702,7 @@ function invmgmtShowEnlargedImage(imageUrl) {
 }
 
 async function invmgmtSaveProduct(productData) {
-    await fetch(`${API_URL}`, {
-        method: 'POST',
-        mode: "cors",
-        cache: "no-cache",
-        headers: {
-            "Content-Type": "text/plain",
-        },
-        redirect: "follow",
-        body: JSON.stringify(productData)
-    });
+    await callAPIviaPOST(productData);
 }
 
 async function invmgmtToggleAvailability(productId, currentStatus) {
@@ -729,27 +717,11 @@ async function invmgmtToggleAvailability(productId, currentStatus) {
         };
 
         // Send the request to toggle availability
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(toggleData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const result = await response.json();
-
+        const result = await callAPIviaPOST(toggleData);
         if (result.status === 'success') {
             // Reload inventory data with current filters
             await invmgmtLoadInventory(true);
-            
+
             console.log(`Product ${productId} availability toggled successfully`);
         } else {
             console.error('Failed to toggle availability:', result.message || 'Unknown error');
@@ -763,7 +735,7 @@ async function invmgmtToggleAvailability(productId, currentStatus) {
 
 async function invmgmtEditProduct(productId) {
     showLoader(true);
-    await fetch(`${API_URL}?action=getProduct&productId=${productId}`)
+    await fetch(`${API_URL}?type=product&productId=${productId}`)
         .then(response => response.json())
         .then(product => {
             document.getElementById('productId').value = product.id;
@@ -780,15 +752,25 @@ async function invmgmtEditProduct(productId) {
                 document.getElementById('imageUrl').value = product.imageUrl;
 
                 const imagePreview = document.getElementById('invmgmtImagePreview');
-                if (imagePreview) {
-                    imagePreview.src = product.imageUrl;
-                }
-
                 const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
-                if (previewContainer) {
+
+                if (imagePreview && previewContainer) {
+                    // Set the image source
+                    imagePreview.src = product.imageUrl;
+
+                    // Apply thumbnail styling
+                    imagePreview.style.maxWidth = "150px";
+                    imagePreview.style.maxHeight = "100px";
+                    imagePreview.style.objectFit = "contain";
+                    imagePreview.style.border = "1px solid #ddd";
+                    imagePreview.style.borderRadius = "4px";
+                    imagePreview.style.padding = "3px";
+
+                    // Show the container
                     previewContainer.style.display = 'block';
                 }
             } else {
+                // Hide preview if no image
                 const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
                 if (previewContainer) {
                     previewContainer.style.display = 'none';
@@ -804,6 +786,32 @@ async function invmgmtEditProduct(productId) {
         });
 }
 
+function invmgmtPreviewImage(event) {
+    const file = event.target.files[0];
+    const previewImage = document.getElementById('invmgmtImagePreview');
+    const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+    
+    if (file && previewImage && previewContainer) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            
+            // Apply thumbnail styling
+            previewImage.style.maxWidth = "150px";
+            previewImage.style.maxHeight = "100px";
+            previewImage.style.objectFit = "contain";
+            previewImage.style.border = "1px solid #ddd";
+            previewImage.style.borderRadius = "4px";
+            previewImage.style.padding = "3px";
+            
+            previewContainer.style.display = 'block';
+        };
+        
+        reader.readAsDataURL(file);
+    }
+}
+
 function invmgmtOpenModal() {
     const modal = document.getElementById('invmgmtProductModal');
     modal.style.display = 'block';
@@ -813,10 +821,29 @@ function invmgmtCloseModal() {
     const modal = document.getElementById('invmgmtProductModal');
     modal.style.display = 'none';
     document.getElementById('invmgmtProductForm').reset();
+
+    // Clear the image preview to prevent it from showing in a new modal
+    const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+    const previewImage = document.getElementById('invmgmtImagePreview');
+    
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+    }
+    
+    if (previewImage) {
+        previewImage.src = '';
+    }
 }
 
-document.getElementById('invmgmtCancelModalBtn').addEventListener('click', invmgmtCloseModal);
-document.querySelector('.close').addEventListener('click', invmgmtCloseModal);
+const cancelModalBtn = document.getElementById('invmgmtCancelModalBtn');
+if (cancelModalBtn) {
+    cancelModalBtn.addEventListener('click', invmgmtCloseModal);
+}
+
+const closeModalBtn = document.querySelector('.close');
+if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', invmgmtCloseModal);
+}
 
 //------------ONLINE STORE LOGIC
 
@@ -858,7 +885,7 @@ function loadMenu() {
             let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
 
             cardDiv.innerHTML = `
-                    <img class="menu-product-image" src="resources/product-images/${product.imageUrl}" alt="${product.name}">
+                    <img class="menu-product-image" src="${product.imageUrl}" alt="${product.name}">
                     <div class="menu-product-details">
                         <h3>${product.name}</h3>
                         <p><strong>Ingredients:</strong> ${product.ingredients}</p>
@@ -1118,6 +1145,12 @@ function validateAndPlaceOnlineOrder(event) {
     }
 }
 
+function calculateOrderTotal(items) {
+    return items.reduce((total, item) => {
+        return total + (parseFloat(item.price) * parseInt(item.quantity));
+    }, 0);
+}
+
 async function placeOnlineOrder() {
     showLoader(true);
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -1138,26 +1171,13 @@ async function placeOnlineOrder() {
         phone: document.getElementById('phone').value,
         deliveryOption: document.getElementById('delivery-time-dropdown').value,
         items: combinedItems,  // Pass the combined items array
-        totalAmount: document.getElementById('total-amount').textContent.split('₹')[1],
+        totalAmount: calculateOrderTotal(cartItems),
         userAgent: user_agt,
         userIp: user_ip
     };
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-        showLoader(false);
-
+        const result = await callAPIviaPOST(formData);
         if (result.status === 'success') {
             alert(`Order placed! Your order ID is ${result.orderId}.`);
             //alert(`Data submitted, Thank you!`);
@@ -1165,6 +1185,7 @@ async function placeOnlineOrder() {
         } else {
             alert('Failed to place the order.');
         }
+        showLoader(false);
     } catch (error) {
         showLoader(false);
         alert('Failed to place the order. Check console for logs..');
@@ -1173,10 +1194,21 @@ async function placeOnlineOrder() {
 }
 
 function clearExistingDataForOnlineStore() {
-    localStorage.clear();  // Clear local storage
-    clearCustomerInfoForOnlineStore(); // Clear customer inputs
-    clearOrderDetailsForOnlineStore();  // Clear order details
-    //clearInterestedItemsForOnlineStore();  // Clear interested items
+    // Save delivery options data first
+    const deliveryOptionsData = localStorage.getItem('deliveryOptions');
+
+    // Clear specific items instead of all localStorage
+    localStorage.removeItem('cart');
+    localStorage.removeItem('interestedItems');
+
+    // Restore delivery options data
+    if (deliveryOptionsData) {
+        localStorage.setItem('deliveryOptions', deliveryOptionsData);
+    }
+
+    // Clear form fields
+    clearCustomerInfoForOnlineStore();
+    clearOrderDetailsForOnlineStore();
 }
 
 function clearCustomerInfoForOnlineStore() {
@@ -1337,30 +1369,18 @@ async function placeLocalOrder() {
             price: item.price,
             quantity: item.quantity
         })),
-        totalAmount: document.getElementById('total-amount').textContent.split('₹')[1]
+        totalAmount: calculateOrderTotal(cartItems)
     };
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-        showLoader(false);
-
+        const result = await callAPIviaPOST(formData);
         if (result.status === 'success') {
             alert(`Order placed! Your order ID is ${result.orderId}.`);
             clearExistingDataForLocalStore();
         } else {
             alert('Failed to place the order.');
         }
+        showLoader(false);
     } catch (error) {
         showLoader(false);
         alert('Failed to place the order. Check console for logs..');
@@ -1478,26 +1498,14 @@ async function updateStatus(storeType, orderId, status) {
     };
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(formData)
-        });
-
-        const result = await response.json();
-        showLoader(false);
-
+        const result = await callAPIviaPOST(formData);
         if (result.status === 'success') {
             alert(`Order status updated!`);
             fetchOrders(); // Refetch orders after updating status
         } else {
             alert('Failed to update the order.');
         }
+        showLoader(false);
     } catch (error) {
         showLoader(false);
         alert('Failed to update the order. Check console for logs..');

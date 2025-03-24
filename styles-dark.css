@@ -573,8 +573,38 @@ form {
     transition: transform 0.2s ease;
 }
 
-.action-icons:hover {
+/* .action-icons:hover {
     transform: scale(1.2);
+} */
+
+/* Inventory table wrapper styling (similar to order-table-wrapper) */
+.inventory-table-wrapper {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    max-height: 60vh; /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+}
+
+/* Keep the header row visible while scrolling */
+.inventory-table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventory-table-wrapper thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #8fbc8f; /* Match your existing header color */
+}
+
+/* Ensure the background color fills the header cells completely */
+.inventory-table-wrapper th {
+    background-clip: padding-box;
 }
 
 .invmgmt-toggle-active {
@@ -947,4 +977,74 @@ input:checked + .slider {
 
 input:checked + .slider:before {
     transform: translateX(26px);
+}
+
+/* Admin dashboard specific styles */
+.admin-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+.admin-tile {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 30px 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.admin-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.admin-tile i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #dfa06b;
+}
+
+.admin-tile h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.admin-tile p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Admin icon styling */
+.admin-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.admin-link i {
+    font-size: 1.2rem;
+}
+
+#admin-dashboard .section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 1.5rem 0 3rem 0;
+    color: #ccc;
+    font-weight: 500;
 }
