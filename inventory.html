@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Inventory Management</title>
@@ -9,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <header>
         <div class="brand">
@@ -18,21 +20,49 @@
     <main>
         <br />
         <button id="invmgmtAddProductBtn" class="action-icons"><i class="fas fa-plus"></i> Add Product</button>
-        <table id="productTable">
+        <br />
+        <div class="invmgmt-filters-container">
+            <div class="invmgmt-filter-group">
+                <label for="invmgmtSegmentFilter">Segment:</label>
+                <select id="invmgmtSegmentFilter">
+                    <option value="">All Segments</option>
+                </select>
+            </div>
+
+            <div class="invmgmt-filter-group">
+                <label for="invmgmtTypeFilter">Type:</label>
+                <select id="invmgmtTypeFilter">
+                    <option value="">All Types</option>
+                </select>
+            </div>
+
+            <div class="invmgmt-filter-group">
+                <label for="invmgmtAvailableFilter">Available:</label>
+                <select id="invmgmtAvailableFilter">
+                    <option value="">All</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+            </div>
+
+            <button id="invmgmtResetFiltersBtn" class="invmgmt-btn-reset-filters">Reset Filters</button>
+        </div>
+        <table id="invmgmtProductTable">
             <thead>
                 <tr>
-                    <th onclick="sortInvTable(0)">Product ID</th>
-                    <th onclick="sortInvTable(1)">Segment</th>
-                    <th onclick="sortInvTable(2)">Type</th>
-                    <th onclick="sortInvTable(3)">Name</th>
-                    <th onclick="sortInvTable(4)">Image</th>
-                    <th onclick="sortInvTable(5)">Price</th>
-                    <th onclick="sortInvTable(6)">Available?</th>
-                    <th>Actions</th>
+                    <th data-column="image" data-sortable="false" class="invmgmt-image-column">Image</th>
+                    <th data-column="segment" class="invmgmt-sortable">Segment</th>
+                    <th data-column="type" class="invmgmt-sortable">Type</th>
+                    <th data-column="name" class="invmgmt-sortable">Name</th>
+                    <th data-column="ingredients" class="invmgmt-sortable">Ingredients</th>
+                    <th data-column="description" class="invmgmt-sortable">Description</th>
+                    <th data-column="price" class="invmgmt-sortable">Price</th>
+                    <th data-column="isAvailable" class="invmgmt-sortable">Available</th>
+                    <th data-sortable="false">Actions</th>
                 </tr>
             </thead>
-            <tbody id="productTableBody">
-                <!-- Product rows will be populated here -->
+            <tbody id="invmgmtProductTableBody">
+                <!-- Product rows will be inserted here -->
             </tbody>
         </table>
     </main>
@@ -60,11 +90,21 @@
                 <label for="description">Description:</label>
                 <input type="text" id="description" name="description" required>
                 <label for="image">Image:</label>
-                <input type="file" id="image" name="image" accept="image/*">
+                <div class="invmgmt-image-upload-container">
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <div id="invmgmtImagePreviewContainer" class="invmgmt-image-preview-container"
+                        style="display:none;">
+                        <div class="invmgmt-image-preview-wrapper">
+                            <img id="invmgmtImagePreview" src="" alt="Preview">
+                        </div>
+                        <button type="button" id="invmgmtRemoveImageBtn" class="invmgmt-remove-image-btn">×</button>
+                    </div>
+                    <input type="hidden" id="imageUrl" name="imageUrl">
+                </div>
                 <label for="price">Price:</label>
                 <div style="display: flex; align-items: center;">
                     <span style="margin-right: 5px;">₹</span>
-                    <input type="number" id="price" name="price" required>
+                    <input type="text" id="price" name="price" class="invmgmt-price-input" required>
                 </div>
                 <label for="isAvailable">Available:</label>
                 <label class="switch">
@@ -84,4 +124,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>

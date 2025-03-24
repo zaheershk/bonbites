@@ -1,12 +1,31 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbzQo-qsSeKGYAqBPYczjjzmGEv4TV1McWdFVD72J-BZnC_uFoOcKfpycsjZx8hjzZiW/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxIXGsU9e2FnfT2ucAidLN5HEEMHY9eJ_T4yn7hvpHsl2mZiyV36JVvlpjW-fNGKrlb/exec';
 
 let settings = [];
 let products = [];
 let orders = [];
 let cart = [];
 
+let storeType = ''
+let workflowContextLC = '';
+
 let user_agt = '';
 let user_ip = '';
+
+// Global variables for inventory management sorting
+let invmgmtSortColumns = ['segment', 'type', 'name'];
+let invmgmtSortDirections = {
+    segment: 'asc',
+    type: 'asc',
+    name: 'asc'
+};
+
+// Global variables for inventory management filtering
+let invmgmtFilteredProducts = [];
+let invmgmtFilters = {
+    segment: '',
+    type: '',
+    available: ''
+};
 
 function getUrlParameter(name) {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -24,21 +43,19 @@ window.onload = async function () {
         window.location.href = 'storeclosed.html';
     }
     else {
-        const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
         showLoader(true);
 
-        var workflowContextLC = workflowContext.toLowerCase();
+        const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
+        workflowContextLC = workflowContext.toLowerCase();
 
         if (workflowContextLC === 'intake' || workflowContextLC === 'menu' || workflowContextLC === 'inventory') {
-            const storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
+            storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
 
             //console.log('workflowContextLC:', workflowContextLC);
             //console.log('storeType:', storeType);
 
             if (workflowContextLC === 'inventory') {
-                products = await fetchProducts(storeType, false);
-                loadInventory();
-                populateSegmentDropdown(settings.Segments);
+                await invmgmtLoadInventory(false);
             }
 
             if (workflowContextLC === 'menu') {
@@ -152,24 +169,264 @@ async function fetchProducts(storeType, isAvailableFilter) {
 
 //------------INVENTORY MGMT LOGIC
 
-function loadInventory() {
-    const tbody = document.getElementById('productTableBody');
+async function invmgmtLoadInventory(reapplyFilters = false) {
+    try {
+        showLoader(true);
+        
+        // Fetch products from server
+        products = await fetchProducts(storeType, false);
+        
+        if (!reapplyFilters) {
+            // Reset filters and use all products
+            invmgmtFilteredProducts = [...products];
+            invmgmtInitFilters();
+        } else {
+            // Re-apply current filters to the fresh data
+            invmgmtApplyFilters();
+        }
+        
+        // Load the inventory display
+        loadInventoryTable(invmgmtFilteredProducts);
+        
+        // Ensure segment dropdown is populated
+        if (settings && settings.Segments) {
+            populateSegmentDropdown(settings.Segments);
+        }
+    } catch (error) {
+        console.error('Error loading inventory:', error);
+    } finally {
+        showLoader(false);
+    }
+}
+
+function loadInventoryTable(products) {
+    // Sort products by default
+    invmgmtSortProducts(products);
+
+    const tbody = document.getElementById('invmgmtProductTableBody');
     tbody.innerHTML = '';
+
     products.forEach(product => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${product.id}</td>
+
+        // Image thumbnail cell
+        const imgCell = document.createElement('td');
+        imgCell.className = 'invmgmt-table-img-cell';
+
+        if (product.imageUrl) {
+            // Create image thumbnail wrapper
+            const imgWrapper = document.createElement('div');
+            imgWrapper.className = 'invmgmt-table-img-wrapper';
+            imgWrapper.setAttribute('data-image-url', product.imageUrl);
+            imgWrapper.setAttribute('role', 'button');
+            imgWrapper.setAttribute('aria-label', 'Click to preview image');
+            imgWrapper.classList.add('invmgmt-preview-trigger');
+
+            // Create the image element
+            const img = document.createElement('img');
+            img.src = product.imageUrl;
+            img.alt = product.name;
+            img.className = 'invmgmt-table-img';
+
+            // Add image to wrapper, wrapper to cell
+            imgWrapper.appendChild(img);
+            imgCell.appendChild(imgWrapper);
+        } else {
+            // If no image, show placeholder
+            imgCell.innerHTML = '<div class="invmgmt-no-img-placeholder">No Image</div>';
+        }
+        row.appendChild(imgCell);
+
+        // Add other cells
+        row.innerHTML += `
             <td>${product.segment}</td>
             <td>${product.type}</td>
             <td>${product.name}</td>
-            <td><img src="${product.imageUrl}" alt="${product.name}" width="50"></td>
-            <td>₹ ${product.price}</td>
-            <td>${product.isAvailable}</td>
+            <td>${product.ingredients}</td>
+            <td>${product.description}</td>
+            <td>₹${product.price}</td>
+            <td>${product.isAvailable === 'Y' ? 'Yes' : 'No'}</td>
             <td>
-                <i class="fas fa-edit action-icons" onclick="invmgmtEditProduct('${product.id}')"></i>
+                <i class="fas ${product.isAvailable === 'Y' ? 'fa-toggle-on' : 'fa-toggle-off'} action-icons ${product.isAvailable === 'Y' ? 'invmgmt-toggle-active' : 'invmgmt-toggle-inactive'}" 
+                   onclick="invmgmtToggleAvailability('${product.id}', '${product.isAvailable}')"
+                   title="${product.isAvailable === 'Y' ? 'Click to mark unavailable' : 'Click to mark available'}"></i>
+                <i class="fas fa-edit action-icons" onclick="invmgmtEditProduct('${product.id}')" title="Edit product"></i>
             </td>
         `;
         tbody.appendChild(row);
+    });
+
+    // Initialize sorting functionality
+    invmgmtInitSorting();
+
+    // Add click event listeners to image preview triggers
+    document.querySelectorAll('.invmgmt-preview-trigger').forEach(trigger => {
+        trigger.addEventListener('click', function () {
+            const imageUrl = this.getAttribute('data-image-url');
+            invmgmtShowEnlargedImage(imageUrl);
+        });
+    });
+}
+
+function invmgmtInitFilters() {
+    // Get unique segments
+    const segments = [...new Set(products.map(p => p.segment))].sort();
+    const segmentFilter = document.getElementById('invmgmtSegmentFilter');
+    if (segmentFilter) {
+        segments.forEach(segment => {
+            const option = document.createElement('option');
+            option.value = segment;
+            option.textContent = segment;
+            segmentFilter.appendChild(option);
+        });
+    }
+
+    // Get unique types
+    const types = [...new Set(products.map(p => p.type))].sort();
+    const typeFilter = document.getElementById('invmgmtTypeFilter');
+    if (typeFilter) {
+        types.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            typeFilter.appendChild(option);
+        });
+    }
+
+    // Add event listeners
+    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
+    if (segmentFilterEl) {
+        segmentFilterEl.addEventListener('change', invmgmtApplyFilters);
+    }
+
+    const typeFilterEl = document.getElementById('invmgmtTypeFilter');
+    if (typeFilterEl) {
+        typeFilterEl.addEventListener('change', invmgmtApplyFilters);
+    }
+
+    const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
+    if (availableFilterEl) {
+        availableFilterEl.addEventListener('change', invmgmtApplyFilters);
+    }
+
+    const resetFiltersBtnEl = document.getElementById('invmgmtResetFiltersBtn');
+    if (resetFiltersBtnEl) {
+        resetFiltersBtnEl.addEventListener('click', invmgmtResetFilters);
+    }
+}
+
+function invmgmtApplyFilters() {
+    // Update filter values
+    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
+    const typeFilterEl = document.getElementById('invmgmtTypeFilter');
+    const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
+    
+    invmgmtFilters.segment = segmentFilterEl ? segmentFilterEl.value : '';
+    invmgmtFilters.type = typeFilterEl ? typeFilterEl.value : '';
+    invmgmtFilters.available = availableFilterEl ? availableFilterEl.value : '';
+    
+    // Apply filters to the products array
+    invmgmtFilteredProducts = products.filter(product => {
+        return (invmgmtFilters.segment === '' || product.segment === invmgmtFilters.segment) &&
+               (invmgmtFilters.type === '' || product.type === invmgmtFilters.type) &&
+               (invmgmtFilters.available === '' || product.isAvailable === invmgmtFilters.available);
+    });
+    
+    // Reload the table with filtered products
+    loadInventoryTable(invmgmtFilteredProducts);
+}
+
+function invmgmtResetFilters() {
+    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
+    const typeFilterEl = document.getElementById('invmgmtTypeFilter');
+    const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
+
+    if (segmentFilterEl) segmentFilterEl.value = '';
+    if (typeFilterEl) typeFilterEl.value = '';
+    if (availableFilterEl) availableFilterEl.value = '';
+
+    invmgmtFilters = {
+        segment: '',
+        type: '',
+        available: ''
+    };
+
+    // Reset filtered products to all products
+    invmgmtFilteredProducts = [...products];
+
+    // Reload the table
+    loadInventoryTable(invmgmtFilteredProducts);
+}
+
+function invmgmtSortProducts(productsArray) {
+    // Apply multi-column sorting
+    productsArray.sort((a, b) => {
+        // Compare by segment first
+        if (a.segment.toLowerCase() !== b.segment.toLowerCase()) {
+            return invmgmtSortDirections.segment === 'asc'
+                ? a.segment.toLowerCase().localeCompare(b.segment.toLowerCase())
+                : b.segment.toLowerCase().localeCompare(a.segment.toLowerCase());
+        }
+
+        // Then by type
+        if (a.type.toLowerCase() !== b.type.toLowerCase()) {
+            return invmgmtSortDirections.type === 'asc'
+                ? a.type.toLowerCase().localeCompare(b.type.toLowerCase())
+                : b.type.toLowerCase().localeCompare(a.type.toLowerCase());
+        }
+
+        // Finally by name
+        return invmgmtSortDirections.name === 'asc'
+            ? a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            : b.name.toLowerCase().localeCompare(a.name.toLowerCase());
+    });
+
+    return productsArray;
+}
+
+function invmgmtInitSorting() {
+    const headers = document.querySelectorAll('#invmgmtProductTable th.invmgmt-sortable');
+    headers.forEach(header => {
+        header.addEventListener('click', function () {
+            const column = this.getAttribute('data-column');
+
+            // Update sort direction
+            if (column === invmgmtSortColumns[0]) {
+                // Toggle direction for primary sort column
+                invmgmtSortDirections[column] = invmgmtSortDirections[column] === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Make this the primary sort column
+                invmgmtSortColumns = [column, ...invmgmtSortColumns.filter(col => col !== column)];
+            }
+
+            // Re-sort and reload
+            invmgmtSortProducts(products);
+            loadInventoryTable(products);
+
+            // Update sort indicators
+            invmgmtUpdateSortIndicators();
+        });
+    });
+
+    // Initialize sort indicators
+    invmgmtUpdateSortIndicators();
+}
+
+function invmgmtUpdateSortIndicators() {
+    // Remove all sort indicators
+    document.querySelectorAll('#invmgmtProductTable th.invmgmt-sortable').forEach(th => {
+        th.classList.remove('invmgmt-sort-asc', 'invmgmt-sort-desc');
+        th.setAttribute('data-sort-order', '');
+    });
+
+    // Add indicators for active sort columns
+    invmgmtSortColumns.forEach((column, index) => {
+        const th = document.querySelector(`#invmgmtProductTable th[data-column="${column}"]`);
+        if (th) {
+            const direction = invmgmtSortDirections[column];
+            th.classList.add(`invmgmt-sort-${direction}`);
+            th.setAttribute('data-sort-order', index + 1);
+        }
     });
 }
 
@@ -191,11 +448,62 @@ document.getElementById('invmgmtAddProductBtn').addEventListener('click', () => 
 
 document.getElementById('invmgmtProductForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    showLoader(true);
 
+    // Reset previous error states
+    invmgmtClearValidationErrors();
+
+    let hasErrors = false;
     const formData = new FormData(e.target);
     const productId = formData.get('productId');
+
+    // Validate name
+    const name = formData.get('name').trim();
+    if (!name) {
+        displayValidationError('name', 'Product name is required');
+        hasErrors = true;
+    }
+
+    // Validate ingredients
+    const ingredients = formData.get('ingredients').trim();
+    if (!ingredients) {
+        displayValidationError('ingredients', 'Ingredients are required');
+        hasErrors = true;
+    }
+
+    // Validate description
+    const description = formData.get('description').trim();
+    if (!description) {
+        displayValidationError('description', 'Description is required');
+        hasErrors = true;
+    }
+
+    // Validate image
     const imageFile = formData.get('image');
+    const existingImageUrl = formData.get('imageUrl');
+    if (!imageFile || imageFile.size === 0) {
+        if (!existingImageUrl && !document.getElementById('productId').value) {
+            displayValidationError('image', 'Image is required');
+            hasErrors = true;
+        }
+    }
+
+    // Validate price
+    const price = formData.get('price').trim();
+    if (!price) {
+        displayValidationError('price', 'Price is required');
+        hasErrors = true;
+    } else if (!/^\d+(\.\d{1,2})?$/.test(price)) {
+        displayValidationError('price', 'Price must be a number with up to 2 decimal places');
+        hasErrors = true;
+    }
+
+    // If there are errors, stop form submission
+    if (hasErrors) {
+        return;
+    }
+
+    // Continue with form submission
+    showLoader(true);
 
     let imageUrl = '';
     if (imageFile && imageFile.size > 0) {
@@ -243,8 +551,8 @@ document.getElementById('invmgmtProductForm').addEventListener('submit', async (
             }
         } catch (error) {
             console.error('Error processing image upload:', error);
-            showLoader(false); 
-            return; 
+            showLoader(false);
+            return;
         }
     }
 
@@ -266,28 +574,134 @@ document.getElementById('invmgmtProductForm').addEventListener('submit', async (
     await invmgmtSaveProduct(productData);
 
     // reload inventory
-    const products = await fetchProducts();
-    loadInventory(products);
+    await invmgmtLoadInventory(false);
     invmgmtCloseModal();
     showLoader(false);
 });
 
-async function invmgmtEditProduct(productId) {
-    showLoader(true);
-    const response = await fetch(`${API_URL}?action=getProduct&productId=${productId}`);
-    const product = await response.json();
+function invmgmtDisplayValidationError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorMsgId = `invmgmt-${fieldId}-error`;
 
-    document.getElementById('productId').value = product.id;
-    document.getElementById('segment').value = product.segment;
-    document.getElementById('type').value = product.type;
-    document.getElementById('name').value = product.name;
-    document.getElementById('ingredients').value = product.ingredients;
-    document.getElementById('description').value = product.description;
-    document.getElementById('price').value = product.price;
-    document.getElementById('isAvailable').checked = product.isAvailable === 'Y';
+    // Add error class to the field
+    field.classList.add('invmgmt-error-field');
 
-    invmgmtOpenModal();
-    showLoader(false);
+    // Check if error message element exists
+    let errorMsg = document.getElementById(errorMsgId);
+    if (!errorMsg) {
+        errorMsg = document.createElement('div');
+        errorMsg.id = errorMsgId;
+        errorMsg.className = 'invmgmt-error-message';
+        field.parentNode.insertBefore(errorMsg, field.nextSibling);
+    }
+
+    errorMsg.textContent = message;
+}
+
+function invmgmtClearValidationErrors() {
+    // Remove all error messages
+    document.querySelectorAll('.invmgmt-error-message').forEach(el => el.remove());
+
+    // Remove error class from all fields
+    document.querySelectorAll('.invmgmt-error-field').forEach(el =>
+        el.classList.remove('invmgmt-error-field'));
+}
+
+// Inventory management image preview functionality
+document.addEventListener('DOMContentLoaded', function () {
+    const imageInput = document.getElementById('image');
+    if (imageInput) {
+        imageInput.addEventListener('change', invmgmtHandleImageChange);
+    }
+
+    const removeImageBtn = document.getElementById('invmgmtRemoveImageBtn');
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', invmgmtRemoveImage);
+    }
+});
+
+function invmgmtHandleImageChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const preview = document.getElementById('invmgmtImagePreview');
+            if (preview) {
+                preview.src = e.target.result;
+
+                // Show the preview container
+                const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+                if (previewContainer) {
+                    previewContainer.style.display = 'block';
+                }
+            }
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
+function invmgmtRemoveImage() {
+    const imageInput = document.getElementById('image');
+    if (imageInput) {
+        imageInput.value = '';
+    }
+
+    const imageUrlInput = document.getElementById('imageUrl');
+    if (imageUrlInput) {
+        imageUrlInput.value = '';
+    }
+
+    const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+    }
+}
+
+function invmgmtShowEnlargedImage(imageUrl) {
+    // Check if there's already a modal and remove it
+    const existingModal = document.querySelector('.invmgmt-enlarged-image-modal');
+    if (existingModal) {
+        document.body.removeChild(existingModal);
+    }
+
+    // Create modal for enlarged image
+    const modal = document.createElement('div');
+    modal.className = 'invmgmt-enlarged-image-modal';
+
+    // Create close button
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'invmgmt-enlarged-image-close';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = function (e) {
+        e.stopPropagation();
+        document.body.removeChild(modal);
+    };
+
+    // Create container for the image
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'invmgmt-enlarged-image-container';
+
+    // Create image element
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.className = 'invmgmt-enlarged-image';
+
+    // Append elements
+    imgContainer.appendChild(img);
+    modal.appendChild(closeBtn);
+    modal.appendChild(imgContainer);
+
+    // Append modal to body
+    document.body.appendChild(modal);
+
+    // Close modal when clicking outside the image
+    modal.onclick = function (e) {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    };
 }
 
 async function invmgmtSaveProduct(productData) {
@@ -303,21 +717,91 @@ async function invmgmtSaveProduct(productData) {
     });
 }
 
-function sortInvTable(columnIndex) {
-    const table = document.getElementById('productTable');
-    const rows = Array.from(table.rows).slice(1);
-    const isAscending = table.rows[0].cells[columnIndex].classList.toggle('asc');
+async function invmgmtToggleAvailability(productId, currentStatus) {
+    try {
+        showLoader(true);
 
-    rows.sort((rowA, rowB) => {
-        const cellA = rowA.cells[columnIndex].innerText.toLowerCase();
-        const cellB = rowB.cells[columnIndex].innerText.toLowerCase();
+        // Prepare the data to send
+        const toggleData = {
+            action: 'toggleAvailability',
+            productId: productId,
+            storeType: storeType
+        };
 
-        if (cellA < cellB) return isAscending ? -1 : 1;
-        if (cellA > cellB) return isAscending ? 1 : -1;
-        return 0;
-    });
+        // Send the request to toggle availability
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: "cors",
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "text/plain",
+            },
+            redirect: "follow",
+            body: JSON.stringify(toggleData)
+        });
 
-    rows.forEach(row => table.appendChild(row));
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            // Reload inventory data with current filters
+            await invmgmtLoadInventory(true);
+            
+            console.log(`Product ${productId} availability toggled successfully`);
+        } else {
+            console.error('Failed to toggle availability:', result.message || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Error toggling availability:', error);
+    } finally {
+        showLoader(false);
+    }
+}
+
+async function invmgmtEditProduct(productId) {
+    showLoader(true);
+    await fetch(`${API_URL}?action=getProduct&productId=${productId}`)
+        .then(response => response.json())
+        .then(product => {
+            document.getElementById('productId').value = product.id;
+            document.getElementById('segment').value = product.segment;
+            document.getElementById('type').value = product.type;
+            document.getElementById('name').value = product.name;
+            document.getElementById('ingredients').value = product.ingredients;
+            document.getElementById('description').value = product.description;
+            document.getElementById('price').value = product.price;
+            document.getElementById('isAvailable').checked = product.isAvailable === 'Y';
+
+            // Set the existing image URL and show preview
+            if (product.imageUrl) {
+                document.getElementById('imageUrl').value = product.imageUrl;
+
+                const imagePreview = document.getElementById('invmgmtImagePreview');
+                if (imagePreview) {
+                    imagePreview.src = product.imageUrl;
+                }
+
+                const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+                if (previewContainer) {
+                    previewContainer.style.display = 'block';
+                }
+            } else {
+                const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+            }
+
+            invmgmtOpenModal();
+            showLoader(false);
+        })
+        .catch(error => {
+            console.error('Error fetching product details:', error);
+            showLoader(false);
+        });
 }
 
 function invmgmtOpenModal() {
