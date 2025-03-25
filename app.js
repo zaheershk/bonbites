@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbxIXGsU9e2FnfT2ucAidLN5HEEMHY9eJ_T4yn7hvpHsl2mZiyV36JVvlpjW-fNGKrlb/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwEMY0F2LDBIFs8quURX_HLpwIvBwh8gO3QajKy-ge1Y9tCkcP8JTLZvGP3bzm4lO_O/exec';
 
 let settings = [];
 let products = [];
@@ -6,7 +6,7 @@ let orders = [];
 let cart = [];
 
 let storeType = ''
-let workflowContextLC = '';
+let workflowContext = '';
 
 let user_agt = '';
 let user_ip = '';
@@ -57,67 +57,72 @@ async function callAPIviaPOST(data) {
 }
 
 window.onload = async function () {
+    const workflowContextMetaTag = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
+    workflowContext = workflowContextMetaTag.toLowerCase();
+
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
-        window.location.href = 'storeclosed.html';
+        // Only redirect if this is the index/order page
+        const isIndexPage = !workflowContextMetaTag || workflowContext === 'intake';
+        if (isIndexPage) {
+            window.location.href = 'storeclosed';
+            return; // Stop further execution
+        }
     }
-    else {
-        showLoader(true);
 
-        const workflowContext = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
-        workflowContextLC = workflowContext.toLowerCase();
+    showLoader(true);
 
-        if (workflowContextLC === 'intake' || workflowContextLC === 'menu' || workflowContextLC === 'inventory') {
-            storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
+    if (workflowContext === 'intake' || workflowContext === 'menu' || workflowContext === 'inventory') {
+        storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
 
-            //console.log('workflowContextLC:', workflowContextLC);
-            //console.log('storeType:', storeType);
+        //console.log('workflowContext:', workflowContext);
+        //console.log('storeType:', storeType);
 
-            if (workflowContextLC === 'inventory') {
-                await invmgmtLoadInventory(false);
-            }
-
-            if (workflowContextLC === 'menu') {
-                products = await fetchProducts(storeType, true);
-                loadMenu();
-            }
-
-            if (workflowContextLC === 'intake') {
-                products = await fetchProducts(storeType, true);
-                if (storeType === 'online') {
-                    // capture traffic info
-                    user_agt = navigator.userAgent;
-                    user_ip = await fetchIPAddress();
-                    //await captureTraffic();
-
-                    getDeliveryOptions();
-                    loadProductsForOnlineStore();
-                    clearExistingDataForOnlineStore();
-                } else if (storeType === 'local') {
-                    loadProductsForLocalStore();
-                    clearExistingDataForLocalStore();
-                }
-            }
+        if (workflowContext === 'inventory') {
+            await invmgmtLoadInventory(false);
         }
 
-        if (workflowContextLC === 'process') {
-            const storeType = getUrlParameter('storeType');
-            if (storeType) {
-                document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
-            }
-
-            orders = await fetchOrders();
-            if (!orders) {
-                showLoader(false);
-                console.error('Failed to load orders.');
-                return;
-            }
-
-            loadOrders();
+        if (workflowContext === 'menu') {
+            products = await fetchProducts(storeType, true);
+            loadMenu();
         }
 
-        showLoader(false);
+        if (workflowContext === 'intake') {
+            products = await fetchProducts(storeType, true);
+            if (storeType === 'online') {
+                // capture traffic info
+                user_agt = navigator.userAgent;
+                user_ip = await fetchIPAddress();
+                //await captureTraffic();
+
+                getDeliveryOptions();
+                loadProductsForOnlineStore();
+                clearExistingDataForOnlineStore();
+            } else if (storeType === 'local') {
+                loadProductsForLocalStore();
+                clearExistingDataForLocalStore();
+            }
+        }
     }
+
+    if (workflowContext === 'process') {
+        const storeType = getUrlParameter('storeType');
+        if (storeType) {
+            document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
+        }
+
+        orders = await fetchOrders();
+        if (!orders) {
+            showLoader(false);
+            console.error('Failed to load orders.');
+            return;
+        }
+
+        loadOrders();
+    }
+
+    showLoader(false);
+
 };
 
 async function captureTraffic() {
@@ -552,7 +557,7 @@ if (productForm) {
         }
 
         const productData = {
-            action: productId ? 'updateProduct' : 'addProduct',
+            action: productId ? 'updateProduct' : 'insertProduct',
             storeType: document.querySelector('meta[name="store-type"]').getAttribute('content'),
             productId: productId || '',
             segment: formData.get('segment'),
@@ -790,13 +795,13 @@ function invmgmtPreviewImage(event) {
     const file = event.target.files[0];
     const previewImage = document.getElementById('invmgmtImagePreview');
     const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
-    
+
     if (file && previewImage && previewContainer) {
         const reader = new FileReader();
-        
-        reader.onload = function(e) {
+
+        reader.onload = function (e) {
             previewImage.src = e.target.result;
-            
+
             // Apply thumbnail styling
             previewImage.style.maxWidth = "150px";
             previewImage.style.maxHeight = "100px";
@@ -804,10 +809,10 @@ function invmgmtPreviewImage(event) {
             previewImage.style.border = "1px solid #ddd";
             previewImage.style.borderRadius = "4px";
             previewImage.style.padding = "3px";
-            
+
             previewContainer.style.display = 'block';
         };
-        
+
         reader.readAsDataURL(file);
     }
 }
@@ -825,11 +830,11 @@ function invmgmtCloseModal() {
     // Clear the image preview to prevent it from showing in a new modal
     const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
     const previewImage = document.getElementById('invmgmtImagePreview');
-    
+
     if (previewContainer) {
         previewContainer.style.display = 'none';
     }
-    
+
     if (previewImage) {
         previewImage.src = '';
     }
