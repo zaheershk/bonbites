@@ -57,8 +57,11 @@ async function callAPIviaPOST(data) {
 }
 
 window.onload = async function () {
+    showLoader(true);
+
     const workflowContextMetaTag = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
     workflowContext = workflowContextMetaTag.toLowerCase();
+    //console.log('workflowContext:', workflowContext);
 
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
@@ -70,12 +73,13 @@ window.onload = async function () {
         }
     }
 
-    showLoader(true);
+    if (workflowContext === 'admin') {
+        // Initialize admin-specific components
+        initStoreStatusToggle();
+    }
 
     if (workflowContext === 'intake' || workflowContext === 'menu' || workflowContext === 'inventory') {
         storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
-
-        //console.log('workflowContext:', workflowContext);
         //console.log('storeType:', storeType);
 
         if (workflowContext === 'inventory') {
@@ -154,6 +158,79 @@ async function fetchAppSettings() {
     } catch (error) {
         console.error('Failed to fetch app settings:', error);
         return {};
+    }
+}
+
+async function updateAppSetting(key, value) {
+    try {
+        showLoader(true);
+        
+        const data = {
+            action: "updateAppSetting",
+            key: key,
+            value: value
+        };
+        
+        const result = await callAPIviaPOST(data);
+        
+        if (result.status === 'success') {
+            console.log(`Setting '${key}' updated successfully`);
+        } else {
+            console.error(`Failed to update setting '${key}':`);
+        }
+    } catch (error) {
+        console.error(`Error updating setting '${key}':`, error);
+    } finally {
+        showLoader(false);
+    }
+}
+
+function initStoreStatusToggle() {
+    const toggle = document.getElementById('storeStatusToggle');
+    const actionText = document.getElementById('storeActionText');
+
+    if (!toggle || !actionText) return;
+    
+    // Set initial toggle state based on settings
+    const isStoreOpen = settings.StoreClosed !== 'Y';
+    
+    if (isStoreOpen) {
+        toggle.classList.remove('fa-toggle-off', 'invmgmt-toggle-inactive');
+        toggle.classList.add('fa-toggle-on', 'invmgmt-toggle-active');
+        if (actionText) actionText.textContent = 'Click to Close'; 
+    } else {
+        toggle.classList.remove('fa-toggle-on', 'invmgmt-toggle-active');
+        toggle.classList.add('fa-toggle-off', 'invmgmt-toggle-inactive');
+        if (actionText) actionText.textContent = 'Click to Open';
+    }
+}
+
+async function toggleStoreStatus() {
+    const toggle = document.getElementById('storeStatusToggle');
+    const actionText = document.getElementById('storeActionText');
+
+    if (!toggle || !actionText) return;
+    
+    // Get current state based on toggle icon
+    const isCurrentlyOpen = toggle.classList.contains('fa-toggle-on');
+    
+    // Update to new state
+    if (isCurrentlyOpen) {
+        // Change to closed
+        toggle.classList.remove('fa-toggle-on', 'invmgmt-toggle-active');
+        toggle.classList.add('fa-toggle-off', 'invmgmt-toggle-inactive');
+        if (actionText) actionText.textContent = 'Click to Open';
+        
+        // Update setting
+        await updateAppSetting('StoreClosed', 'Y');
+    } else {
+        // Change to open
+        toggle.classList.remove('fa-toggle-off', 'invmgmt-toggle-inactive');
+        toggle.classList.add('fa-toggle-on', 'invmgmt-toggle-active');
+        if (actionText) actionText.textContent = 'Click to Close';
+        
+        // Update setting
+        await updateAppSetting('StoreClosed', 'N');
     }
 }
 

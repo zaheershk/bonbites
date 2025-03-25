@@ -1048,3 +1048,37 @@ input:checked + .slider:before {
     color: #ccc;
     font-weight: 500;
 }
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.store-status-toggle {
+    cursor: pointer;
+    font-size: 1.8rem;
+    transition: color 0.3s ease;
+    padding-top: 15px;
+}
+
+#storeStatusToggle.fa-toggle-on {
+    color: #8fbc8f !important; /* Force green for 'on' state */
+}
+
+#storeStatusToggle.fa-toggle-off {
+    color: #cc0000 !important; /* Force red for 'off' state */
+}
+
+.admin-tile i.store-status-toggle {
+    color: inherit; /* Override the general icon color */
+}
+
+.toggle-container i.store-status-toggle {
+    color: #8fbc8f; /* Default color for 'on' state */
+}
+
+.toggle-container i.store-status-toggle.fa-toggle-off {
+    color: #cc0000; /* Color for 'off' state */
+}

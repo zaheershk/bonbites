@@ -23,6 +23,16 @@
         <h1 class="section-title">Pick an option..</h1>
         
         <div class="admin-tiles">
+            <div class="admin-tile store-status-tile">
+                <i class="fas fa-store"></i>
+                <h3>Manage Store</h3>
+                <div class="toggle-container">
+                    <p id="storeActionText"></p>
+                    <i id="storeStatusToggle" class="fas fa-toggle-on store-status-toggle invmgmt-toggle-active" 
+                       onclick="toggleStoreStatus()"></i>
+                </div>
+            </div>
+            
             <div class="admin-tile" onclick="window.location.href='menu'">
                 <i class="fas fa-utensils"></i>
                 <h3>View Menu</h3>
