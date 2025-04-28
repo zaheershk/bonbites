@@ -1605,7 +1605,7 @@ async function updateStatus(storeType, orderId, status) {
 // Global variables for stock management
 let stockItems = [];
 let stockFilteredItems = [];
-let stockSortColumns = ['name', 'type', 'location'];
+let stockSortColumns = ['expirationDate', 'name', 'type', 'location'];
 let stockSortDirections = {
     name: 'asc',
     type: 'asc',
@@ -1675,14 +1675,18 @@ function loadStockItemTable(items) {
     if (!tbody) return;
     
     tbody.innerHTML = '';
-    
-    //console.log('Loading table with items:', items); // Debug log
 
+    // Get current date for expiration warning calculation
+    const currentDate = new Date();
+    const warningDays = 15; // Show warning for items expiring within 15 days
+    
     items.forEach(item => {
         const row = document.createElement('tr');
 
         // Format the date for display - handle potential invalid dates
         let formattedDate = 'N/A';
+        let expirationWarning = '';
+        
         if (item.ExpirationDate) {
             try {
                 const expirationDate = new Date(item.ExpirationDate);
@@ -1692,18 +1696,30 @@ function loadStockItemTable(items) {
                         month: '2-digit', 
                         day: '2-digit' 
                     });
+                    
+                    // Calculate days until expiration
+                    const timeDiff = expirationDate.getTime() - currentDate.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    
+                    // Add warning icon if expiring within specified days
+                    if (daysDiff <= warningDays && daysDiff >= 0) {
+                        expirationWarning = '<i class="fas fa-exclamation-triangle expiry-warning" title="Expires in ' + daysDiff + ' days"></i>';
+                    } else if (daysDiff < 0) {
+                        expirationWarning = '<i class="fas fa-exclamation-circle expiry-warning" title="Expired ' + Math.abs(daysDiff) + ' days ago"></i>';
+                    }
                 }
             } catch (e) {
                 console.error('Error formatting date:', e);
             }
         }
+
         // Add cells with data - add null/undefined checks
         row.innerHTML = `
             <td>${item.Name || 'N/A'}</td>
             <td>${item.Type || 'N/A'}</td>
             <td>${item.Location || 'N/A'}</td>
             <td>${item.Quantity || '0'}</td>
-            <td>${formattedDate}</td>
+            <td>${formattedDate} ${expirationWarning}</td>
             <td>${item.Status || 'N/A'}</td>
             <td>
                 <i class="fas fa-edit action-icons" onclick="stockEditItem('${item.Id}')" title="Edit item"></i>

@@ -1200,3 +1200,15 @@ th[data-sort-order]:not([data-sort-order=""]):before {
     filter: invert(1);
     cursor: pointer;
 }
+
+@keyframes blink-warning {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+  
+  .expiry-warning {
+    color: #ff4d4d;
+    animation: blink-warning 1.5s infinite;
+    margin-left: 8px;
+  }
