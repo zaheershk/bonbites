@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Management</title>
+    <meta name="workflow-context" content="stock">
+    <link rel="stylesheet" href="styles-dark.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <h1>Stock Management</h1>
+        </div>
+    </header>
+    <main>
+        <br />
+        <button id="stockAddItemBtn" class="action-icons"><i class="fas fa-plus"></i> Add Stock Item</button>
+        <br />
+        <div class="stock-filters-container">
+            <div class="stock-filter-group">
+                <label for="stockTypeFilter">Type:</label>
+                <select id="stockTypeFilter">
+                    <option value="">All Types</option>
+                    <option value="Perishable">Perishable</option>
+                    <option value="Non-Perishable">Non-Perishable</option>
+                </select>
+            </div>
+
+            <div class="stock-filter-group">
+                <label for="stockLocationFilter">Location:</label>
+                <select id="stockLocationFilter">
+                    <option value="">All Locations</option>
+                    <option value="Pantry">Pantry</option>
+                    <option value="Fridge">Fridge</option>
+                </select>
+            </div>
+
+            <div class="stock-filter-group">
+                <label for="stockStatusFilter">Status:</label>
+                <select id="stockStatusFilter">
+                    <option value="">All</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Purchase">Purchase</option>
+                    <option value="Awaiting Delivery">Awaiting Delivery</option>
+                </select>
+            </div>
+
+            <button id="stockResetFiltersBtn" class="stock-btn-reset-filters">Reset Filters</button>
+        </div>
+        <div class="inventory-table-wrapper">
+            <table id="stockItemTable">
+                <thead>
+                    <tr>
+                        <th data-column="name" class="stock-sortable">Name</th>
+                        <th data-column="type" class="stock-sortable">Type</th>
+                        <th data-column="location" class="stock-sortable">Storage Location</th>
+                        <th data-column="quantity" class="stock-sortable">Quantity</th>
+                        <th data-column="expirationDate" class="stock-sortable">Expiration Date</th>
+                        <th data-column="status" class="stock-sortable">Status</th>
+                        <th data-sortable="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="stockItemTableBody">
+                    <!-- Table content will be dynamically generated -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="stockItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="stockCloseModalBtn">&times;</span>
+            <form id="stockItemForm">
+                <input type="hidden" id="stockItemId" name="stockItemId">
+                <label for="stockName">Name:</label>
+                <input type="text" id="stockName" name="stockName" required>
+                <label for="stockType">Type:</label>
+                <select id="stockType" name="stockType" required>
+                    <option value="">[Select]</option>
+                    <option value="Perishable">Perishable</option>
+                    <option value="Non-Perishable">Non-Perishable</option>
+                </select>
+                <label for="stockLocation">Storage Location:</label>
+                <select id="stockLocation" name="stockLocation" required>
+                    <option value="">[Select]</option>
+                    <option value="Pantry">Pantry</option>
+                    <option value="Fridge">Fridge</option>
+                </select>
+                <label for="stockQuantity">Quantity Available:</label>
+                <input type="text" id="stockQuantity" name="stockQuantity" required>
+                <label for="stockExpirationDate">Expiration Date (MM/DD/YYYY):</label>
+                <input type="date" id="stockExpirationDate" name="stockExpirationDate" required>
+                <label for="stockStatus">Status:</label>
+                <select id="stockStatus" name="stockStatus" required>
+                    <option value="">[Select]</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Purchase">Purchase</option>
+                    <option value="Awaiting Delivery">Awaiting Delivery</option>
+                </select>
+                <hr class="separator">
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save</button>
+                    <button type="button" class="cancel-btn" id="stockCancelModalBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="loader" class="loader">Please wait...</div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
