@@ -1678,7 +1678,7 @@ function loadStockItemTable(items) {
 
     // Get current date for expiration warning calculation
     const currentDate = new Date();
-    const warningDays = 15; // Show warning for items expiring within 15 days
+    const warningDays = 30; // Show warning for items expiring within 30 days
     
     items.forEach(item => {
         const row = document.createElement('tr');
