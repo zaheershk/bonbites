@@ -1201,14 +1201,75 @@ th[data-sort-order]:not([data-sort-order=""]):before {
     cursor: pointer;
 }
 
+/* Expiry date cell styling for consistent icon placement */
+.expiry-date-cell {
+    display: flex;
+    align-items: center;
+}
+
+.expiry-date {
+    min-width: 100px; /* Set a minimum width for date text */
+}
+
+.expiry-icon {
+    width: 30px; /* Fixed width area for the icon */
+    text-align: center;
+}
+
+/* Expiration warning styles */
 @keyframes blink-warning {
-    0% { opacity: 1; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1; }
-  }
-  
-  .expiry-warning {
-    color: #ff4d4d;
-    animation: blink-warning 1.5s infinite;
-    margin-left: 8px;
-  }
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.expiry-warning-soon {
+  color: #ffaa00; /* Yellow warning triangle */
+  /* animation: blink-warning 1.5s infinite; */
+}
+
+.expiry-warning-expired {
+  color: #d92c2c; /* Red circle for expired */
+  /* animation: blink-warning 1.5s infinite; */
+}
+
+/* Search input styling */
+.search-container {
+    position: relative;
+    width: 250px;
+    margin-left: auto; /* This pushes it to the right */
+    order: 999; /* High order value ensures it appears at the end in flex containers */
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 8px 8px 35px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    color: #333;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #dfa06b;
+    box-shadow: 0 0 5px rgba(223, 160, 107, 0.5);
+}
+
+/* Make sure the search box gets full width on smaller screens */
+@media (max-width: 768px) {
+    .search-container {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}

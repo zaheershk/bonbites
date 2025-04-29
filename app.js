@@ -1618,7 +1618,8 @@ let stockSortDirections = {
 let stockFilters = {
     type: '',
     location: '',
-    status: ''
+    status: '',
+    searchTerm: ''
 };
 
 async function stockLoadItems(reapplyFilters = false) {
@@ -1678,7 +1679,7 @@ function loadStockItemTable(items) {
 
     // Get current date for expiration warning calculation
     const currentDate = new Date();
-    const warningDays = settings.ExpirationWindow; // Show warning for items expiring within this many days
+    const warningDays = settings.ExpirationWindow || 15; // Show warning for items expiring within this many days
     
     items.forEach(item => {
         const row = document.createElement('tr');
@@ -1701,11 +1702,15 @@ function loadStockItemTable(items) {
                     const timeDiff = expirationDate.getTime() - currentDate.getTime();
                     const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
                     
-                    // Add warning icon if expiring within specified days
-                    if (daysDiff <= warningDays && daysDiff >= 0) {
-                        expirationWarning = '<i class="fas fa-exclamation-triangle expiry-warning" title="Expires in ' + daysDiff + ' days"></i>';
-                    } else if (daysDiff < 0) {
-                        expirationWarning = '<i class="fas fa-exclamation-circle expiry-warning" title="Expired ' + Math.abs(daysDiff) + ' days ago"></i>';
+                    // Add appropriate warning icon based on expiration status
+                    if (daysDiff < 0) {
+                        // Expired - show red circle
+                        expirationWarning = `<i class="fas fa-exclamation-circle expiry-warning-expired" 
+                                             title="Expired ${Math.abs(daysDiff)} days ago"></i>`;
+                    } else if (daysDiff <= warningDays) {
+                        // Soon to expire - show yellow triangle
+                        expirationWarning = `<i class="fas fa-exclamation-triangle expiry-warning-soon" 
+                                             title="Expires in ${daysDiff} days"></i>`;
                     }
                 }
             } catch (e) {
@@ -1719,7 +1724,10 @@ function loadStockItemTable(items) {
             <td>${item.Type || 'N/A'}</td>
             <td>${item.Location || 'N/A'}</td>
             <td>${item.Quantity || '0'}</td>
-            <td>${formattedDate} ${expirationWarning}</td>
+            <td class="expiry-date-cell">
+                <div class="expiry-date">${formattedDate}</div>
+                <div class="expiry-icon">${expirationWarning}</div>
+            </td>
             <td>${item.Status || 'N/A'}</td>
             <td>
                 <i class="fas fa-edit action-icons" onclick="stockEditItem('${item.Id}')" title="Edit item"></i>
@@ -1735,11 +1743,19 @@ function loadStockItemTable(items) {
 
 function stockInitFilters() {
     // Set up filter event listeners
+    const searchInput = document.getElementById('stockSearchInput');
     const typeFilterEl = document.getElementById('stockTypeFilter');
     const locationFilterEl = document.getElementById('stockLocationFilter');
     const statusFilterEl = document.getElementById('stockStatusFilter');
     const resetFiltersBtn = document.getElementById('stockResetFiltersBtn');
 
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            stockFilters.searchTerm = this.value.toLowerCase();
+            stockApplyFilters();
+        });
+    }
+    
     if (typeFilterEl) typeFilterEl.addEventListener('change', stockApplyFilters);
     if (locationFilterEl) locationFilterEl.addEventListener('change', stockApplyFilters);
     if (statusFilterEl) statusFilterEl.addEventListener('change', stockApplyFilters);
@@ -1751,16 +1767,24 @@ function stockApplyFilters() {
     const typeFilterEl = document.getElementById('stockTypeFilter');
     const locationFilterEl = document.getElementById('stockLocationFilter');
     const statusFilterEl = document.getElementById('stockStatusFilter');
+    // Note: searchTerm is updated directly from the input event
 
     stockFilters.type = typeFilterEl ? typeFilterEl.value : '';
     stockFilters.location = locationFilterEl ? locationFilterEl.value : '';
     stockFilters.status = statusFilterEl ? statusFilterEl.value : '';
 
-    // Apply filters to the items array with correct casing
+    // Apply filters to the items array
     stockFilteredItems = stockItems.filter(item => {
-        return (stockFilters.type === '' || item.Type === stockFilters.type) &&
-            (stockFilters.location === '' || item.Location === stockFilters.location) &&
-            (stockFilters.status === '' || item.Status === stockFilters.status);
+        // Search filter - check if search term is included in the name
+        const nameMatch = !stockFilters.searchTerm || 
+            (item.Name && item.Name.toLowerCase().includes(stockFilters.searchTerm));
+            
+        // Other filters
+        const typeMatch = stockFilters.type === '' || item.Type === stockFilters.type;
+        const locationMatch = stockFilters.location === '' || item.Location === stockFilters.location;
+        const statusMatch = stockFilters.status === '' || item.Status === stockFilters.status;
+        
+        return nameMatch && typeMatch && locationMatch && statusMatch;
     });
 
     // Reload the table with filtered items
@@ -1768,10 +1792,12 @@ function stockApplyFilters() {
 }
 
 function stockResetFilters() {
+    const searchInput = document.getElementById('stockSearchInput');
     const typeFilterEl = document.getElementById('stockTypeFilter');
     const locationFilterEl = document.getElementById('stockLocationFilter');
     const statusFilterEl = document.getElementById('stockStatusFilter');
 
+    if (searchInput) searchInput.value = '';
     if (typeFilterEl) typeFilterEl.value = '';
     if (locationFilterEl) locationFilterEl.value = '';
     if (statusFilterEl) statusFilterEl.value = '';
@@ -1779,7 +1805,8 @@ function stockResetFilters() {
     stockFilters = {
         type: '',
         location: '',
-        status: ''
+        status: '',
+        searchTerm: ''
     };
 
     // Reset filtered items to all items

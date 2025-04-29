@@ -34,7 +34,9 @@
                 <label for="stockLocationFilter">Location:</label>
                 <select id="stockLocationFilter">
                     <option value="">All Locations</option>
-                    <option value="Pantry">Pantry</option>
+                    <option value="Pantry-Study">Pantry-Study</option>
+                    <option value="Pantry-Dining">Pantry-Dining</option>
+                    <option value="Kitchen">Kitchen</option>
                     <option value="Fridge">Fridge</option>
                 </select>
             </div>
@@ -46,9 +48,14 @@
                     <option value="Unopened">Unopened</option>
                     <option value="In Use">In Use</option>
                     <option value="Almost Over">Almost Over</option>
-                    <option value="Pending Purchase">Pending Purchase</option>
+                    <option value="Need To Purchase">Need To Purchase</option>
                     <option value="Awaiting Delivery">Awaiting Delivery</option>
                 </select>
+            </div>
+
+            <div class="stock-filter-group search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="stockSearchInput" placeholder="Search items..." class="search-input">
             </div>
 
             <button id="stockResetFiltersBtn" class="stock-btn-reset-filters">Reset Filters</button>
@@ -89,7 +96,9 @@
                 <label for="stockLocation">Storage Location:</label>
                 <select id="stockLocation" name="stockLocation" required>
                     <option value="">[Select]</option>
-                    <option value="Pantry">Pantry</option>
+                    <option value="Pantry-Study">Pantry-Study</option>
+                    <option value="Pantry-Dining">Pantry-Dining</option>
+                    <option value="Kitchen">Kitchen</option>
                     <option value="Fridge">Fridge</option>
                 </select>
                 <label for="stockQuantity">Quantity Available:</label>
@@ -102,7 +111,7 @@
                     <option value="Unopened">Unopened</option>
                     <option value="In Use">In Use</option>
                     <option value="Almost Over">Almost Over</option>
-                    <option value="Pending Purchase">Pending Purchase</option>
+                    <option value="Need To Purchase">Need To Purchase</option>
                     <option value="Awaiting Delivery">Awaiting Delivery</option>
                 </select>
                 <hr class="separator">
