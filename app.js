@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbxBEqC2-wZGio8gPDPNqddI1ZhJOvjQFKVmTcpvvMQe3gI-EoGY5gMGYoH055E4wSe6/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyhEoVEF81cRSOObrn-1d17zHD2HwJNDsSfkF0crmsrhoMnWrTjx_3lYnaZnMxZJALR/exec';
 
 let settings = [];
 let products = [];
@@ -10,22 +10,6 @@ let workflowContext = '';
 
 let user_agt = '';
 let user_ip = '';
-
-// Global variables for inventory management sorting
-let invmgmtSortColumns = ['segment', 'type', 'name'];
-let invmgmtSortDirections = {
-    segment: 'asc',
-    type: 'asc',
-    name: 'asc'
-};
-
-// Global variables for inventory management filtering
-let invmgmtFilteredProducts = [];
-let invmgmtFilters = {
-    segment: '',
-    type: '',
-    available: ''
-};
 
 function getUrlParameter(name) {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -78,12 +62,12 @@ window.onload = async function () {
         initStoreStatusToggle();
     }
 
-    if (workflowContext === 'intake' || workflowContext === 'menu' || workflowContext === 'inventory') {
+    if (workflowContext === 'intake' || workflowContext === 'menu' || workflowContext === 'products') {
         storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
         //console.log('storeType:', storeType);
 
-        if (workflowContext === 'inventory') {
-            await invmgmtLoadInventory(false);
+        if (workflowContext === 'products') {
+            await productLoadProducts(false);
         }
 
         if (workflowContext === 'menu') {
@@ -200,12 +184,12 @@ function initStoreStatusToggle() {
     const isStoreOpen = settings.StoreClosed !== 'Y';
     
     if (isStoreOpen) {
-        toggle.classList.remove('fa-toggle-off', 'invmgmt-toggle-inactive');
-        toggle.classList.add('fa-toggle-on', 'invmgmt-toggle-active');
+        toggle.classList.remove('fa-toggle-off', 'product-toggle-inactive');
+        toggle.classList.add('fa-toggle-on', 'product-toggle-active');
         if (actionText) actionText.textContent = 'Click to Close'; 
     } else {
-        toggle.classList.remove('fa-toggle-on', 'invmgmt-toggle-active');
-        toggle.classList.add('fa-toggle-off', 'invmgmt-toggle-inactive');
+        toggle.classList.remove('fa-toggle-on', 'product-toggle-active');
+        toggle.classList.add('fa-toggle-off', 'product-toggle-inactive');
         if (actionText) actionText.textContent = 'Click to Open';
     }
 }
@@ -222,16 +206,16 @@ async function toggleStoreStatus() {
     // Update to new state
     if (isCurrentlyOpen) {
         // Change to closed
-        toggle.classList.remove('fa-toggle-on', 'invmgmt-toggle-active');
-        toggle.classList.add('fa-toggle-off', 'invmgmt-toggle-inactive');
+        toggle.classList.remove('fa-toggle-on', 'product-toggle-active');
+        toggle.classList.add('fa-toggle-off', 'product-toggle-inactive');
         if (actionText) actionText.textContent = 'Click to Open';
         
         // Update setting
         await updateAppSetting('StoreClosed', 'Y');
     } else {
         // Change to open
-        toggle.classList.remove('fa-toggle-off', 'invmgmt-toggle-inactive');
-        toggle.classList.add('fa-toggle-on', 'invmgmt-toggle-active');
+        toggle.classList.remove('fa-toggle-off', 'product-toggle-inactive');
+        toggle.classList.add('fa-toggle-on', 'product-toggle-active');
         if (actionText) actionText.textContent = 'Click to Close';
         
         // Update setting
@@ -243,7 +227,7 @@ async function fetchProducts(storeType, isAvailableFilter) {
     try {
         //console.log('isAvailableFilter:', isAvailableFilter);
 
-        const response = await fetch(API_URL + `?type=inventory&storeType=${storeType}&isAvailableFilter=${isAvailableFilter}`);
+        const response = await fetch(API_URL + `?type=products&storeType=${storeType}&isAvailableFilter=${isAvailableFilter}`);
         const products = await response.json();
         const productsArray = Array.isArray(products) ? products : []
         if (!productsArray.length) {
@@ -259,9 +243,25 @@ async function fetchProducts(storeType, isAvailableFilter) {
     }
 }
 
-//------------INVENTORY MGMT LOGIC
+//------------PRODUCT MGMT LOGIC
 
-async function invmgmtLoadInventory(reapplyFilters = false) {
+// Global variables for products management
+let productSortColumns = ['segment', 'type', 'name'];
+let productSortDirections = {
+    segment: 'asc',
+    type: 'asc',
+    name: 'asc'
+};
+
+let productFilteredProducts = [];
+let productFilters = {
+    segment: '',
+    type: '',
+    available: '',
+    searchTerm: ''
+};
+
+async function productLoadProducts(reapplyFilters = false) {
     try {
         showLoader(true);
 
@@ -270,32 +270,32 @@ async function invmgmtLoadInventory(reapplyFilters = false) {
 
         if (!reapplyFilters) {
             // Reset filters and use all products
-            invmgmtFilteredProducts = [...products];
-            invmgmtInitFilters();
+            productFilteredProducts = [...products];
+            productInitFilters();
         } else {
             // Re-apply current filters to the fresh data
-            invmgmtApplyFilters();
+            productApplyFilters();
         }
 
-        // Load the inventory display
-        loadInventoryTable(invmgmtFilteredProducts);
+        // Load the products display
+        loadProductsTable(productFilteredProducts);
 
         // Ensure segment dropdown is populated
         if (settings && settings.Segments) {
             populateSegmentDropdown(settings.Segments);
         }
     } catch (error) {
-        console.error('Error loading inventory:', error);
+        console.error('Error loading products:', error);
     } finally {
         showLoader(false);
     }
 }
 
-function loadInventoryTable(products) {
+function loadProductsTable(products) {
     // Sort products by default
-    invmgmtSortProducts(products);
+    productSortProducts(products);
 
-    const tbody = document.getElementById('invmgmtProductTableBody');
+    const tbody = document.getElementById('productProductTableBody');
     tbody.innerHTML = '';
 
     products.forEach(product => {
@@ -303,29 +303,29 @@ function loadInventoryTable(products) {
 
         // Image thumbnail cell
         const imgCell = document.createElement('td');
-        imgCell.className = 'invmgmt-table-img-cell';
+        imgCell.className = 'product-table-img-cell';
 
         if (product.imageUrl) {
             // Create image thumbnail wrapper
             const imgWrapper = document.createElement('div');
-            imgWrapper.className = 'invmgmt-table-img-wrapper';
+            imgWrapper.className = 'product-table-img-wrapper';
             imgWrapper.setAttribute('data-image-url', product.imageUrl);
             imgWrapper.setAttribute('role', 'button');
             imgWrapper.setAttribute('aria-label', 'Click to preview image');
-            imgWrapper.classList.add('invmgmt-preview-trigger');
+            imgWrapper.classList.add('product-preview-trigger');
 
             // Create the image element
             const img = document.createElement('img');
             img.src = product.imageUrl;
             img.alt = product.name;
-            img.className = 'invmgmt-table-img';
+            img.className = 'product-table-img';
 
             // Add image to wrapper, wrapper to cell
             imgWrapper.appendChild(img);
             imgCell.appendChild(imgWrapper);
         } else {
             // If no image, show placeholder
-            imgCell.innerHTML = '<div class="invmgmt-no-img-placeholder">No Image</div>';
+            imgCell.innerHTML = '<div class="product-no-img-placeholder">No Image</div>';
         }
         row.appendChild(imgCell);
 
@@ -339,34 +339,43 @@ function loadInventoryTable(products) {
             <td>₹${product.price}</td>
             <td>${product.isAvailable === 'Y' ? 'Yes' : 'No'}</td>
             <td>
-                <i class="fas ${product.isAvailable === 'Y' ? 'fa-toggle-on' : 'fa-toggle-off'} action-icons ${product.isAvailable === 'Y' ? 'invmgmt-toggle-active' : 'invmgmt-toggle-inactive'}" 
-                   onclick="invmgmtToggleAvailability('${product.id}', '${product.isAvailable}')"
+                <i class="fas ${product.isAvailable === 'Y' ? 'fa-toggle-on' : 'fa-toggle-off'} action-icons ${product.isAvailable === 'Y' ? 'product-toggle-active' : 'product-toggle-inactive'}" 
+                   onclick="productToggleAvailability('${product.id}', '${product.isAvailable}')"
                    title="${product.isAvailable === 'Y' ? 'Click to mark unavailable' : 'Click to mark available'}"></i>
-                <i class="fas fa-edit action-icons" onclick="invmgmtEditProduct('${product.id}')" title="Edit product"></i>
+                <i class="fas fa-edit action-icons" onclick="productEditProduct('${product.id}')" title="Edit product"></i>
             </td>
         `;
         tbody.appendChild(row);
     });
 
     // Initialize sorting functionality
-    invmgmtInitSorting();
+    productInitSorting();
 
     // Add click event listeners to image preview triggers
-    document.querySelectorAll('.invmgmt-preview-trigger').forEach(trigger => {
+    document.querySelectorAll('.product-preview-trigger').forEach(trigger => {
         trigger.addEventListener('click', function () {
             const imageUrl = this.getAttribute('data-image-url');
-            invmgmtShowEnlargedImage(imageUrl);
+            productShowEnlargedImage(imageUrl);
         });
     });
 }
 
-function invmgmtInitFilters() {
+function productInitFilters() {
     // Get unique values for segments and types
     const uniqueSegments = [...new Set(products.map(product => product.segment))].sort();
     const uniqueTypes = [...new Set(products.map(product => product.type))].sort();
 
+    // Set up search input
+    const searchInput = document.getElementById('productSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            productFilters.searchTerm = this.value.toLowerCase();
+            productApplyFilters();
+        });
+    }
+
     // Populate segment filter dropdown
-    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
+    const segmentFilterEl = document.getElementById('productSegmentFilter');
     if (segmentFilterEl) {
         // Clear existing options first to prevent duplicates
         segmentFilterEl.innerHTML = '<option value="">[All Segments]</option>';
@@ -377,11 +386,11 @@ function invmgmtInitFilters() {
             option.textContent = segment;
             segmentFilterEl.appendChild(option);
         });
-        segmentFilterEl.addEventListener('change', invmgmtApplyFilters);
+        segmentFilterEl.addEventListener('change', productApplyFilters);
     }
 
     // Populate type filter dropdown
-    const typeFilterEl = document.getElementById('invmgmtTypeFilter');
+    const typeFilterEl = document.getElementById('productTypeFilter');
     if (typeFilterEl) {
         // Clear existing options first to prevent duplicates
         typeFilterEl.innerHTML = '<option value="">[All Types]</option>';
@@ -392,83 +401,93 @@ function invmgmtInitFilters() {
             option.textContent = type;
             typeFilterEl.appendChild(option);
         });
-        typeFilterEl.addEventListener('change', invmgmtApplyFilters);
+        typeFilterEl.addEventListener('change', productApplyFilters);
     }
 
     // Set up available filter
-    const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
+    const availableFilterEl = document.getElementById('productAvailableFilter');
     if (availableFilterEl) {
-        availableFilterEl.addEventListener('change', invmgmtApplyFilters);
+        availableFilterEl.addEventListener('change', productApplyFilters);
     }
 
-    const resetFiltersBtn = document.getElementById('invmgmtResetFiltersBtn');
+    const resetFiltersBtn = document.getElementById('productResetFiltersBtn');
     if (resetFiltersBtn) {
-        resetFiltersBtn.addEventListener('click', invmgmtResetFilters);
+        resetFiltersBtn.addEventListener('click', productResetFilters);
     }
 }
 
-function invmgmtApplyFilters() {
+function productApplyFilters() {
     // Update filter values
-    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
-    const typeFilterEl = document.getElementById('invmgmtTypeFilter');
-    const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
+    const segmentFilterEl = document.getElementById('productSegmentFilter');
+    const typeFilterEl = document.getElementById('productTypeFilter');
+    const availableFilterEl = document.getElementById('productAvailableFilter');
 
-    invmgmtFilters.segment = segmentFilterEl ? segmentFilterEl.value : '';
-    invmgmtFilters.type = typeFilterEl ? typeFilterEl.value : '';
-    invmgmtFilters.available = availableFilterEl ? availableFilterEl.value : '';
+    productFilters.segment = segmentFilterEl ? segmentFilterEl.value : '';
+    productFilters.type = typeFilterEl ? typeFilterEl.value : '';
+    productFilters.available = availableFilterEl ? availableFilterEl.value : '';
 
     // Apply filters to the products array
-    invmgmtFilteredProducts = products.filter(product => {
-        return (invmgmtFilters.segment === '' || product.segment === invmgmtFilters.segment) &&
-            (invmgmtFilters.type === '' || product.type === invmgmtFilters.type) &&
-            (invmgmtFilters.available === '' || product.isAvailable === invmgmtFilters.available);
+    productFilteredProducts = products.filter(product => {
+        // Search filter - check if search term is included in the name
+        const nameMatch = !productFilters.searchTerm || 
+            product.name.toLowerCase().includes(productFilters.searchTerm);
+            
+        // Other filters
+        const segmentMatch = productFilters.segment === '' || product.segment === productFilters.segment;
+        const typeMatch = productFilters.type === '' || product.type === productFilters.type;
+        const availableMatch = productFilters.available === '' || product.isAvailable === productFilters.available;
+        
+        return nameMatch && segmentMatch && typeMatch && availableMatch;
     });
 
     // Reload the table with filtered products
-    loadInventoryTable(invmgmtFilteredProducts);
+    loadProductsTable(productFilteredProducts);
 }
 
-function invmgmtResetFilters() {
-    const segmentFilterEl = document.getElementById('invmgmtSegmentFilter');
-    const typeFilterEl = document.getElementById('invmgmtTypeFilter');
-    const availableFilterEl = document.getElementById('invmgmtAvailableFilter');
+function productResetFilters() {
+    const searchInput = document.getElementById('productSearchInput');
+    const segmentFilterEl = document.getElementById('productSegmentFilter');
+    const typeFilterEl = document.getElementById('productTypeFilter');
+    const availableFilterEl = document.getElementById('productAvailableFilter');
 
+    if (searchInput) searchInput.value = '';
     if (segmentFilterEl) segmentFilterEl.value = '';
     if (typeFilterEl) typeFilterEl.value = '';
     if (availableFilterEl) availableFilterEl.value = '';
 
-    invmgmtFilters = {
+    productFilters = {
         segment: '',
         type: '',
-        available: ''
+        available: '',
+        searchTerm: ''
     };
 
     // Reset filtered products to all products
-    invmgmtFilteredProducts = [...products];
+    productFilteredProducts = [...products];
 
     // Reload the table
-    loadInventoryTable(invmgmtFilteredProducts);
+    loadProductsTable(productFilteredProducts);
 }
 
-function invmgmtSortProducts(productsArray) {
+function productSortProducts(productsArray) {
     // Apply multi-column sorting
     productsArray.sort((a, b) => {
         // Compare by segment first
         if (a.segment.toLowerCase() !== b.segment.toLowerCase()) {
-            return invmgmtSortDirections.segment === 'asc'
+            return productSortDirections.segment === 'asc'
                 ? a.segment.toLowerCase().localeCompare(b.segment.toLowerCase())
                 : b.segment.toLowerCase().localeCompare(a.segment.toLowerCase());
         }
 
         // Then by type
         if (a.type.toLowerCase() !== b.type.toLowerCase()) {
-            return invmgmtSortDirections.type === 'asc'
+            return productSortDirections.type === 'asc'
                 ? a.type.toLowerCase().localeCompare(b.type.toLowerCase())
                 : b.type.toLowerCase().localeCompare(a.type.toLowerCase());
         }
 
         // Finally by name
-        return invmgmtSortDirections.name === 'asc'
+        return productSortDirections.name === 'asc'
             ? a.name.toLowerCase().localeCompare(b.name.toLowerCase())
             : b.name.toLowerCase().localeCompare(a.name.toLowerCase());
     });
@@ -476,47 +495,47 @@ function invmgmtSortProducts(productsArray) {
     return productsArray;
 }
 
-function invmgmtInitSorting() {
-    const headers = document.querySelectorAll('#invmgmtProductTable th.invmgmt-sortable');
+function productInitSorting() {
+    const headers = document.querySelectorAll('#productProductTable th.product-sortable');
     headers.forEach(header => {
         header.addEventListener('click', function () {
             const column = this.getAttribute('data-column');
 
             // Update sort direction
-            if (column === invmgmtSortColumns[0]) {
+            if (column === productSortColumns[0]) {
                 // Toggle direction for primary sort column
-                invmgmtSortDirections[column] = invmgmtSortDirections[column] === 'asc' ? 'desc' : 'asc';
+                productSortDirections[column] = productSortDirections[column] === 'asc' ? 'desc' : 'asc';
             } else {
                 // Make this the primary sort column
-                invmgmtSortColumns = [column, ...invmgmtSortColumns.filter(col => col !== column)];
+                productSortColumns = [column, ...productSortColumns.filter(col => col !== column)];
             }
 
             // Re-sort and reload
-            invmgmtSortProducts(products);
-            loadInventoryTable(products);
+            productSortProducts(products);
+            loadProductsTable(products);
 
             // Update sort indicators
-            invmgmtUpdateSortIndicators();
+            productUpdateSortIndicators();
         });
     });
 
     // Initialize sort indicators
-    invmgmtUpdateSortIndicators();
+    productUpdateSortIndicators();
 }
 
-function invmgmtUpdateSortIndicators() {
+function productUpdateSortIndicators() {
     // Remove all sort indicators
-    document.querySelectorAll('#invmgmtProductTable th.invmgmt-sortable').forEach(th => {
-        th.classList.remove('invmgmt-sort-asc', 'invmgmt-sort-desc');
+    document.querySelectorAll('#productProductTable th.product-sortable').forEach(th => {
+        th.classList.remove('product-sort-asc', 'product-sort-desc');
         th.setAttribute('data-sort-order', '');
     });
 
     // Add indicators for active sort columns
-    invmgmtSortColumns.forEach((column, index) => {
-        const th = document.querySelector(`#invmgmtProductTable th[data-column="${column}"]`);
+    productSortColumns.forEach((column, index) => {
+        const th = document.querySelector(`#productProductTable th[data-column="${column}"]`);
         if (th) {
-            const direction = invmgmtSortDirections[column];
-            th.classList.add(`invmgmt-sort-${direction}`);
+            const direction = productSortDirections[column];
+            th.classList.add(`product-sort-${direction}`);
             th.setAttribute('data-sort-order', index + 1);
         }
     });
@@ -534,20 +553,20 @@ function populateSegmentDropdown(segments) {
     });
 }
 
-const addProductBtn = document.getElementById('invmgmtAddProductBtn');
+const addProductBtn = document.getElementById('productAddProductBtn');
 if (addProductBtn) {
     addProductBtn.addEventListener('click', () => {
-        invmgmtOpenModal();
+        productOpenModal();
     });
 }
 
-const productForm = document.getElementById('invmgmtProductForm');
+const productForm = document.getElementById('productProductForm');
 if (productForm) {
     productForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         // Reset previous error states
-        invmgmtClearValidationErrors();
+        productClearValidationErrors();
 
         let hasErrors = false;
         const formData = new FormData(e.target);
@@ -653,69 +672,69 @@ if (productForm) {
         };
 
         // save product data
-        await invmgmtSaveProduct(productData);
+        await productSaveProduct(productData);
 
-        // reload inventory
-        await invmgmtLoadInventory(false);
-        invmgmtCloseModal();
+        // reload products
+        await productLoadProducts(false);
+        productCloseModal();
         showLoader(false);
     });
 }
 
 
-function invmgmtDisplayValidationError(fieldId, message) {
+function productDisplayValidationError(fieldId, message) {
     const field = document.getElementById(fieldId);
-    const errorMsgId = `invmgmt-${fieldId}-error`;
+    const errorMsgId = `product-${fieldId}-error`;
 
     // Add error class to the field
-    field.classList.add('invmgmt-error-field');
+    field.classList.add('product-error-field');
 
     // Check if error message element exists
     let errorMsg = document.getElementById(errorMsgId);
     if (!errorMsg) {
         errorMsg = document.createElement('div');
         errorMsg.id = errorMsgId;
-        errorMsg.className = 'invmgmt-error-message';
+        errorMsg.className = 'product-error-message';
         field.parentNode.insertBefore(errorMsg, field.nextSibling);
     }
 
     errorMsg.textContent = message;
 }
 
-function invmgmtClearValidationErrors() {
+function productClearValidationErrors() {
     // Remove all error messages
-    document.querySelectorAll('.invmgmt-error-message').forEach(el => el.remove());
+    document.querySelectorAll('.product-error-message').forEach(el => el.remove());
 
     // Remove error class from all fields
-    document.querySelectorAll('.invmgmt-error-field').forEach(el =>
-        el.classList.remove('invmgmt-error-field'));
+    document.querySelectorAll('.product-error-field').forEach(el =>
+        el.classList.remove('product-error-field'));
 }
 
-// Inventory management image preview functionality
+// Products management image preview functionality
 document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('image');
     if (imageInput) {
-        imageInput.addEventListener('change', invmgmtHandleImageChange);
+        imageInput.addEventListener('change', productHandleImageChange);
     }
 
-    const removeImageBtn = document.getElementById('invmgmtRemoveImageBtn');
+    const removeImageBtn = document.getElementById('productRemoveImageBtn');
     if (removeImageBtn) {
-        removeImageBtn.addEventListener('click', invmgmtRemoveImage);
+        removeImageBtn.addEventListener('click', productRemoveImage);
     }
 });
 
-function invmgmtHandleImageChange(e) {
+function productHandleImageChange(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
 
         reader.onload = function (e) {
-            const preview = document.getElementById('invmgmtImagePreview');
+            const preview = document.getElementById('productImagePreview');
             if (preview) {
                 preview.src = e.target.result;
 
                 // Show the preview container
-                const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+                const previewContainer = document.getElementById('productImagePreviewContainer');
                 if (previewContainer) {
                     previewContainer.style.display = 'block';
                 }
@@ -726,7 +745,7 @@ function invmgmtHandleImageChange(e) {
     }
 }
 
-function invmgmtRemoveImage() {
+function productRemoveImage() {
     const imageInput = document.getElementById('image');
     if (imageInput) {
         imageInput.value = '';
@@ -737,26 +756,26 @@ function invmgmtRemoveImage() {
         imageUrlInput.value = '';
     }
 
-    const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+    const previewContainer = document.getElementById('productImagePreviewContainer');
     if (previewContainer) {
         previewContainer.style.display = 'none';
     }
 }
 
-function invmgmtShowEnlargedImage(imageUrl) {
+function productShowEnlargedImage(imageUrl) {
     // Check if there's already a modal and remove it
-    const existingModal = document.querySelector('.invmgmt-enlarged-image-modal');
+    const existingModal = document.querySelector('.product-enlarged-image-modal');
     if (existingModal) {
         document.body.removeChild(existingModal);
     }
 
     // Create modal for enlarged image
     const modal = document.createElement('div');
-    modal.className = 'invmgmt-enlarged-image-modal';
+    modal.className = 'product-enlarged-image-modal';
 
     // Create close button
     const closeBtn = document.createElement('span');
-    closeBtn.className = 'invmgmt-enlarged-image-close';
+    closeBtn.className = 'product-enlarged-image-close';
     closeBtn.innerHTML = '&times;';
     closeBtn.onclick = function (e) {
         e.stopPropagation();
@@ -765,12 +784,12 @@ function invmgmtShowEnlargedImage(imageUrl) {
 
     // Create container for the image
     const imgContainer = document.createElement('div');
-    imgContainer.className = 'invmgmt-enlarged-image-container';
+    imgContainer.className = 'product-enlarged-image-container';
 
     // Create image element
     const img = document.createElement('img');
     img.src = imageUrl;
-    img.className = 'invmgmt-enlarged-image';
+    img.className = 'product-enlarged-image';
 
     // Append elements
     imgContainer.appendChild(img);
@@ -788,11 +807,11 @@ function invmgmtShowEnlargedImage(imageUrl) {
     };
 }
 
-async function invmgmtSaveProduct(productData) {
+async function productSaveProduct(productData) {
     await callAPIviaPOST(productData);
 }
 
-async function invmgmtToggleAvailability(productId, currentStatus) {
+async function productToggleAvailability(productId, currentStatus) {
     try {
         showLoader(true);
 
@@ -806,8 +825,8 @@ async function invmgmtToggleAvailability(productId, currentStatus) {
         // Send the request to toggle availability
         const result = await callAPIviaPOST(toggleData);
         if (result.status === 'success') {
-            // Reload inventory data with current filters
-            await invmgmtLoadInventory(true);
+            // Reload products data with current filters
+            await productLoadProducts(true);
 
             console.log(`Product ${productId} availability toggled successfully`);
         } else {
@@ -820,7 +839,7 @@ async function invmgmtToggleAvailability(productId, currentStatus) {
     }
 }
 
-async function invmgmtEditProduct(productId) {
+async function productEditProduct(productId) {
     showLoader(true);
     await fetch(`${API_URL}?type=product&productId=${productId}`)
         .then(response => response.json())
@@ -838,8 +857,8 @@ async function invmgmtEditProduct(productId) {
             if (product.imageUrl) {
                 document.getElementById('imageUrl').value = product.imageUrl;
 
-                const imagePreview = document.getElementById('invmgmtImagePreview');
-                const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+                const imagePreview = document.getElementById('productImagePreview');
+                const previewContainer = document.getElementById('productImagePreviewContainer');
 
                 if (imagePreview && previewContainer) {
                     // Set the image source
@@ -858,13 +877,13 @@ async function invmgmtEditProduct(productId) {
                 }
             } else {
                 // Hide preview if no image
-                const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+                const previewContainer = document.getElementById('productImagePreviewContainer');
                 if (previewContainer) {
                     previewContainer.style.display = 'none';
                 }
             }
 
-            invmgmtOpenModal();
+            productOpenModal();
             showLoader(false);
         })
         .catch(error => {
@@ -873,10 +892,10 @@ async function invmgmtEditProduct(productId) {
         });
 }
 
-function invmgmtPreviewImage(event) {
+function productPreviewImage(event) {
     const file = event.target.files[0];
-    const previewImage = document.getElementById('invmgmtImagePreview');
-    const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
+    const previewImage = document.getElementById('productImagePreview');
+    const previewContainer = document.getElementById('productImagePreviewContainer');
 
     if (file && previewImage && previewContainer) {
         const reader = new FileReader();
@@ -899,19 +918,19 @@ function invmgmtPreviewImage(event) {
     }
 }
 
-function invmgmtOpenModal() {
-    const modal = document.getElementById('invmgmtProductModal');
+function productOpenModal() {
+    const modal = document.getElementById('productProductModal');
     modal.style.display = 'block';
 }
 
-function invmgmtCloseModal() {
-    const modal = document.getElementById('invmgmtProductModal');
+function productCloseModal() {
+    const modal = document.getElementById('productProductModal');
     modal.style.display = 'none';
-    document.getElementById('invmgmtProductForm').reset();
+    document.getElementById('productProductForm').reset();
 
     // Clear the image preview to prevent it from showing in a new modal
-    const previewContainer = document.getElementById('invmgmtImagePreviewContainer');
-    const previewImage = document.getElementById('invmgmtImagePreview');
+    const previewContainer = document.getElementById('productImagePreviewContainer');
+    const previewImage = document.getElementById('productImagePreview');
 
     if (previewContainer) {
         previewContainer.style.display = 'none';
@@ -922,14 +941,14 @@ function invmgmtCloseModal() {
     }
 }
 
-const cancelModalBtn = document.getElementById('invmgmtCancelModalBtn');
+const cancelModalBtn = document.getElementById('productCancelModalBtn');
 if (cancelModalBtn) {
-    cancelModalBtn.addEventListener('click', invmgmtCloseModal);
+    cancelModalBtn.addEventListener('click', productCloseModal);
 }
 
 const closeModalBtn = document.querySelector('.close');
 if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', invmgmtCloseModal);
+    closeModalBtn.addEventListener('click', productCloseModal);
 }
 
 //------------ONLINE STORE LOGIC
