@@ -8,7 +8,7 @@ body {
 header {
     display: flex;
     background: #033c3b;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     color: #B2AC88;
     padding: 10px;
@@ -17,13 +17,14 @@ header {
 footer {
     display: flex;
     background: #033c3b;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     color: #B2AC88;
     padding: 10px;
 }
 
-.footer-left, .footer-right {
+.footer-left,
+.footer-right {
     padding: 10px;
 }
 
@@ -59,15 +60,18 @@ header .brand-hashtags {
 }
 
 #brand-logo {
-    width: 200px; /* or any size you prefer */
-    height: auto; /* maintains the aspect ratio */
+    width: 200px;
+    /* or any size you prefer */
+    height: auto;
+    /* maintains the aspect ratio */
     padding: 0;
     margin: 0;
 }
 
-.product, .order-table-wrapper {
+.product,
+.order-table-wrapper {
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
@@ -79,7 +83,7 @@ header .brand-hashtags {
     margin: 5px;
     text-align: left;
     position: relative;
-    padding-top: 30px; 
+    padding-top: 30px;
     padding-bottom: 30px;
 }
 
@@ -105,8 +109,8 @@ header .brand-hashtags {
 }
 
 .product .product-price {
-    font-size: 1rem;  
-    color: #242ae9;  
+    font-size: 1rem;
+    color: #242ae9;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -118,13 +122,15 @@ header .brand-hashtags {
 .type-logo {
     position: absolute;
     right: 10px;
-    top: 10px; 
-    height: 30px; /* Adjust size as needed */
-    width: 25px; /* Maintain aspect ratio */
+    top: 10px;
+    height: 30px;
+    /* Adjust size as needed */
+    width: 25px;
+    /* Maintain aspect ratio */
 }
 
 button {
-    background-color: #ded8cb; 
+    background-color: #ded8cb;
     color: #fff;
     border: none;
     padding: 8px 16px;
@@ -145,7 +151,7 @@ button.add-to-cart {
 
 button.add-to-cart i.fa-plus {
     color: black;
-    margin: auto; 
+    margin: auto;
 }
 
 button.interested {
@@ -156,14 +162,15 @@ button.interested {
 
 button.interested i.fa-heart {
     color: rgb(189, 79, 79);
-    margin: auto; 
+    margin: auto;
 }
 
 button.remove-item i.fa-trash {
     color: black;
 }
 
-#interested-section h2, #order-summary h2 {
+#interested-section h2,
+#order-summary h2 {
     padding-top: 20px;
 }
 
@@ -181,17 +188,19 @@ button.remove-item i.fa-trash {
 }
 
 #interested-section li button {
-    margin-left: 20px;  
+    margin-left: 20px;
 }
 
-.customer-form input, .customer-form button {
+.customer-form input,
+.customer-form button {
     width: 30%;
     padding: 8px;
     margin-top: 12px;
     border-radius: 4px;
 }
 
-.customer-form input.form-input, .customer-form select.form-input {
+.customer-form input.form-input,
+.customer-form select.form-input {
     width: 50%;
     padding: 8px;
     margin-top: 12px;
@@ -203,15 +212,16 @@ button.remove-item i.fa-trash {
 
 ::placeholder {
     color: #fff;
-    opacity: 1; 
-  }
-  
-  ::-ms-input-placeholder { 
-    color: #fff;
-  }
+    opacity: 1;
+}
 
-.customer-form input.error, .customer-form select.error {
-    border: 2px solid red; 
+::-ms-input-placeholder {
+    color: #fff;
+}
+
+.customer-form input.error,
+.customer-form select.error {
+    border: 2px solid red;
     background: #28282B;
 }
 
@@ -228,7 +238,10 @@ button.remove-item i.fa-trash {
     z-index: 10;
 }
 
-input[type="text"], input[type="tel"], input[type="email"], input[type="select"] {
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="select"] {
     border: 1px solid #ccc;
     background: #28282B;
     color: #fff;
@@ -237,7 +250,7 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="select"]
 #place-order-btn {
     width: auto;
     color: #fff;
-    font-size:16px;
+    font-size: 16px;
     font-weight: bold;
     background-color: #dfa06b;
 }
@@ -247,7 +260,8 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="select"]
 }
 
 .separator {
-    border-color: #e1e6e8; /* Light Grey Color for Separator */
+    border-color: #e1e6e8;
+    /* Light Grey Color for Separator */
 }
 
 .loader {
@@ -266,10 +280,11 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="select"]
 }
 
 .order-table-wrapper {
-    overflow-x: auto; /* Ensures table is scrollable on small screens */
+    overflow-x: auto;
+    /* Ensures table is scrollable on small screens */
     margin-top: 20px;
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 10px;
 }
@@ -294,22 +309,26 @@ button.remove-item {
     margin-top: 5px;
 }
 
-.increase-quantity, .decrease-quantity {
+.increase-quantity,
+.decrease-quantity {
     border: none;
     background-color: #ded8cb;
     color: black;
-    padding: 5px 10px;  /* Suitable for touch devices */
+    padding: 5px 10px;
+    /* Suitable for touch devices */
     font-size: 16px;
     cursor: pointer;
     border-radius: 5px;
 }
 
 .increase-quantity {
-    margin-left: 5px; /* Give some spacing between the quantity number and increase button */
+    margin-left: 5px;
+    /* Give some spacing between the quantity number and increase button */
 }
 
 .decrease-quantity {
-    margin-right: 5px; /* Give some spacing between decrease button and the quantity number */
+    margin-right: 5px;
+    /* Give some spacing between decrease button and the quantity number */
 }
 
 #orders-container {
@@ -321,7 +340,7 @@ button.remove-item {
 
 .card {
     width: 300px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin: 10px;
     padding: 20px;
     border-radius: 8px;
@@ -340,23 +359,30 @@ button.remove-item {
 .button-container {
     margin-top: 10px;
     display: flex;
-    justify-content: space-between; /* This will ensure buttons are spaced out over the container width */
-    align-items: center; /* Aligns buttons centered vertically */
-    gap: 10px; /* Adds spacing between the elements inside the flex container */
+    justify-content: space-between;
+    /* This will ensure buttons are spaced out over the container width */
+    align-items: center;
+    /* Aligns buttons centered vertically */
+    gap: 10px;
+    /* Adds spacing between the elements inside the flex container */
 }
 
-.big-button, .small-button {
+.big-button,
+.small-button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
     color: #fff;
     font-size: 16px;
-    flex: 1;  /* Allows the buttons to grow and fill the space, respecting the gap */
+    flex: 1;
+    /* Allows the buttons to grow and fill the space, respecting the gap */
 }
 
 .small-button {
-    flex: none; /* This will prevent the cancel button from growing */
-    width: 20%; /* Smaller width, can adjust percentage based on design preference */
+    flex: none;
+    /* This will prevent the cancel button from growing */
+    width: 20%;
+    /* Smaller width, can adjust percentage based on design preference */
     padding: 15px;
 }
 
@@ -377,42 +403,45 @@ button.remove-item {
 }
 
 .small-button:disabled {
-    background-color: #c0c0c0;  
-    cursor: not-allowed;        
-    opacity: 0.7;               
+    background-color: #c0c0c0;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .big-button {
-    padding: 15px; /* More padding for a larger button */
-    background-color: #4CAF50; /* Green color */
+    padding: 15px;
+    /* More padding for a larger button */
+    background-color: #4CAF50;
+    /* Green color */
 }
 
 button i {
     margin-right: 8px;
 }
 
-.menu-header, .menu-footer {
-    display: flex;  
+.menu-header,
+.menu-footer {
+    display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #033c3b; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #033c3b;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 5px;
     max-width: 750px;
-    width: calc(100% - 40px); 
-    margin: auto; 
+    width: calc(100% - 40px);
+    margin: auto;
 }
 
 .menu-hf-text {
     display: flex;
-    justify-content: center; 
-    align-items: center; 
+    justify-content: center;
+    align-items: center;
     color: #fff;
     font-family: "Playwrite NG Modern", serif;
     font-size: 1.5rem;
     font-weight: normal;
-    width: 100%; 
+    width: 100%;
 }
 
 .menu-footer-text {
@@ -438,7 +467,7 @@ button i {
     justify-content: center;
     background-image: radial-gradient(circle, #e08d79, #ab6e56, #775144);
     color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     margin-top: 5px;
     padding: 7px;
@@ -451,7 +480,7 @@ button i {
     display: flex;
     align-items: center;
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     margin-top: 5px;
     padding: 10px 5px;
@@ -502,29 +531,43 @@ button i {
 }
 
 @media print {
-    .menu-segment, .menu-segment-title, .menu-product-card {
-        page-break-inside: avoid; /* Avoid page break inside these elements */
+
+    .menu-segment,
+    .menu-segment-title,
+    .menu-product-card {
+        page-break-inside: avoid;
+        /* Avoid page break inside these elements */
     }
 }
 
 /* General table styles */
 table {
     width: 100%;
-    border-collapse: collapse; /* Ensures borders between cells are shared */
-    table-layout: auto; /* Adjust columns based on content length */
+    border-collapse: collapse;
+    /* Ensures borders between cells are shared */
+    table-layout: auto;
+    /* Adjust columns based on content length */
     margin-top: 20px;
-    background-color: #fff; /* Light background for the table */
-    color: #333; /* Dark text color */
+    background-color: #fff;
+    /* Light background for the table */
+    color: #333;
+    /* Dark text color */
 }
 
 /* Header and cell styles */
-th, td {
-    padding: 8px 12px; /* Consolidated padding */
+th,
+td {
+    padding: 8px 12px;
+    /* Consolidated padding */
     text-align: left;
-    border-bottom: 1px solid #ddd; /* Adds a subtle line between rows */
-    min-width: 50px; /* Minimum width for columns */
-    max-width: 300px; /* Maximum width for columns */
-    word-wrap: break-word; /* Wrap long words to the next line */
+    border-bottom: 1px solid #ddd;
+    /* Adds a subtle line between rows */
+    min-width: 50px;
+    /* Minimum width for columns */
+    max-width: 300px;
+    /* Maximum width for columns */
+    word-wrap: break-word;
+    /* Wrap long words to the next line */
 }
 
 /* Header specific styles */
@@ -536,14 +579,16 @@ th {
 
 /* Data cell specific styles */
 td {
-    color: #333; /* Dark text color for table data */
+    color: #333;
+    /* Dark text color for table data */
 }
 
 /* Sticky header styles */
 thead th {
     position: sticky;
     top: 0;
-    background-color: #8fbc8f; /* Keeps header background consistent when scrolling */
+    background-color: #8fbc8f;
+    /* Keeps header background consistent when scrolling */
 }
 
 /* Footer styles */
@@ -584,9 +629,12 @@ form {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin: 20px 0;
-    max-height: 60vh; /* Adjust height as needed */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: auto; /* Enable horizontal scrolling if needed */
+    max-height: 60vh;
+    /* Adjust height as needed */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    overflow-x: auto;
+    /* Enable horizontal scrolling if needed */
 }
 
 /* Keep the header row visible while scrolling */
@@ -599,7 +647,8 @@ form {
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: #8fbc8f; /* Match your existing header color */
+    background-color: #8fbc8f;
+    /* Match your existing header color */
 }
 
 /* Ensure the background color fills the header cells completely */
@@ -608,11 +657,13 @@ form {
 }
 
 .product-toggle-active {
-    color: #48c774; /* Green for active/available */
+    color: #48c774;
+    /* Green for active/available */
 }
 
 .product-toggle-inactive {
-    color: #f14668; /* Red for inactive/unavailable */
+    color: #f14668;
+    /* Red for inactive/unavailable */
 }
 
 th.product-sortable {
@@ -734,7 +785,7 @@ th[data-sort-order]:not([data-sort-order=""]):before {
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
-    padding-top: 60px;
+    padding-top: 10px;
 }
 
 .modal-content {
@@ -897,7 +948,8 @@ th[data-sort-order]:not([data-sort-order=""]):before {
     max-width: 100%;
     max-height: 80vh;
     object-fit: contain;
-    pointer-events: none; /* Prevents download */
+    pointer-events: none;
+    /* Prevents download */
     display: block;
 }
 
@@ -928,7 +980,8 @@ th[data-sort-order]:not([data-sort-order=""]):before {
 .storeclosed-container img {
     max-width: 100%;
     height: auto;
-    max-height: 50vh; /* Ensure the image doesn't exceed 50% of the viewport height */
+    max-height: 50vh;
+    /* Ensure the image doesn't exceed 50% of the viewport height */
     width: auto;
 }
 
@@ -971,11 +1024,11 @@ th[data-sort-order]:not([data-sort-order=""]):before {
     border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: #59d1a5;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(26px);
 }
 
@@ -993,7 +1046,7 @@ input:checked + .slider:before {
 .admin-tile {
     background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 30px 20px;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -1007,7 +1060,7 @@ input:checked + .slider:before {
 
 .admin-tile:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .admin-tile i {
@@ -1064,23 +1117,28 @@ input:checked + .slider:before {
 }
 
 #storeStatusToggle.fa-toggle-on {
-    color: #8fbc8f !important; /* Force green for 'on' state */
+    color: #8fbc8f !important;
+    /* Force green for 'on' state */
 }
 
 #storeStatusToggle.fa-toggle-off {
-    color: #cc0000 !important; /* Force red for 'off' state */
+    color: #cc0000 !important;
+    /* Force red for 'off' state */
 }
 
 .admin-tile i.store-status-toggle {
-    color: inherit; /* Override the general icon color */
+    color: inherit;
+    /* Override the general icon color */
 }
 
 .toggle-container i.store-status-toggle {
-    color: #8fbc8f; /* Default color for 'on' state */
+    color: #8fbc8f;
+    /* Default color for 'on' state */
 }
 
 .toggle-container i.store-status-toggle.fa-toggle-off {
-    color: #cc0000; /* Color for 'off' state */
+    color: #cc0000;
+    /* Color for 'off' state */
 }
 
 /* Stock Management Styles */
@@ -1208,37 +1266,51 @@ th[data-sort-order]:not([data-sort-order=""]):before {
 }
 
 .expiry-date {
-    min-width: 100px; /* Set a minimum width for date text */
+    min-width: 100px;
+    /* Set a minimum width for date text */
 }
 
 .expiry-icon {
-    width: 30px; /* Fixed width area for the icon */
+    width: 30px;
+    /* Fixed width area for the icon */
     text-align: center;
 }
 
 /* Expiration warning styles */
 @keyframes blink-warning {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 .expiry-warning-soon {
-  color: #ffaa00; /* Yellow warning triangle */
-  /* animation: blink-warning 1.5s infinite; */
+    color: #ffaa00;
+    /* Yellow warning triangle */
+    /* animation: blink-warning 1.5s infinite; */
 }
 
 .expiry-warning-expired {
-  color: #d92c2c; /* Red circle for expired */
-  /* animation: blink-warning 1.5s infinite; */
+    color: #d92c2c;
+    /* Red circle for expired */
+    /* animation: blink-warning 1.5s infinite; */
 }
 
 /* Search input styling */
 .search-container {
     position: relative;
     width: 250px;
-    margin-left: auto; /* This pushes it to the right */
-    order: 999; /* High order value ensures it appears at the end in flex containers */
+    margin-left: auto;
+    /* This pushes it to the right */
+    order: 999;
+    /* High order value ensures it appears at the end in flex containers */
 }
 
 .search-icon {
@@ -1272,4 +1344,525 @@ th[data-sort-order]:not([data-sort-order=""]):before {
         margin-right: 0;
         margin-bottom: 10px;
     }
+}
+
+/* Variations styling */
+
+.variations-section {
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid #444;
+}
+
+.variations-section>label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: #dfa06b;
+}
+
+/* Add some spacing between the variations container and the add button */
+.variations-section .variations-container {
+    margin-bottom: 15px;
+}
+
+.variations-container {
+    margin-bottom: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.variation-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.variation-inputs {
+    display: flex;
+    flex: 1;
+    gap: 10px;
+}
+
+.variation-type {
+    flex: 1;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.variation-name {
+    flex: 2;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #fff;
+}
+
+.variation-name[readonly] {
+    background-color: #444;
+    opacity: 0.7;
+}
+
+.price-input-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    margin-right: 5px;
+}
+
+.variation-price {
+    color: #242ae9;
+}
+
+.btn-outline {
+    background: none;
+    border: 1px solid #dfa06b;
+    color: #dfa06b;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-outline:hover {
+    background-color: rgba(223, 160, 107, 0.1);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: #ff4d4d;
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    color: #ff6b6b;
+}
+
+.delete-variation {
+    padding: 5px;
+}
+
+/* Product front-end variations styling */
+.product-variations {
+    margin-top: 10px;
+}
+
+.variation-selector {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #333;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+/* Variations view modal styling */
+.variations-view-modal .modal-content {
+    max-width: 90% !important;
+    width: 550px !important; 
+    padding: 20px !important;
+}
+
+.variations-view-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.variations-view-table th,
+.variations-view-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.variations-view-table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.variation-type-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.view-variations {
+    cursor: pointer;
+    color: #dfa06b;
+    margin-right: 5px;
+    font-size: 1.2em;
+}
+
+.view-variations:hover {
+    color: #ad805b;
+}
+
+.has-variations {
+    cursor: pointer;
+}
+
+.default-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    color: gold;
+    font-size: 1.2em;
+}
+
+.default-badge:hover {
+    color: #ffd700;
+}
+
+/* Style for type column with icon */
+td .view-variations {
+    margin-left: 5px;
+    cursor: pointer;
+    color: #dfa06b;
+    font-size: 0.9em;
+    vertical-align: middle;
+}
+
+/* Make sure the icons align properly */
+td .fa-info-circle {
+    vertical-align: middle;
+}
+
+.variation-link {
+    color: #2f2cff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.variation-link:hover {
+    color: #d124c0;
+    text-decoration: underline;
+}
+
+.has-variations {
+    cursor: pointer;
+}
+
+.selection-instruction {
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+/* VARIATION SELECTION MODAL STYLES */
+
+.variation-selection-modal .modal-content {
+    max-width: 90%;
+    width: 600px; 
+    padding: 20px;
+}
+
+/* Modal content is dark (default theme) */
+.variation-selection-modal h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #f0f0f0;
+}
+
+.variation-selection-modal .selection-instruction {
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+/* Light table container */
+.light-table-container {
+    background: #f9f9f9;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 15px 0;
+    overflow-x: auto;
+    /* Allow horizontal scroll if needed */
+}
+
+/* Table structure */
+.light-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    background-color: white;
+    color: #333;
+}
+
+/* Define column widths using colgroup */
+.light-table .col-checkbox {
+    width: 10%;
+}
+
+.light-table .col-name {
+    width: 25%;
+}
+
+.light-table .col-type {
+    width: 25%;
+}
+
+.light-table .col-price {
+    width: 15%;
+}
+
+.light-table .col-quantity {
+    width: 25%;
+}
+
+/* Header and cell styling */
+.light-table th,
+.light-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.light-table th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    color: #555;
+    position: sticky;
+    top: 0;
+}
+
+.light-table th:first-child {
+    text-align: center;
+}
+
+.light-table td:first-child {
+    text-align: center;
+}
+
+/* Checkbox styling */
+.light-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Row hover effect */
+.light-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Quantity controls in table */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    background: #e0e0e0;
+    border: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.qty-btn:hover {
+    background-color: #d0d0d0;
+}
+
+/* Simplified quantity input */
+.qty-input-simple {
+    width: 40px; 
+    height: 22px; 
+    text-align: center;
+    background: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+    border-radius: 4px;
+    padding: 0 3px; 
+    font-size: 13px; 
+    box-shadow: none;
+    appearance: none;
+}
+
+/* Improved hover/focus styles for better user experience */
+.qty-input-simple:hover,
+.qty-input-simple:focus {
+    border-color: #dfa06b;
+    outline: none;
+}
+
+/* Remove spinner buttons from number inputs */
+.qty-input-simple::-webkit-inner-spin-button, 
+.qty-input-simple::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.qty-input-simple {
+    -moz-appearance: textfield;
+}
+
+/* Button styling */
+.variation-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.cancel-selection-btn {
+    padding: 8px 16px;
+    background-color: #333;
+    border: 1px solid #555;
+    color: #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-selection-btn:hover {
+    background-color: #444;
+}
+
+.confirm-selection-btn {
+    padding: 8px 16px;
+    background-color: #dfa06b;
+    border: none;
+    color: #333;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.confirm-selection-btn:hover {
+    background-color: #c78b59;
+}
+
+/* Mobile responsive */
+@media (max-width: 700px) {
+
+    .light-table th,
+    .light-table td {
+        padding: 8px 4px;
+        font-size: 0.9em;
+    }
+
+    .quantity-controls {
+        flex-wrap: nowrap;
+    }
+
+    .qty-btn {
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        font-size: 12px;
+    }
+
+    .qty-input {
+        width: 30px;
+        font-size: 12px;
+    }
+}
+
+.type-logo-cell {
+    text-align: center;
+}
+
+.type-logo-small {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+/* Target the quantity input specifically in the variation table with higher specificity */
+.light-table td .qty-input-simple,
+.variation-table td .qty-input-simple,
+.light-table-container .qty-input-simple {
+    width: 40px !important;
+    height: 22px !important;
+    text-align: center !important;
+    background: #d7f1f5 !important;
+    border: 1px solid #ddd !important;
+    color: #333 !important;
+    border-radius: 4px !important;
+    padding: 0 3px !important;
+    font-size: 13px !important;
+    box-shadow: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: textfield !important;
+    margin: 0 !important;
+}
+
+/* Hover and focus states */
+.light-table td .qty-input-simple:hover,
+.variation-table td .qty-input-simple:hover,
+.light-table-container .qty-input-simple:hover,
+.light-table td .qty-input-simple:focus,
+.variation-table td .qty-input-simple:focus,
+.light-table-container .qty-input-simple:focus {
+    border-color: #dfa06b !important;
+    outline: none !important;
+}
+
+/* Remove spinner buttons from number inputs */
+.light-table .qty-input-simple::-webkit-inner-spin-button, 
+.light-table .qty-input-simple::-webkit-outer-spin-button,
+.variation-table .qty-input-simple::-webkit-inner-spin-button,
+.variation-table .qty-input-simple::-webkit-outer-spin-button { 
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+/* Toast notification */
+.toast {
+    visibility: hidden;
+    min-width: 200px;
+    background-color: #dfa06b;
+    color: #333;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1000;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
 }

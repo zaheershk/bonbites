@@ -84,12 +84,14 @@
                     <option value="">[Select]</option>
                     <!-- Options will be populated dynamically -->
                 </select>
-                <label for="type">Type:</label>
+                <!-- <label for="type">Type:</label>
                 <select id="type" name="type" required>
                     <option value="">[Select]</option>
                     <option value="Veg">Veg</option>
                     <option value="Non-Veg">Non-Veg</option>
-                </select>
+                    <option value="Mixed">Mixed</option>
+                </select> -->
+                <input type="hidden" id="type" name="type" value="Mixed">
                 <label for="name">Name:</label>
                 <input type="text" id="name" name="name" required>
                 <label for="ingredients">Ingredients:</label>
@@ -103,13 +105,24 @@
                 </div>
                 <div id="productImagePreviewContainer" style="margin-top: 10px; display: none;">
                     <p>Image Preview:</p>
-                    <img id="productImagePreview" style="max-width: 150px; max-height: 100px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 3px;" />
+                    <img id="productImagePreview"
+                        style="max-width: 150px; max-height: 100px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 3px;" />
                 </div>
-                <label for="price">Price:</label>
+                <!-- <label for="price">Price:</label>
                 <div style="display: flex; align-items: center;">
                     <span style="margin-right: 5px;">₹</span>
                     <input type="text" id="price" name="price" class="product-price-input" required>
+                </div> -->
+                <div class="variations-section">
+                    <label>Product Variations:</label>
+                    <div id="variationsContainer" class="variations-container">
+                        <!-- Variations will be added here dynamically -->
+                    </div>
+                    <button type="button" id="addVariationBtn" class="btn-outline">
+                        <i class="fas fa-plus"></i> Add Variation
+                    </button>
                 </div>
+                <input type="hidden" id="price" name="price">
                 <label for="isAvailable">Available:</label>
                 <label class="switch">
                     <input type="checkbox" id="isAvailable" name="isAvailable">
