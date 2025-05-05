@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbyu-sjdyB3W6Z1VWMC6B2zShkvvfYZVaZ5DzJErXIKzog2fKa-R4DIDV59BPI7IEUHZ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwoUuVmjyj6MN-TQBRiBLYdPh8PZEzxy5QSLE_NeCuOG0TzJ2PdBLXH6yLSbrnyCzs/exec';
 
 let settings = [];
 let products = [];
@@ -832,7 +832,12 @@ if (productForm) {
         };
 
         // save product data
-        await saveProduct(productData);
+        const result = await saveProduct(productData);
+
+        // If this was a new product (no productId), store the returned ID
+        if (!productId && result && result.productId) {
+            document.getElementById('productId').value = result.productId;
+        }
 
         // reload products
         await loadProducts(false);
