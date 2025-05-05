@@ -1582,9 +1582,17 @@ function addSelectedVariationsToCart(event) {
         const type = checkbox.getAttribute('data-type');
         const idx = checkbox.id.split('-')[2];
         
-        // Get quantity from the simple input
-        const qtyInput = modal.querySelector(`.qty-input-simple[data-idx="${idx}"]`);
-        const quantity = parseInt(qtyInput.value) || 1;
+        // Get quantity - fix the selector and add fallback
+        let quantity = 1; // Default quantity
+        
+        // Find the closest quantity input to this checkbox
+        const row = checkbox.closest('tr');
+        if (row) {
+            const qtyInput = row.querySelector('.qty-input-simple');
+            if (qtyInput) {
+                quantity = parseInt(qtyInput.value) || 1;
+            }
+        }
         
         // Find if this item is already in cart
         let item = cart.find(item => 
