@@ -18,7 +18,7 @@ body {
 .mobile-header {
     background: linear-gradient(135deg, #033c3b 0%, #0a5a58 100%);
     color: white;
-    padding: 15px 20px;
+    padding: 12px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -26,24 +26,38 @@ body {
 }
 
 .mobile-header .brand {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    max-width: 100%;
 }
 
 .mobile-header #brand-logo {
-    width: 120px;
+    width: 80px;
     height: auto;
-    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    flex: 1;
+    min-width: 0;
 }
 
 .mobile-header .brand-description {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #e0e0e0;
-    margin: 5px 0;
+    margin: 0 0 4px 0;
     line-height: 1.3;
 }
 
 .mobile-header .brand-hashtags {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #a99bf3;
     margin: 0;
 }
