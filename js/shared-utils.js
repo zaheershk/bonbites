@@ -11,7 +11,8 @@ function showLoader(visible) {
 
 async function callAPIviaPOST(data) {
     try {
-        console.log('Calling API via POST:', data);
+        //console.log('Calling API via POST:', data);
+        
         const response = await fetch(API_URL, {
             method: 'POST',
             mode: "cors",
