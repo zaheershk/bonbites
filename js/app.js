@@ -46,10 +46,16 @@ window.onload = async function () {
 
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
-        window.location.href = 'storeclosed';
-        return;
+        // Only redirect to storeclosed if this is the root/index page
+        const currentPath = window.location.pathname;
+        const isRootPath = currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/');
+        
+        if (isRootPath) {
+            window.location.href = 'storeclosed';
+            return;
+        }
     } else {
-        // Store is open - check if we need to redirect
+        // Store is open - only redirect from root/index to order
         const currentPath = window.location.pathname;
         const isRootPath = currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/');
 
