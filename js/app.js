@@ -42,7 +42,8 @@ window.onload = async function () {
 
     const workflowContextMetaTag = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
     workflowContext = workflowContextMetaTag.toLowerCase();
-    //console.log('workflowContext:', workflowContext);
+    
+    console.log('workflowContext:', workflowContext);
 
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
