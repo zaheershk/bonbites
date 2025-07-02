@@ -697,7 +697,7 @@ body {
 /* Floating Cart Button */
 .mobile-cart-fab {
     position: fixed;
-    bottom: 70px;
+    bottom: 80px;
     right: 20px;
     width: 60px;
     height: 60px;
