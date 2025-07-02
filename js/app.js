@@ -1,4 +1,3 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwpdm6CQTx7nINVGP4aJCoJBEfOkKsfPrU3TPeRCXORZSqSxb-x6QVuFOQg_nkSEXIf/exec';
 
 let settings = [];
 let products = [];
@@ -16,36 +15,16 @@ function showLoader(visible) {
     loader.style.display = visible ? 'flex' : 'none';
 }
 
-async function callAPIviaPOST(data) {
-    try {
-        console.log('Calling API via POST:', data);
-
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(data)
-        });
-        return await response.json();
-    } catch (error) {
-        console.error('Error occured in callAPIviaPOST method.', error);
-        throw error;
-    }
-}
-
 window.onload = async function () {
     showLoader(true);
 
     const workflowContextMetaTag = document.querySelector('meta[name="workflow-context"]').getAttribute('content');
     workflowContext = workflowContextMetaTag.toLowerCase();
-    
-    console.log('workflowContext:', workflowContext);
+
+    //console.log('workflowContext:', workflowContext);
 
     settings = await fetchAppSettings();
+
     if (settings.StoreClosed === 'Y') {
         // Only redirect to storeclosed if this is the index page (no workflow context or index context)
         if (!workflowContextMetaTag || workflowContext === 'index') {
@@ -70,17 +49,11 @@ window.onload = async function () {
     }
 
     if (workflowContext === 'stock') {
-        await stockLoadItems(false);
+        await loadStockItems(false);
     }
 
     if (workflowContext === 'process') {
-        orders = await fetchOrders();
-        if (!orders) {
-            showLoader(false);
-            console.error('Failed to load orders.');
-            return;
-        }
-        loadOrders();
+        await loadOrders();
     }
 
     showLoader(false);
@@ -1184,9 +1157,17 @@ function isPastStatus(currentStatus, checkStatus) {
     return statusLevels[currentStatus] >= statusLevels[checkStatus];
 }
 
-function loadOrders() {
+async function loadOrders() {
+    orders = await fetchOrders();
+    if (!orders) {
+        showLoader(false);
+        console.error('Failed to load orders.');
+        return;
+    }
+
     const container = document.getElementById('orders-container');
     container.innerHTML = ''; // Clear previous entries
+
     orders.forEach(order => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -1270,7 +1251,7 @@ let stockFilters = {
     searchTerm: ''
 };
 
-async function stockLoadItems(reapplyFilters = false) {
+async function loadStockItems(reapplyFilters = false) {
     try {
         showLoader(true);
 
@@ -1666,7 +1647,7 @@ async function stockDeleteItem(itemId) {
             const result = await callAPIviaPOST(data);
 
             if (result.status === 'success') {
-                await stockLoadItems(true);
+                await loadStockItems(true);
             } else {
                 alert('Failed to delete item: ' + result.message);
             }
@@ -1757,7 +1738,7 @@ async function stockSaveItem(e) {
 
         if (result.status === 'success') {
             stockCloseModal();
-            await stockLoadItems(true);
+            await loadStockItems(true);
         } else {
             alert('Failed to save item: ' + result.message);
         }

@@ -1,15 +1,12 @@
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbwpdm6CQTx7nINVGP4aJCoJBEfOkKsfPrU3TPeRCXORZSqSxb-x6QVuFOQg_nkSEXIf/exec';
-
 let user_agt = '';
 let user_ip = '';
 let mobileShowingCart = false;
 let mobileShowingOptions = false;
 let currentOptionsProduct = null;
 
-// Initialize mobile app
 async function initMobileApp() {
-    // capture traffic info
+    // capture user info
     user_agt = navigator.userAgent;
     user_ip = await fetchIPAddress();
 
@@ -17,34 +14,6 @@ async function initMobileApp() {
     getDeliverySlots();
     loadProductsForMobile(true);
     updateMobileCartDisplay();
-}
-
-async function fetchIPAddress() {
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    return data.ip;
-}
-
-// API call function (exact copy from app.js)
-async function callAPIviaPOST(data) {
-    try {
-        console.log('Calling API via POST:', data);
-
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            mode: "cors",
-            cache: "no-cache",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-            redirect: "follow",
-            body: JSON.stringify(data)
-        });
-        return await response.json();
-    } catch (error) {
-        console.error('Error occured in callAPIviaPOST method.', error);
-        throw error;
-    }
 }
 
 function getDeliverySlots() {
