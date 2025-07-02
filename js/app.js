@@ -46,16 +46,18 @@ window.onload = async function () {
 
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
-        // Handle redirect if this is the index page
-        const isIndexPage = !workflowContextMetaTag || workflowContext === 'index';
-        if (isIndexPage) {
-            window.location.href = 'storeclosed';
-            return; 
+        window.location.href = 'storeclosed';
+        return;
+    } else {
+        // Store is open - check if we need to redirect
+        const currentPath = window.location.pathname;
+        const isRootPath = currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/');
+
+        if (isRootPath) {
+            window.location.href = 'order';
+            return;
         }
-    }
-    else {  
-        window.location.href = 'order';
-        return; 
+        // If there's already a specific path, stay on that page
     }
 
     if (workflowContext === 'admin') {
@@ -279,7 +281,7 @@ function loadProductsTable(products) {
         let typeDisplay = product.type || "Mixed";
         let priceDisplay = `₹${product.price}`;
         let hasMultipleVariations = false;
-        
+
         if (product.variations && product.variations.length > 0) {
             if (product.variations.length === 1) {
                 // Single variation - show its type directly
@@ -309,7 +311,7 @@ function loadProductsTable(products) {
                 <i class="fas fa-edit action-icons" onclick="editProduct('${product.id}')" title="Edit product"></i>
             </td>
         `;
-        
+
         tbody.appendChild(row);
     });
 
@@ -318,15 +320,15 @@ function loadProductsTable(products) {
 
     // Add click event listeners to image preview triggers
     document.querySelectorAll('.product-preview-trigger').forEach(trigger => {
-        trigger.addEventListener('click', function() {
+        trigger.addEventListener('click', function () {
             const imageUrl = this.getAttribute('data-image-url');
             productShowEnlargedImage(imageUrl);
         });
     });
-    
+
     // Add click event listeners to variation links
     document.querySelectorAll('.variation-link').forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function () {
             const productId = this.getAttribute('data-product-id');
             showVariationsModal(productId);
         });
