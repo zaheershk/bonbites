@@ -69,38 +69,81 @@ body {
     left: 0;
     right: 0;
     background: white;
-    display: flex;
     border-top: 1px solid #e0e0e0;
-    z-index: 150;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    z-index: 100;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
 }
 
 .mobile-nav-btn {
-    flex: 1;
     background: none;
     border: none;
     padding: 12px 8px;
-    color: #7f8c8d;
-    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    transition: all 0.2s ease;
+    color: #7f8c8d;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    border-radius: 0;
+}
+
+.mobile-nav-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+@media (hover: hover) {
+    .mobile-nav-btn:hover:not(.active) {
+        color: #5a6c7d;
+        transform: translateY(-1px);
+    }
 }
 
 .mobile-nav-btn.active {
-    color: #dfa06b;
-    background: #fef9f5;
+    color: #3498db;
+    background: linear-gradient(to bottom, rgba(52, 152, 219, 0.08), transparent);
+    transform: translateY(0px) scale(0.98);
+}
+
+.mobile-nav-btn.active:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.mobile-nav-btn.active::before {
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+.mobile-nav-btn.active i {
+    transform: scale(1.1);
+    text-shadow: 0 1px 3px rgba(52, 152, 219, 0.3);
+}
+
+.mobile-nav-btn.active span {
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(52, 152, 219, 0.2);
 }
 
 .mobile-nav-btn i {
     font-size: 1.2rem;
+    transition: all 0.3s ease;
 }
 
 .mobile-nav-btn span {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 /* Main Content */
@@ -594,6 +637,24 @@ body {
     font-weight: 600;
 }
 
+/* Cart count badge in navigation */
+.nav-cart-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+}
+
 .mobile-quantity-controls {
     display: flex;
     align-items: center;
@@ -692,48 +753,6 @@ body {
 .mobile-checkout-btn:active {
     transform: scale(0.98);
     background: linear-gradient(135deg, #2980b9, #21618c);
-}
-
-/* Floating Cart Button */
-.mobile-cart-fab {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 1.5rem;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(52, 152, 219, 0.4);
-    z-index: 1000;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mobile-cart-fab:active {
-    transform: scale(0.9);
-}
-
-.mobile-cart-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #e67e22;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid white;
 }
 
 /* Customer Form */

@@ -81,10 +81,12 @@ function loadFromLocalStorage() {
 function setupMobileEventListeners() {
     // Navigation
     const navProducts = document.getElementById('nav-products');
+    const navCart = document.getElementById('nav-cart');
     const navCheckout = document.getElementById('nav-checkout');
     const navAbout = document.getElementById('nav-about');
 
     if (navProducts) navProducts.addEventListener('click', () => switchToSection('products'));
+    if (navCart) navCart.addEventListener('click', toggleMobileCart);
     if (navCheckout) navCheckout.addEventListener('click', () => switchToSection('checkout'));
     if (navAbout) navAbout.addEventListener('click', () => switchToSection('about'));
 
@@ -350,8 +352,7 @@ function addToMobileCart(segment, type, name, price, variation = '') {
 
 function updateMobileCartDisplay() {
     const cartContainer = document.getElementById('mobile-cart-items');
-    const cartFab = document.getElementById('mobile-cart-fab');
-    const cartCount = document.getElementById('mobile-cart-count');
+    const navCartCount = document.getElementById('nav-cart-count');
     const totalAmount = document.getElementById('mobile-total-amount');
 
     if (!cartContainer) return;
@@ -359,10 +360,15 @@ function updateMobileCartDisplay() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    if (cartCount) cartCount.textContent = totalItems;
-    if (cartFab) cartFab.style.display = totalItems > 0 ? 'flex' : 'none';
+    // Update navigation cart count
+    if (navCartCount) {
+        navCartCount.textContent = totalItems;
+        navCartCount.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+
     if (totalAmount) totalAmount.textContent = `₹${totalPrice}`;
 
+    // Rest of the cart display logic stays the same...
     if (cart.length === 0) {
         cartContainer.innerHTML = `
             <div class="mobile-empty-cart">
