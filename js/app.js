@@ -46,24 +46,18 @@ window.onload = async function () {
 
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
-        // Only redirect to storeclosed if this is the root/index page
-        const currentPath = window.location.pathname;
-        const isRootPath = currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/');
-        
-        if (isRootPath) {
+        // Only redirect to storeclosed if this is the index page (no workflow context or index context)
+        if (!workflowContextMetaTag || workflowContext === 'index') {
             window.location.href = 'storeclosed';
             return;
         }
     } else {
-        // Store is open - only redirect from root/index to order
-        const currentPath = window.location.pathname;
-        const isRootPath = currentPath === '/' || currentPath === '/index.html' || currentPath.endsWith('/');
-
-        if (isRootPath) {
+        // Store is open - only redirect if this is the index page (no specific workflow context)
+        if (!workflowContextMetaTag || workflowContext === 'index') {
             window.location.href = 'order';
             return;
         }
-        // If there's already a specific path, stay on that page
+        // If there's already a specific workflow context, stay on that page
     }
 
     if (workflowContext === 'admin') {
