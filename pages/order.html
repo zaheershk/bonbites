@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BonBites</title>
+    <meta name="workflow-context" content="order">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/order.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="brand">
+            <img id="brand-logo" src="../resources/logo.png" alt="BonBites" />
+            <p class="brand-description">Explore a world of flavorful indulgence with our lovingly crafted homemade food
+                & products</p>
+            <p class="brand-hashtags">#Foodie #LoveForFood #GourmetGoodness</p>
+        </div>
+    </header>
+
+    <!-- Mobile Layout -->
+    <main class="mobile-main">
+        <!-- Navigation Bar -->
+        <nav class="mobile-nav" id="mobile-nav">
+            <button class="mobile-nav-btn active" id="nav-products">
+                <i class="fas fa-utensils"></i>
+                <span>Menu</span>
+            </button>
+            <button class="mobile-nav-btn" id="nav-checkout">
+                <i class="fas fa-user"></i>
+                <span>Checkout</span>
+            </button>
+            <button class="mobile-nav-btn" id="nav-about">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </button>
+        </nav>
+
+        <!-- Products Section -->
+        <section class="mobile-products" id="mobile-products">
+            <!-- Products will be dynamically loaded here -->
+        </section>
+
+        <!-- Customer Information Form -->
+        <section class="mobile-customer-form" id="mobile-customer-section" style="display: none;">
+            <div class="mobile-checkout-header">
+                <h2>Your Details</h2>
+                <p>Please fill in your information to complete the order</p>
+            </div>
+
+            <form id="mobile-customer-form">
+                <div class="mobile-form-group">
+                    <label class="mobile-form-label" for="mobile-name">Full Name *</label>
+                    <input type="text" id="mobile-name" name="name" class="mobile-form-input" required>
+                </div>
+
+                <div class="mobile-form-group">
+                    <label class="mobile-form-label" for="mobile-flat">Flat/House Number *</label>
+                    <input type="text" id="mobile-flat" name="flat" class="mobile-form-input" required>
+                </div>
+
+                <div class="mobile-form-group">
+                    <label class="mobile-form-label" for="mobile-phone">Phone Number *</label>
+                    <input type="tel" id="mobile-phone" name="phone" class="mobile-form-input" required>
+                </div>
+
+                <div class="mobile-form-group">
+                    <label class="mobile-form-label" for="mobile-email">Email Address *</label>
+                    <input type="email" id="mobile-email" name="email" class="mobile-form-input" required>
+                </div>
+
+                <div class="mobile-form-group">
+                    <label class="mobile-form-label" for="mobile-delivery-time">Delivery Time *</label>
+                    <div id="mobile-deliverySlotsContainer">
+                        <select id="mobile-delivery-time-dropdown" class="mobile-form-input" required>
+                            <option value="">[Select Delivery Time]</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="mobile-place-order-btn">
+                    <i class="fas fa-check"></i> Place Order
+                </button>
+            </form>
+        </section>
+
+        <!-- About Us Section -->
+        <section class="mobile-about-section" id="mobile-about-section" style="display: none;">
+            <div class="about-content">
+                <div class="about-header">
+                    <h2>About Us</h2>
+                    <div class="about-family-pic">
+                        <img src="../resources/fam-pic.png" alt="Our Family" />
+                    </div>
+                </div>
+
+                <div class="about-text">
+                    <p class="greeting">Hi There 👋🏼</p>
+                    <p>We are <strong>Sagufta, Zaheer & Hamza</strong>, residing in Z1 Vyom.</p>
+
+                    <p><strong>BonBites</strong> is our small venture, to offer freshly made, gourmet world cuisine &
+                        artisanal food products, at a reasonable price!</p>
+
+                    <p>Our menu is focused on food from around the world, and we are starting with few comfort food
+                        options.</p>
+
+                    <div class="fssai-info">
+                        <p><strong>FSSAI Registration:</strong></p>
+                        <p class="fssai-number">30241028118023297</p>
+                    </div>
+
+                    <div class="social-follow">
+                        <p>Follow us on</p>
+                        <a href="https://www.instagram.com/bonstudio.store/profilecard/?igsh=NW5lMm1wZDhhNTd1"
+                            target="_blank" class="instagram-link">
+                            <img src="../resources/insta-logo.png" alt="Instagram" />
+                            <span>@bonstudio.store</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Mobile Cart (Bottom Sheet) -->
+    <div class="mobile-cart-container" id="mobile-cart">
+        <div class="mobile-cart-header">
+            <h2>Your Cart</h2>
+            <button class="mobile-cart-close" id="mobile-cart-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="mobile-cart-content" id="mobile-cart-items">
+            <!-- Cart items will be populated here -->
+        </div>
+
+        <div class="mobile-cart-summary">
+            <div class="mobile-total">
+                <span class="mobile-total-label">Total:</span>
+                <span class="mobile-total-amount" id="mobile-total-amount">₹0</span>
+            </div>
+            <button class="mobile-checkout-btn" id="mobile-checkout-btn">
+                <i class="fas fa-shopping-bag"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Product Options Bottom Panel -->
+    <div class="mobile-options-panel" id="mobile-options-panel">
+        <div class="mobile-options-header">
+            <h3 id="mobile-options-title">Choose Options</h3>
+            <button class="mobile-options-close" id="mobile-options-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="mobile-options-content" id="mobile-options-content">
+            <!-- Options will be populated here -->
+        </div>
+
+        <div class="mobile-options-footer">
+            <button class="mobile-add-selected-btn" id="mobile-add-selected-btn">
+                <i class="fas fa-plus"></i> Add to Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <button class="mobile-cart-fab" id="mobile-cart-fab" style="display: none;">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="mobile-cart-count" id="mobile-cart-count">0</span>
+    </button>
+
+    <!-- Loading Screen -->
+    <div id="loader" class="mobile-loading" style="display: none;">
+        <div>
+            <i class="fas fa-spinner fa-spin"></i>
+            <div style="margin-top: 10px;">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile-only mode - minimal setup
+        window.products = [];
+        window.cart = [];
+
+        // Load cart from localStorage
+        const storedCart = localStorage.getItem('cart');
+        if (storedCart) {
+            window.cart = JSON.parse(storedCart);
+        }
+    </script>
+    <script src="../js/order.js"></script>
+</body>
+
+</html>

@@ -4,17 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <title>BonBites</title>
-    <meta name="workflow-context" content="intake">
-    <meta name="store-type" content="online">
+    <meta name="workflow-context" content="index">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles-dark.css">
+    <link rel="stylesheet" href="../css/styles-dark.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
     <header>
         <div class="brand">
-            <img id="brand-logo" src="resources/logo.png" />
+            <img id="brand-logo" src="../resources/logo.png" />
             <p class="brand-description" id="brand-desc">Explore a world of flavorful indulgence with our lovingly
                 crafted homemade food & products which provide a unique culinary journey.</p>
             <p class="brand-hashtags">#Foodie #LoveForFood #GourmetGoodness</p>
@@ -66,7 +65,7 @@
                 <input type="email" id="email" name="email" placeholder="Email" required class="form-input">
 
                 <h3>My preferred delivery slot:</h3>
-                <div id="deliveryOptionsContainer">
+                <div id="deliverySlotsContainer">
                     <select id="delivery-time-dropdown" required class="form-input">
                         <option value="">[Select]</option>
                         <!-- Options will be dynamically inserted here -->
@@ -94,18 +93,18 @@
             <p>FSSAI registration number: <strong>30241028118023297</strong></p>
             <p style="display: flex; align-items: center;">Follow us on &nbsp;
                 <a style="display: flex; align-items: center;" href="https://www.instagram.com/bonstudio.store/profilecard/?igsh=NW5lMm1wZDhhNTd1" target="_blank">
-                    <img src="resources/insta-logo.png" height="30px" , width="30px" />
+                    <img src="../resources/insta-logo.png" height="30px" , width="30px" />
                 </a>
             </p>
         </div>
         <div class="footer-right">
-            <img id="fam-pic" src="resources/fam-pic.png" height="200px" , width="180px" />
+            <img id="fam-pic" src="../resources/fam-pic.png" height="200px" , width="180px" />
         </div>
     </footer>
 
     <div id="loader" class="loader">Please wait...</div>
 
-    <script src="app.js"></script>
+   <script src="../js/app.js"></script>
 </body>
 
 </html>

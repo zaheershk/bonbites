@@ -1,15 +1,10 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbwoUuVmjyj6MN-TQBRiBLYdPh8PZEzxy5QSLE_NeCuOG0TzJ2PdBLXH6yLSbrnyCzs/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwpdm6CQTx7nINVGP4aJCoJBEfOkKsfPrU3TPeRCXORZSqSxb-x6QVuFOQg_nkSEXIf/exec';
 
 let settings = [];
 let products = [];
 let orders = [];
-let cart = [];
 
-let storeType = ''
 let workflowContext = '';
-
-let user_agt = '';
-let user_ip = '';
 
 function getUrlParameter(name) {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -23,6 +18,8 @@ function showLoader(visible) {
 
 async function callAPIviaPOST(data) {
     try {
+        console.log('Calling API via POST:', data);
+
         const response = await fetch(API_URL, {
             method: 'POST',
             mode: "cors",
@@ -49,96 +46,43 @@ window.onload = async function () {
 
     settings = await fetchAppSettings();
     if (settings.StoreClosed === 'Y') {
-        // Only redirect if this is the index/order page
-        const isIndexPage = !workflowContextMetaTag || workflowContext === 'intake';
+        // Handle redirect if this is the index page
+        const isIndexPage = !workflowContextMetaTag || workflowContext === 'index';
         if (isIndexPage) {
             window.location.href = 'storeclosed';
-            return; // Stop further execution
+            return; 
         }
+    }
+    else {  
+        window.location.href = 'order';
+        return; 
     }
 
     if (workflowContext === 'admin') {
-        // Initialize admin-specific components
         initStoreStatusToggle();
     }
 
-    if (workflowContext === 'intake' || workflowContext === 'menu' || workflowContext === 'products') {
-        storeType = document.querySelector('meta[name="store-type"]').getAttribute('content');
-        //console.log('storeType:', storeType);
-
-        if (workflowContext === 'products') {
-            await loadProducts(false);
-        }
-
-        if (workflowContext === 'menu') {
-            products = await fetchProducts(storeType, true);
-            loadMenu();
-        }
-
-        if (workflowContext === 'intake') {
-            products = await fetchProducts(storeType, true);
-            if (storeType === 'online') {
-                // capture traffic info
-                user_agt = navigator.userAgent;
-                user_ip = await fetchIPAddress();
-                //await captureTraffic();
-
-                getDeliveryOptions();
-                loadProductsForOnlineStore();
-                clearExistingDataForOnlineStore();
-            } else if (storeType === 'local') {
-                loadProductsForLocalStore();
-                clearExistingDataForLocalStore();
-            }
-        }
+    if (workflowContext === 'products') {
+        await loadProducts(false);
     }
 
     if (workflowContext === 'stock') {
-        //console.log('Loading stock management page...');
         await stockLoadItems(false);
     }
 
     if (workflowContext === 'process') {
-        const storeType = getUrlParameter('storeType');
-        if (storeType) {
-            document.querySelector('.brand h1').textContent = `Orders Pending (${storeType})`;
-        }
-
         orders = await fetchOrders();
         if (!orders) {
             showLoader(false);
             console.error('Failed to load orders.');
             return;
         }
-
         loadOrders();
     }
 
     showLoader(false);
 
 };
-
-async function captureTraffic() {
-
-    const formData = {
-        action: 'captureTraffic',
-        storeType: 'online',
-        userAgent: user_agt,
-        userIp: user_ip
-    };
-
-    try {
-        const result = await callAPIviaPOST(formData);
-        if (result.status === 'success') {
-            // do nothing
-        } else {
-            console.warn('Failed to capture traffic info.');
-        }
-    } catch (error) {
-        showLoader(false);
-        console.warn('Failed to capture traffic info.');
-    }
-}
 
 async function fetchAppSettings() {
     try {
@@ -223,11 +167,11 @@ async function toggleStoreStatus() {
     }
 }
 
-async function fetchProducts(storeType, isAvailableFilter) {
+async function fetchProducts(isAvailableFilter) {
     try {
         //console.log('isAvailableFilter:', isAvailableFilter);
 
-        const response = await fetch(API_URL + `?type=products&storeType=${storeType}&isAvailableFilter=${isAvailableFilter}`);
+        const response = await fetch(API_URL + `?type=products&isAvailableFilter=${isAvailableFilter}`);
         const products = await response.json();
         const productsArray = Array.isArray(products) ? products : []
         if (!productsArray.length) {
@@ -268,7 +212,7 @@ async function loadProducts(reapplyFilters = false) {
         showLoader(true);
 
         // Fetch products from server
-        products = await fetchProducts(storeType, false);
+        products = await fetchProducts(false);
 
         if (!reapplyFilters) {
             // Reset filters and use all products
@@ -818,7 +762,6 @@ if (productForm) {
 
         const productData = {
             action: productId ? 'updateProduct' : 'insertProduct',
-            storeType: document.querySelector('meta[name="store-type"]').getAttribute('content'),
             productId: productId || '',
             segment: formData.get('segment'),
             type: 'Mixed', // Always use Mixed for backend compatibility
@@ -983,8 +926,7 @@ async function productToggleAvailability(productId, currentStatus) {
         // Prepare the data to send
         const toggleData = {
             action: 'toggleAvailability',
-            productId: productId,
-            storeType: storeType
+            productId: productId
         };
 
         // Send the request to toggle availability
@@ -1161,32 +1103,6 @@ function removeVariation(index) {
     }
 }
 
-/* function productPreviewImage(event) {
-    const file = event.target.files[0];
-    const previewImage = document.getElementById('productImagePreview');
-    const previewContainer = document.getElementById('productImagePreviewContainer');
-
-    if (file && previewImage && previewContainer) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            previewImage.src = e.target.result;
-
-            // Apply thumbnail styling
-            previewImage.style.maxWidth = "150px";
-            previewImage.style.maxHeight = "100px";
-            previewImage.style.objectFit = "contain";
-            previewImage.style.border = "1px solid #ddd";
-            previewImage.style.borderRadius = "4px";
-            previewImage.style.padding = "3px";
-
-            previewContainer.style.display = 'block';
-        };
-
-        reader.readAsDataURL(file);
-    }
-} */
-
 function productOpenModal() {
     // Only reset the form if it's a new product (no ID value)
     const productId = document.getElementById('productId').value;
@@ -1235,906 +1151,11 @@ if (closeModalBtn) {
     closeModalBtn.addEventListener('click', productCloseModal);
 }
 
-//------------ONLINE STORE LOGIC
-
-function loadMenu() {
-    const segments = {};
-    // Organize products by segments
-    products.forEach(product => {
-        if (!segments[product.segment]) {
-            segments[product.segment] = [];
-        }
-        segments[product.segment].push(product);
-    });
-
-    const menuContainer = document.getElementById('menu-products');
-
-    const menuHeaderDiv = document.createElement('div');
-    menuHeaderDiv.className = 'menu-header';
-
-    const menuBrandDiv = document.createElement('div');
-    menuBrandDiv.className = 'menu-hf-text';
-    menuBrandDiv.innerHTML = `<div><p>Tomorrow's Menu</p></div>`;
-
-    menuHeaderDiv.appendChild(menuBrandDiv);
-    menuContainer.appendChild(menuHeaderDiv);
-
-    Object.keys(segments).forEach(segment => {
-        const segmentDiv = document.createElement('div');
-        segmentDiv.className = 'menu-segment';
-
-        const title = document.createElement('div');
-        title.className = 'menu-segment-title';
-        title.textContent = segment;
-        segmentDiv.appendChild(title);
-
-        segments[segment].forEach(product => {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'menu-product-card';
-
-            let typeLogoSrc = product.type === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
-
-            cardDiv.innerHTML = `
-                    <img class="menu-product-image" src="${product.imageUrl}" alt="${product.name}">
-                    <div class="menu-product-details">
-                        <h3>${product.name}</h3>
-                        <p><strong>Ingredients:</strong> ${product.ingredients}</p>
-                        <p><strong>Serving Info:</strong> ${product.description}</p>
-                    </div>
-                    <div class="menu-product-price">₹${product.price}</div>
-                    <img class="menu-product-logo" src="${typeLogoSrc}" alt="${product.type}">
-                `;
-
-            segmentDiv.appendChild(cardDiv);
-        });
-
-        menuContainer.appendChild(segmentDiv);
-    });
-
-    const menuFooterDiv = document.createElement('div');
-    menuFooterDiv.className = 'menu-footer';
-
-    const menuInfoDiv = document.createElement('div');
-    menuInfoDiv.className = 'menu-hf-text menu-footer-text';
-    menuInfoDiv.innerHTML = `
-            <div class="footer-left">
-            <p>To Order, please go to <a class="static-title" href="https://food.bonstudio.store" target="_blank">food.bonstudio.store</a></p>
-            <p style="display: flex; align-items: center;">Follow us on &nbsp;
-                <a style="display: flex; align-items: center;" href="https://www.instagram.com/bonstudio.store/profilecard/?igsh=NW5lMm1wZDhhNTd1" target="_blank">
-                    <img src="resources/insta-logo.png" height="30px" , width="30px" />
-                </a>
-            </p>
-            </div>
-            <div class="footer-right">
-                <img src="resources/logo.png" alt="BonBites" height="150px" , width="150px"/>
-            </div>
-        `;
-
-    menuFooterDiv.appendChild(menuInfoDiv);
-    menuContainer.appendChild(menuFooterDiv);
-}
-
-async function generatePDF() {
-    const customMenu = document.querySelector('div.custom-menu');
-    if (customMenu) customMenu.style.display = 'none'; // Temporarily hide the context menu
-
-    const element = document.body; // Element to convert to PDF
-    const canvas = await html2canvas(element);
-    const imageData = canvas.toDataURL('image/png');
-    const pdf = new jspdf.jsPDF({
-        orientation: 'p',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-    });
-    pdf.addImage(imageData, 'PNG', 0, 0, canvas.width, canvas.height);
-    pdf.save('menu.pdf');
-
-    if (customMenu) customMenu.style.display = 'block';
-}
-
-function loadProductsForOnlineStore() {
-    const productsContainer = document.getElementById('products');
-    let segments = {};
-
-    products.forEach(product => {
-        if (!segments[product.segment]) {
-            segments[product.segment] = document.createElement('div');
-            segments[product.segment].className = 'segment';
-            segments[product.segment].innerHTML = `<h3>${product.segment}</h3>`;
-            productsContainer.appendChild(segments[product.segment]);
-        }
-        
-        const productDiv = document.createElement('div');
-        productDiv.className = 'product';
-        
-        // Get default type for product
-        let initialType = product.type || "Veg";
-        if (product.variations && product.variations.length > 0) {
-            initialType = product.variations[0].type || "Veg";
-        }
-        
-        let typeLogoSrc = initialType === "Veg" ? "resources/veg-logo.png" : "resources/nonveg-logo.png";
-        let hasMultipleVariations = product.variations && product.variations.length > 1;
-        
-        // Determine price display based on variations
-        let priceDisplay = `₹${product.price}`;
-        
-        if (hasMultipleVariations) {
-            // For multiple variations, show price range
-            const prices = product.variations.map(v => parseFloat(v.price)).filter(p => !isNaN(p));
-            if (prices.length > 0) {
-                const minPrice = Math.min(...prices);
-                const maxPrice = Math.max(...prices);
-                priceDisplay = minPrice === maxPrice ? `₹${minPrice}` : `₹${minPrice} - ₹${maxPrice}`;
-            }
-        } else if (product.variations && product.variations.length === 1) {
-            // Single variation - use its price
-            priceDisplay = `₹${product.variations[0].price}`;
-        }
-        
-        // Basic product info
-        let productHTML = `
-            <img src="${product.imageUrl}" alt="${product.name}">
-            <p class="product-name">${product.name}</p> 
-            <p class="product-ingredients"><strong>Contains:</strong> ${product.ingredients}</p> 
-            <p class="product-description"><strong>Serving Info:</strong> ${product.description}</p>
-            <p class="product-price">Price: ${priceDisplay}</p>
-        `;
-        
-        // Add cart button based on variations
-        if (!product.variations || product.variations.length === 0) {
-            // Legacy products without variations
-            productHTML += `
-                <button title="Add this item to cart" class="add-to-cart" 
-                        onclick="addToCart(this, '${product.segment}', '${product.type || 'Mixed'}', '${product.name}', ${product.price})">
-                    <i class="fa fa-plus"></i>
-                </button>
-            `;
-        } else if (product.variations.length === 1) {
-            // Single variation - simple add to cart
-            const variation = product.variations[0];
-            productHTML += `
-                <button title="Add this item to cart" class="add-to-cart" 
-                        onclick="addToCart(this, '${product.segment}', '${variation.type || product.type || 'Mixed'}', '${product.name}', ${variation.price}, '${variation.name}')">
-                    <i class="fa fa-plus"></i>
-                </button>
-            `;
-        } else {
-            // Multiple variations - show variations button
-            productHTML += `
-                <button title="Choose variations" class="add-to-cart show-variations-btn" 
-                        data-product-id="${product.id}" data-product-name="${product.name}" 
-                        data-product-segment="${product.segment}">
-                    <i class="fa fa-plus"></i>
-                </button>
-            `;
-        }
-        
-        // Only add type logo for products with 0 or 1 variation
-        if (!hasMultipleVariations) {
-            productHTML += `<img src="${typeLogoSrc}" alt="${initialType}" class="type-logo">`;
-        }
-        
-        productDiv.innerHTML = productHTML;
-        segments[product.segment].appendChild(productDiv);
-    });
-    
-    // Add event listeners for variation selection buttons
-    document.querySelectorAll('.show-variations-btn').forEach(button => {
-        button.addEventListener('click', showVariationSelectionModal);
-    });
-}
-
-function getDeliveryOptions() {
-    const url = API_URL + '?type=deliveryOptions';
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            localStorage.setItem('deliveryOptions', JSON.stringify(data));
-        });
-}
-
-function showVariationSelectionModal(event) {
-    const button = event.currentTarget;
-    const productId = button.getAttribute('data-product-id');
-    const productName = button.getAttribute('data-product-name');
-    const segment = button.getAttribute('data-product-segment');
-    
-    const product = products.find(p => p.id == productId);
-    if (!product || !product.variations) return;
-    
-    // Create or get modal element
-    let modal = document.getElementById('variationSelectionModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'variationSelectionModal';
-        modal.className = 'modal variation-selection-modal';
-        
-        document.body.appendChild(modal);
-    }
-    
-    // Build modal content with a colgroup structure for better alignment
-    modal.innerHTML = `
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>What type?</h3>
-            <p class="selection-instruction">Select one or more options to add to your cart:</p>
-            
-            <div class="light-table-container">
-                <table class="light-table variation-table">
-                    <colgroup>
-                        <col class="col-checkbox" />
-                        <col class="col-name" />
-                        <col class="col-type" />
-                        <col class="col-price" />
-                        <col class="col-quantity" />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Variation</th>
-                            <th>Type</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${product.variations.map((variation, idx) => `
-                            <tr>
-                                <td>
-                                    <input type="checkbox" id="variation-${productId}-${idx}" 
-                                           data-price="${variation.price}" 
-                                           data-name="${variation.name}"
-                                           data-type="${variation.type || product.type}">
-                                </td>
-                                <td>
-                                    <label for="variation-${productId}-${idx}">${variation.name}</label>
-                                </td>
-                                <td class="type-logo-cell">
-                                    <img src="${variation.type === 'Veg' ? 'resources/veg-logo.png' : 'resources/nonveg-logo.png'}" 
-                                        alt="${variation.type}" class="variation-type-icon"> ${variation.type}</td>
-                                <td><span class="variation-price">₹${variation.price}</span></td>
-                                <td>
-                                    <input type="number" class="qty-input-simple" value="1" min="1" max="10" data-idx="${idx}">
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="variation-controls">
-                <button class="cancel-selection-btn">Cancel</button>
-                <button class="confirm-selection-btn" 
-                        data-product-id="${productId}" 
-                        data-product-name="${productName}"
-                        data-segment="${segment}">
-                    Add to Cart
-                </button>
-            </div>
-        </div>
-    `;
-    
-    // Event handlers remain the same
-    const closeBtn = modal.querySelector('.close');
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-    
-    const cancelBtn = modal.querySelector('.cancel-selection-btn');
-    cancelBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-    
-    const confirmBtn = modal.querySelector('.confirm-selection-btn');
-    confirmBtn.addEventListener('click', addSelectedVariationsToCart);
-    
-    // Close when clicking outside
-    window.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-    
-    // Show the modal
-    modal.style.display = 'block';
-}
-
-// Simple toast notification for cart additions
-function showAddedToCartToast() {
-    // Create toast if it doesn't exist
-    let toast = document.getElementById('addToCartToast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'addToCartToast';
-        toast.className = 'toast';
-        toast.innerHTML = 'Added to cart!';
-        document.body.appendChild(toast);
-    }
-    
-    // Show toast
-    toast.classList.add('show');
-    
-    // Hide after 2 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
-}
-
-function addSelectedVariationsToCart(event) {
-    const button = event.currentTarget;
-    const productId = button.getAttribute('data-product-id');
-    const productName = button.getAttribute('data-product-name');
-    const segment = button.getAttribute('data-segment');
-    
-    const modal = document.getElementById('variationSelectionModal');
-    const checkboxes = modal.querySelectorAll('input[type="checkbox"]:checked');
-    
-    if (checkboxes.length === 0) {
-        alert('Please select at least one variation');
-        return;
-    }
-    
-    // Add each selected variation to cart
-    checkboxes.forEach(checkbox => {
-        const variationName = checkbox.getAttribute('data-name');
-        const price = parseFloat(checkbox.getAttribute('data-price'));
-        const type = checkbox.getAttribute('data-type');
-        const idx = checkbox.id.split('-')[2];
-        
-        // Get quantity - fix the selector and add fallback
-        let quantity = 1; // Default quantity
-        
-        // Find the closest quantity input to this checkbox
-        const row = checkbox.closest('tr');
-        if (row) {
-            const qtyInput = row.querySelector('.qty-input-simple');
-            if (qtyInput) {
-                quantity = parseInt(qtyInput.value) || 1;
-            }
-        }
-        
-        // Find if this item is already in cart
-        let item = cart.find(item => 
-            item.name === productName && 
-            item.variation === variationName);
-            
-        if (item) {
-            item.quantity += quantity;
-        } else {
-            cart.push({ 
-                segment, 
-                type, 
-                name: productName, 
-                price, 
-                quantity,
-                variation: variationName
-            });
-        }
-    });
-    
-    // Save cart and update UI
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartUI();
-    
-    // Show confirmation and close modal
-    showAddedToCartToast();
-    modal.style.display = 'none';
-}
-
-function addToCart(button, segment, type, name, price, variation) {
-    // Ensure variation is defined with default empty string
-    variation = variation || '';
-    
-    // Create a tooltip element
-    let tooltip = document.createElement('span');
-    tooltip.className = 'tooltip';
-    
-    // Find item with this name and variation in cart
-    let item = cart.find(item => 
-        item.name === name && 
-        (variation ? item.variation === variation : !item.variation));
-        
-    if (item) {
-        item.quantity++;
-    } else {
-        cart.push({ 
-            segment, 
-            type, 
-            name, 
-            price, 
-            quantity: 1,
-            variation: variation
-        });
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    
-    showAddedToCartToast();
-    
-    updateCartUI();
-}
-
-function addToCartWithVariation(button, segment, initialType, name) {
-    const productDiv = button.closest('.product');
-    const select = productDiv.querySelector('.variation-selector');
-
-    if (!select) return;
-
-    const selectedOption = select.options[select.selectedIndex];
-    const variationName = selectedOption.getAttribute('data-name');
-    const price = parseFloat(selectedOption.getAttribute('data-price'));
-    const type = selectedOption.getAttribute('data-type') || initialType;
-
-    // Create a tooltip element and add it to the button
-    let tooltip = document.createElement('span');
-    tooltip.className = 'tooltip';
-
-    // Find item with this name and variation in cart
-    let item = cart.find(item =>
-        item.name === name &&
-        item.variation === variationName);
-
-    if (item) {
-        item.quantity++;
-    } else {
-        cart.push({
-            segment,
-            type, // Use the variation-specific type
-            name,
-            price,
-            quantity: 1,
-            variation: variationName
-        });
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    tooltip.innerText = 'Added to Cart';
-
-    // Show tooltip
-    button.parentNode.appendChild(tooltip);
-    tooltip.style.visibility = 'visible';
-    tooltip.style.opacity = '1';
-
-    // Remove the tooltip after a few seconds
-    setTimeout(() => {
-        tooltip.style.visibility = 'hidden';
-        tooltip.style.opacity = '0';
-        button.parentNode.removeChild(tooltip);
-    }, 1000);
-
-    updateCartUI();
-}
-
-function updateCartUI() {
-    const cartItemsContainer = document.getElementById('cart-items');
-    cartItemsContainer.innerHTML = '';
-
-    cart.forEach(item => {
-        const row = document.createElement('tr');
-
-        // Display name with variation if it exists
-        const displayName = item.variation && item.variation !== 'Default'
-            ? `${item.name} (${item.variation})`
-            : item.name;
-
-        row.innerHTML = `
-            <td>${displayName}</td>
-            <td>
-              <button class="decrease-quantity" onclick="updateQuantityForOnlineStore('${item.type}', '${item.name}', ${item.quantity - 1}, '${item.variation || ''}')">-</button>
-              <span>${item.quantity}</span>
-              <button class="increase-quantity" onclick="updateQuantityForOnlineStore('${item.type}', '${item.name}', ${item.quantity + 1}, '${item.variation || ''}')">+</button>
-            </td>
-            <td><button class="remove-item" onclick="removeItemFromCart('${item.type}', '${item.name}', '${item.variation || ''}')"><i class="fa fa-trash"></i></button></td>
-            <td>₹${item.price}</td>
-            <td>₹${item.price * item.quantity}</td>
-        `;
-        cartItemsContainer.appendChild(row);
-    });
-
-    updateTotalForOnlineStore();
-
-    // Update delivery-options based on items chosen
-    const deliveryOptions = JSON.parse(localStorage.getItem('deliveryOptions') || '{}');
-    const segments = new Set(Object.values(cart).map(item => item.segment));
-
-    let allDeliveryOptions = [];
-    segments.forEach(segment => {
-        if (deliveryOptions[segment]) {
-            deliveryOptions[segment].forEach(option => {
-                if (!allDeliveryOptions.includes(option)) {
-                    allDeliveryOptions.push(option);
-                }
-            });
-        }
-    });
-
-    allDeliveryOptions.sort((a, b) => {
-        const getHour = time => {
-            const [hour] = time.split('-');
-            return parseInt(hour.trim(), 10);
-        };
-
-        // Comparing hours for sorting
-        return getHour(a) - getHour(b);
-    });
-
-    // Filter to keep only PM options if both AM and PM options exist
-    let pmOptions = allDeliveryOptions.filter(option => option.includes('PM'));
-    if (pmOptions.length > 0 && pmOptions.length !== allDeliveryOptions.length) {
-        allDeliveryOptions = pmOptions;  // Use only PM options if presentand mixed with AM
-    }
-
-    let optionsHtml = `<select id="delivery-time-dropdown" required class="form-input">
-                       <option value="">[Select]</option>`;
-    allDeliveryOptions.forEach(option => {
-        optionsHtml += `<option value="${option}">${option}</option>`;
-    });
-    optionsHtml += '</select>';
-
-    document.getElementById('deliveryOptionsContainer').innerHTML = optionsHtml;
-}
-
-function updateQuantityForOnlineStore(type, name, newQuantity, variation = '') {
-    if (newQuantity < 1) return; // Prevent negative or zero quantities
-
-    let item = cart.find(item =>
-        item.type === type &&
-        item.name === name &&
-        (variation ? item.variation === variation : !item.variation)
-    );
-
-    if (item) {
-        item.quantity = newQuantity;
-    }
-    updateCartUI();
-}
-
-function removeItemFromCart(type, name, variation = '') {
-    cart = cart.filter(item =>
-        item.type !== type ||
-        item.name !== name ||
-        (variation && item.variation !== variation)
-    );
-    updateCartUI();
-}
-
-function updateTotalForOnlineStore() {
-    let total = 0;
-    cart.forEach(item => {
-        total += item.price * item.quantity;
-    });
-    document.getElementById('total-amount').innerText = `₹${total}`;
-}
-
-function validateAndPlaceOnlineOrder(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('name');
-    const flat = document.getElementById('flat');
-    const phone = document.getElementById('phone');
-    const email = document.getElementById('email');
-    const deliveryDropdown = document.getElementById('delivery-time-dropdown');
-
-    let isFormValid = true;
-
-    // Reset previous tooltips
-    [name, flat, phone, email, deliveryDropdown].forEach(input => {
-        input.classList.remove('error');
-        input.removeAttribute('data-error');
-    });
-
-    if (!name.value.trim()) {
-        name.classList.add('error');
-        name.setAttribute('data-error', 'Please enter your name');
-        isFormValid = false;
-    }
-    if (!flat.value.trim()) {
-        flat.classList.add('error');
-        flat.setAttribute('data-error', 'Please enter your Tower & Flat No.');
-        isFormValid = false;
-    }
-    if (!phone.value.trim()) {
-        phone.classList.add('error');
-        phone.setAttribute('data-error', 'Please enter your phone number');
-        isFormValid = false;
-    }
-    if (!email.value.trim()) {
-        email.classList.add('error');
-        email.setAttribute('data-error', 'Please enter your email');
-        isFormValid = false;
-    }
-    if (deliveryDropdown.value === "") {
-        deliveryDropdown.classList.add('error');
-        deliveryDropdown.setAttribute('data-error', 'Please select a delivery slot');
-        isFormValid = false;
-    }
-
-    if (isFormValid) {
-        placeOnlineOrder();
-    } else {
-        console.error("Form validation failed.");
-    }
-}
-
-function calculateOrderTotal(items) {
-    return items.reduce((total, item) => {
-        return total + (parseFloat(item.price) * parseInt(item.quantity));
-    }, 0);
-}
-
-async function placeOnlineOrder() {
-    showLoader(true);
-    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-    const interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
-
-    // Combine cartItems and interestedItems into a single array
-    const combinedItems = [
-        ...cartItems.map(item => ({ ...item, mode: 'ordered' })),
-        ...interestedItems.map(item => ({ name: item, mode: 'interested' }))
-    ];
-
-    const formData = {
-        action: 'insertOrder',
-        storeType: 'online',
-        name: document.getElementById('name').value,
-        flat: document.getElementById('flat').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        deliveryOption: document.getElementById('delivery-time-dropdown').value,
-        items: combinedItems,  // Pass the combined items array
-        totalAmount: calculateOrderTotal(cartItems),
-        userAgent: user_agt,
-        userIp: user_ip
-    };
-
-    try {
-        const result = await callAPIviaPOST(formData);
-        if (result.status === 'success') {
-            alert(`Order placed! Your order ID is ${result.orderId}.`);
-            //alert(`Data submitted, Thank you!`);
-            clearExistingDataForOnlineStore();
-        } else {
-            alert('Failed to place the order.');
-        }
-        showLoader(false);
-    } catch (error) {
-        showLoader(false);
-        alert('Failed to place the order. Check console for logs..');
-        console.error('Failed to place order:', error);
-    }
-}
-
-function clearExistingDataForOnlineStore() {
-    // Save delivery options data first
-    const deliveryOptionsData = localStorage.getItem('deliveryOptions');
-
-    // Clear specific items instead of all localStorage
-    localStorage.removeItem('cart');
-    localStorage.removeItem('interestedItems');
-
-    // Restore delivery options data
-    if (deliveryOptionsData) {
-        localStorage.setItem('deliveryOptions', deliveryOptionsData);
-    }
-
-    // Clear form fields
-    clearCustomerInfoForOnlineStore();
-    clearOrderDetailsForOnlineStore();
-}
-
-function clearCustomerInfoForOnlineStore() {
-    document.getElementById('name').value = '';
-    document.getElementById('flat').value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('email').value = '';
-}
-
-function clearOrderDetailsForOnlineStore() {
-    cart = [];
-    updateCartUI();
-    document.getElementById('total-amount').innerText = '₹0'; // Reset total amount
-}
-
-function clearInterestedItemsForOnlineStore() {
-    const list = document.getElementById('interested-list');
-    list.innerHTML = ''; // Clear inner HTML to remove all items
-}
-
-async function fetchIPAddress() {
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    return data.ip;
-}
-
-function markAsInterested(button, productName) {
-    // console.log("Expressed interest in:", productName); 
-
-    // Create a tooltip element and add it to the button
-    let tooltip = document.createElement('span');
-    tooltip.className = 'tooltip';
-
-    let interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
-    if (!interestedItems.includes(productName)) {
-        interestedItems.push(productName);
-        localStorage.setItem('interestedItems', JSON.stringify(interestedItems));
-        updateInterestedItems();
-        tooltip.innerText = 'Added to Wishlist';
-    }
-    else {
-        tooltip.innerText = 'Already in Wishlist';
-    }
-
-    // Show tooltip
-    button.parentNode.appendChild(tooltip);
-    tooltip.style.visibility = 'visible';
-    tooltip.style.opacity = '1';
-
-    // Remove the tooltip after a few seconds
-    setTimeout(() => {
-        tooltip.style.visibility = 'hidden';
-        tooltip.style.opacity = '0';
-        button.parentNode.removeChild(tooltip);
-    }, 1000);  // 1 second
-}
-
-function updateInterestedItems() {
-    const list = document.getElementById('interested-list');
-    list.innerHTML = '';
-    let interestedItems = JSON.parse(localStorage.getItem('interestedItems') || '[]');
-    interestedItems.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        const removeBtn = document.createElement('button');
-        removeBtn.className = "remove-item";
-        removeBtn.innerHTML = '<i class="fa fa-remove">';
-        removeBtn.onclick = function () { removeInterested(item); };
-        li.appendChild(removeBtn);
-        list.appendChild(li);
-    });
-}
-
-function removeInterested(name) {
-    const interestedItems = JSON.parse(localStorage.getItem('interestedItems'));
-    const filteredItems = interestedItems.filter(item => item !== name);
-    localStorage.setItem('interestedItems', JSON.stringify(filteredItems));
-    updateInterestedItems();
-}
-
-//------------LOCAL STORE LOGIC
-
-function loadProductsForLocalStore() {
-    const itemsContainer = document.getElementById('predefined-items');
-    products.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.name}</td>
-            <td>
-                <button class="decrease-quantity" onclick="updateQuantityForLocalStore(${index}, -1)">-</button>
-                <span id="quantity-${index}">0</span>
-                <button class="increase-quantity" onclick="updateQuantityForLocalStore(${index}, 1)">+</button>
-            </td>
-            <td>₹${item.price}</td>
-            <td id="total-${index}">₹${item.quantity * item.price}</td>
-        `;
-        itemsContainer.appendChild(row);
-    });
-
-    updateTotalForLocalStore();
-}
-
-function updateQuantityForLocalStore(index, change) {
-    let product = products[index];
-    product.quantity += change;
-    if (product.quantity < 0) product.quantity = 0;
-
-    const quantityElement = document.getElementById(`quantity-${index}`);
-    const totalElement = document.getElementById(`total-${index}`);
-
-    quantityElement.innerText = product.quantity;
-    totalElement.innerText = `₹${product.quantity * product.price}`;
-
-    updateTotalForLocalStore();
-}
-
-function updateTotalForLocalStore() {
-    const totalAmount = products.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
-    const totalAmountElement = document.getElementById('total-amount');
-    totalAmountElement.innerText = `₹${totalAmount}`;
-}
-
-function validateAndPlaceLocalOrder(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('name');
-
-    let isFormValid = true;
-
-    // Reset previous tooltips
-    [name].forEach(input => {
-        input.classList.remove('error');
-        input.removeAttribute('data-error');
-    });
-
-    if (!name.value.trim()) {
-        name.classList.add('error');
-        name.setAttribute('data-error', 'Please enter customer name');
-        isFormValid = false;
-    }
-
-    if (isFormValid) {
-        placeLocalOrder();
-    } else {
-        console.error("Form validation failed.");
-    }
-}
-
-async function placeLocalOrder() {
-    showLoader(true);
-
-    const formData = {
-        action: 'insertOrder',
-        storeType: 'local',
-        name: document.getElementById('name').value,
-        items: products.filter(item => item.quantity > 0).map(item => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity
-        })),
-        totalAmount: calculateOrderTotal(cartItems)
-    };
-
-    try {
-        const result = await callAPIviaPOST(formData);
-        if (result.status === 'success') {
-            alert(`Order placed! Your order ID is ${result.orderId}.`);
-            clearExistingDataForLocalStore();
-        } else {
-            alert('Failed to place the order.');
-        }
-        showLoader(false);
-    } catch (error) {
-        showLoader(false);
-        alert('Failed to place the order. Check console for logs..');
-        console.error('Failed to place order:', error);
-    }
-}
-
-function clearExistingDataForLocalStore() {
-    localStorage.clear();  // Clear local storage
-    clearCustomerInfoForLocalStore(); // Clear customer inputs
-    clearOrderDetailsForLocalStore();  // Clear order details
-}
-
-function clearCustomerInfoForLocalStore() {
-    document.getElementById('name').value = '';
-}
-
-function clearOrderDetailsForLocalStore() {
-    products.forEach((product, index) => {
-        product.quantity = 0;  // Reset quantity
-        updateRowForLocalStore(index); // Update UI for each product
-    });
-
-    updateTotalForLocalStore();
-}
-
-function updateRowForLocalStore(index) {
-    const quantityElement = document.getElementById(`quantity-${index}`);
-    const totalElement = document.getElementById(`total-${index}`);
-
-    if (quantityElement && totalElement) {
-        quantityElement.innerText = products[index].quantity;
-        totalElement.innerText = `₹${products[index].quantity * products[index].price}`;
-    }
-}
-
 //------------ORDER PROCESSING LOGIC
 
 async function fetchOrders() {
     try {
-        const storeType = getUrlParameter('storeType') || 'local';
-        const response = await fetch(API_URL + `?type=orders&storeType=${storeType}`);
+        const response = await fetch(API_URL + `?type=orders`);
         orders = await response.json();
         orders = Array.isArray(orders) ? orders : [];
 
@@ -2173,7 +1194,7 @@ function loadOrders() {
             <h3>${order.customerName}</h3>
             <p><strong>Flat:</strong> ${order.customerFlat} 
                 <br/><strong>Phone:</strong> ${order.phoneNumber} 
-                <br/><strong>Delivery Slot:</strong> ${order.deliveryOption} 
+                <br/><strong>Delivery Slot:</strong> ${order.deliverySlot} 
                 <br/><strong>Status:</strong> ${order.status} 
                 <br/><br/><strong>Items:</strong>
             </p>
@@ -2188,10 +1209,10 @@ function loadOrders() {
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'button-container';
         buttonContainer.innerHTML = `
-            <button class="small-button bg-blue" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
-            <button class="small-button bg-brown" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
-            <button class="small-button bg-green" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
-            <button class="small-button bg-red" onclick="updateStatus('${order.storeType}', '${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
+            <button class="small-button bg-blue" onclick="updateStatus('${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
+            <button class="small-button bg-brown" onclick="updateStatus('${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
+            <button class="small-button bg-green" onclick="updateStatus('${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
+            <button class="small-button bg-red" onclick="updateStatus('${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
         `;
         card.appendChild(buttonContainer);
 
@@ -2199,12 +1220,11 @@ function loadOrders() {
     });
 }
 
-async function updateStatus(storeType, orderId, status) {
+async function updateStatus(orderId, status) {
     showLoader(true);
 
     const formData = {
         action: 'updateOrder',
-        storeType: storeType,
         orderId: orderId,
         status: status
     };
