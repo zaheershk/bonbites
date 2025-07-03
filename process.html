@@ -17,7 +17,25 @@
     </header>
 
     <main>
+        <br />
+        <button id="prepSummaryBtn" class="action-icons" onclick="showPrepSummary()"">
+            <i class="fas fa-clipboard-list"></i> Prep Summary</button>
+        <br />
+
         <div id="orders-container"></div>
+
+        <!-- Prep Summary Modal -->
+        <div id="prep-summary-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Preparation Summary</h2>
+                    <button class="modal-close" onclick="closePrepSummary()">&times;</button>
+                </div>
+                <div class="modal-body" id="prep-summary-content">
+                    <!-- Summary content will be inserted here -->
+                </div>
+            </div>
+        </div>
     </main>
 
     <div id="loader" class="loader">Please wait...</div>

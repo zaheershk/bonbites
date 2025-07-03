@@ -97,3 +97,88 @@ async function updateStatus(orderId, status) {
         console.error('Failed to update order:', error);
     }
 }
+
+// Show Prep Summary Modal
+function showPrepSummary() {
+    const modal = document.getElementById('prep-summary-modal');
+    const content = document.getElementById('prep-summary-content');
+    
+    // Generate summary
+    const summary = generatePrepSummary();
+    content.innerHTML = summary;
+    
+    modal.style.display = 'block';
+}
+
+// Close Prep Summary Modal
+function closePrepSummary() {
+    const modal = document.getElementById('prep-summary-modal');
+    modal.style.display = 'none';
+}
+
+// Generate preparation summary from orders
+// Generate preparation summary from orders
+function generatePrepSummary() {
+    if (!orders || orders.length === 0) {
+        return '<p>No orders available for summary.</p>';
+    }
+    
+    // Group items by name, type, and variation
+    const itemGroups = {};
+    
+    orders.forEach(order => {
+        // Only include non-cancelled orders
+        if (order.status === 'Cancelled') return;
+        
+        order.items.forEach(item => {
+            const key = `${item.name}|${item.type}|${item.variation || 'Standard'}`;
+            
+            if (!itemGroups[key]) {
+                itemGroups[key] = {
+                    name: item.name,
+                    type: item.type,
+                    variation: item.variation || 'Standard',
+                    quantity: 0
+                };
+            }
+            
+            itemGroups[key].quantity += item.quantity;
+        });
+    });
+    
+    // Sort alphabetically by name, then type, then variation
+    const sortedItems = Object.values(itemGroups).sort((a, b) => {
+        if (a.name !== b.name) return a.name.localeCompare(b.name);
+        if (a.type !== b.type) return a.type.localeCompare(b.type);
+        return a.variation.localeCompare(b.variation);
+    });
+    
+    if (sortedItems.length === 0) {
+        return '<p>No items to prepare.</p>';
+    }
+    
+    // Generate HTML
+    let html = `<div class="prep-summary-list">`;
+    
+    sortedItems.forEach(item => {
+        html += `
+            <div class="prep-item">
+                <div class="prep-item-name">${item.name}</div>
+                <div class="prep-item-details">${item.type} - ${item.variation}</div>
+                <div class="prep-item-quantity">Quantity: ${item.quantity}</div>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    
+    return html;
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('prep-summary-modal');
+    if (event.target === modal) {
+        closePrepSummary();
+    }
+}
