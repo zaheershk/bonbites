@@ -148,7 +148,6 @@ function closePrepSummary() {
 }
 
 // Generate preparation summary from orders
-// Generate preparation summary from orders
 function generatePrepSummary() {
     if (!orders || orders.length === 0) {
         return '<p>No orders available for summary.</p>';
@@ -188,7 +187,7 @@ function generatePrepSummary() {
         return '<p>No items to prepare.</p>';
     }
     
-    // Generate HTML
+    // Generate HTML with 3-column grid layout
     let html = `<div class="prep-summary-list">`;
     
     sortedItems.forEach(item => {
@@ -196,7 +195,7 @@ function generatePrepSummary() {
             <div class="prep-item">
                 <div class="prep-item-name">${item.name}</div>
                 <div class="prep-item-details">${item.type} - ${item.variation}</div>
-                <div class="prep-item-quantity">Quantity: ${item.quantity}</div>
+                <div class="prep-item-quantity">${item.quantity}</div>
             </div>
         `;
     });
