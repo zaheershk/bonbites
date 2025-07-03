@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: #f8f9fa;
-    color: #333;
+    background: #28282B;
+    color: #fff;
     margin: 0;
     padding: 0;
     line-height: 1.4;
@@ -237,10 +237,10 @@ body {
 }
 
 .mobile-product .product-description {
-    font-size: 0.8rem;
-    color: #7f8c8d;
+    font-size: 0.9rem;
+    color: #1e8a92;
     margin: 0 0 auto 0; /* Push price to bottom */
-    line-height: 1.3;
+    line-height: 1.5;
     flex: 1; /* Take remaining space */
 }
 
@@ -936,7 +936,8 @@ body {
 @media (min-width: 768px) {
     /* Container for centering mobile layout */
     body {
-        background: #f0f2f5;
+        background: #28282B;
+        color: #fff;
         display: flex;
         justify-content: center;
         align-items: flex-start;
