@@ -267,6 +267,13 @@ body {
     margin-bottom: auto;
 }
 
+.mobile-product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
 .mobile-product-actions {
     display: flex;
     align-items: center;
@@ -300,6 +307,18 @@ body {
 
 .mobile-add-btn i {
     font-size: 1rem;
+}
+
+.mobile-type-logo {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 /* About Section */
@@ -423,10 +442,14 @@ body {
     transition: transform 0.3s ease;
     max-height: 70vh;
     overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
 }
 
 .mobile-options-panel.show {
     transform: translateY(0);
+    visibility: visible;
+    opacity: 1;
 }
 
 .mobile-options-header {
@@ -550,7 +573,7 @@ body {
 }
 
 /* Cart Styles */
-.mobile-cart-container {
+.mobile-cart {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -564,10 +587,16 @@ body {
     transition: transform 0.3s ease;
     max-height: 80vh;
     overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.mobile-cart-container.show {
+.mobile-cart.show {
     transform: translateY(0);
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .mobile-cart-header {
@@ -900,5 +929,139 @@ body {
     
     .mobile-add-btn i {
         font-size: 0.9rem;
+    }
+}
+
+/* Desktop/Laptop Responsive Design - Center Mobile Layout */
+@media (min-width: 768px) {
+    /* Container for centering mobile layout */
+    body {
+        background: #f0f2f5;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    /* Mobile container with fixed width */
+    .mobile-container {
+        width: 420px;
+        max-width: 420px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        overflow: hidden;
+        position: relative;
+        min-height: 600px;
+    }
+    
+    /* Header adjustments */
+    .mobile-header {
+        position: static;
+        border-radius: 12px 12px 0 0;
+    }
+    
+    /* Main content container */
+    .mobile-main {
+        padding-bottom: 80px;
+        min-height: 500px;
+    }
+    
+    /* Navigation stays at bottom of container */
+    .mobile-nav {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0 0 12px 12px;
+        border-top: 1px solid #e0e0e0;
+    }
+    
+    /* Cart and options panels */
+    .mobile-cart,
+    .mobile-options-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 12px;
+    }
+    
+    /* Loading screen */
+    .mobile-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 12px;
+    }
+    
+    /* Sections within the container */
+    .mobile-products,
+    .mobile-customer-form,
+    .mobile-about-section {
+        padding: 20px;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+    
+    /* Scrollbar styling */
+    .mobile-products::-webkit-scrollbar,
+    .mobile-customer-form::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .mobile-products::-webkit-scrollbar-track,
+    .mobile-customer-form::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    .mobile-products::-webkit-scrollbar-thumb,
+    .mobile-customer-form::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    .mobile-products::-webkit-scrollbar-thumb:hover,
+    .mobile-customer-form::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Cart and options panels - Fix for desktop */
+    .mobile-cart,
+    .mobile-options-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 12px;
+        transform: translateY(100%);
+        visibility: hidden;
+        opacity: 0;
+    }
+    
+    .mobile-cart.show,
+    .mobile-options-panel.show {
+        transform: translateY(0);
+        visibility: visible;
+        opacity: 1;
+    }
+    
+    /* Ensure panels are contained within mobile-container */
+    .mobile-container {
+        width: 420px;
+        max-width: 420px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        overflow: hidden;
+        position: relative;
+        min-height: 600px;
+        isolation: isolate; /* Create stacking context */
     }
 }

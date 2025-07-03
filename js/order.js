@@ -420,15 +420,9 @@ function removeMobileCartItem(index) {
 }
 
 function toggleMobileCart() {
-    const cartContainer = document.getElementById('mobile-cart');
-    if (cartContainer) {
-        if (mobileShowingCart) {
-            closeMobileCart();
-        } else {
-            cartContainer.classList.add('show');
-            mobileShowingCart = true;
-            closeMobileOptions();
-        }
+    const cart = document.getElementById('mobile-cart');
+    if (cart) {
+        cart.classList.toggle('show');
     }
 }
 
