@@ -1035,85 +1035,82 @@ input:checked+.slider:before {
 /* Admin dashboard specific styles */
 .admin-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 15px;
     width: 100%;
-    max-width: 1000px;
+    max-width: 620px; 
     margin: 0 auto;
-    margin-top: 50px;
+    margin-top: 20px;
+    padding: 0 15px; 
+    box-sizing: border-box;
+    overflow: hidden; /* Prevent spillover */
 }
 
 .admin-tile {
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 30px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
+    height: 160px; 
+    position: relative;
 }
 
 .admin-tile:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.admin-tile i {
-    font-size: 3rem;
-    margin-bottom: 20px;
-    color: #dfa06b;
-}
-
-.admin-tile h3 {
+/* Icon section */
+.admin-tile i:first-child {
     font-size: 1.5rem;
-    margin-bottom: 10px;
+    color: #dfa06b;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+/* H3 section */
+.admin-tile h3 {
+    font-size: 0.95rem;
+    margin: 0 0 12px 0;
     color: #333;
+    flex-shrink: 0;
 }
 
+/* Content section */
 .admin-tile p {
+    font-size: 0.75rem;
     color: #666;
-    font-size: 0.9rem;
-}
-
-/* Admin icon styling */
-.admin-link {
+    line-height: 1.2;
+    margin: 0;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    text-decoration: none;
-    margin-left: 15px;
 }
 
-.admin-link i {
-    font-size: 1.2rem;
-}
-
-#admin-dashboard .section-title {
-    font-size: 2.5rem;
-    text-align: center;
-    margin: 1.5rem 0 3rem 0;
-    color: #ccc;
-    font-weight: 500;
-}
-
+/* Toggle container - specific layout */
 .toggle-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    gap: 6px;
+    margin-top: auto; /* Push to bottom area */
+}
+
+.toggle-container p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #666;
 }
 
 .store-status-toggle {
+    font-size: 1.2rem;
     cursor: pointer;
-    font-size: 1.8rem;
-    transition: color 0.3s ease;
-    padding-top: 15px;
 }
 
 #storeStatusToggle.fa-toggle-on {
@@ -1139,6 +1136,14 @@ input:checked+.slider:before {
 .toggle-container i.store-status-toggle.fa-toggle-off {
     color: #cc0000;
     /* Color for 'off' state */
+}
+
+#admin-dashboard .section-title {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 1.5rem 0 3rem 0;
+    color: #ccc;
+    font-weight: 500;
 }
 
 /* Stock Management Styles */
@@ -1343,6 +1348,39 @@ th[data-sort-order]:not([data-sort-order=""]):before {
         width: 100%;
         margin-right: 0;
         margin-bottom: 10px;
+    }
+
+    .admin-tiles {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0 15px;
+    }
+    
+    .admin-tile {
+        height: 100px;
+        padding: 12px;
+    }
+    
+    .admin-tile i:first-child {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .admin-tile h3 {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    
+    .admin-tile p {
+        font-size: 0.7rem;
+    }
+    
+    .toggle-container p {
+        font-size: 0.7rem;
+    }
+    
+    .store-status-toggle {
+        font-size: 1.1rem;
     }
 }
 
