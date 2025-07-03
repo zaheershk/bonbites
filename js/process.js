@@ -38,38 +38,74 @@ async function loadOrders() {
     container.innerHTML = ''; // Clear previous entries
 
     orders.forEach(order => {
-        const card = document.createElement('div');
-        card.className = 'card';
+        const row = document.createElement('tr');
+        row.className = 'orders-row';
 
-        // Create a content div that wraps all card content except the button container
-        const content = document.createElement('div');
-        content.innerHTML = `
-            <h3>${order.customerName}</h3>
-            <p><strong>Flat:</strong> ${order.customerFlat} 
-                <br/><strong>Phone:</strong> ${order.phoneNumber} 
-                <br/><strong>Delivery Slot:</strong> ${order.deliverySlot} 
-                <br/><strong>Status:</strong> ${order.status} 
-                <br/><br/><strong>Items:</strong>
-            </p>
-            <ul>
-                ${order.items.map(item => `<li>${item.quantity} x ${item.name} (${item.variation ?? item.type})</li>`).join('')}
-            </ul>
-            <p style="color: #c1464c;"><strong>Total Amount: ₹${order.totalAmount}</strong></p> 
+        // Customer Cell
+        const customerCell = document.createElement('td');
+        customerCell.className = 'orders-customer-cell';
+        customerCell.innerHTML = `
+            <div>${order.customerName}</div>
+            <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 2px;">Flat: ${order.customerFlat}</div>
         `;
-        card.appendChild(content);
 
-        // Append button container at the bottom
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'button-container';
-        buttonContainer.innerHTML = `
-            <button class="small-button bg-blue" onclick="updateStatus('${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
-            <button class="small-button bg-brown" onclick="updateStatus('${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
-            <button class="small-button bg-green" onclick="updateStatus('${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
-            <button class="small-button bg-red" onclick="updateStatus('${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
+        // Contact Cell
+        const contactCell = document.createElement('td');
+        contactCell.className = 'orders-contact-cell';
+        contactCell.textContent = order.phoneNumber;
+
+        // Delivery Cell
+        const deliveryCell = document.createElement('td');
+        deliveryCell.className = 'orders-delivery-cell';
+        deliveryCell.textContent = order.deliverySlot;
+
+        // Items Cell
+        const itemsCell = document.createElement('td');
+        itemsCell.className = 'orders-items-cell';
+        const itemsList = document.createElement('ul');
+        itemsList.className = 'orders-items-list';
+        order.items.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${item.quantity} x ${item.name} (${item.variation ?? item.type})`;
+            itemsList.appendChild(listItem);
+        });
+        itemsCell.appendChild(itemsList);
+
+        // Amount Cell - Simplified
+        const amountCell = document.createElement('td');
+        amountCell.className = 'orders-amount-cell';
+        amountCell.textContent = `₹${order.totalAmount}`;
+
+        // Status Cell - Simplified
+        const statusCell = document.createElement('td');
+        statusCell.className = 'orders-status-cell';
+        const statusBadge = document.createElement('span');
+        statusBadge.className = `status-badge status-${order.status.toLowerCase()}`;
+        statusBadge.textContent = order.status;
+        statusCell.appendChild(statusBadge);
+
+        // Actions Cell - Simplified
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'orders-actions-cell';
+        actionsCell.innerHTML = `
+            <div class="orders-action-buttons">
+                <button class="orders-action-btn bg-blue" onclick="updateStatus('${order.orderId}', 'Cooking')" ${isPastStatus(order.status, 'Cooking') ? 'disabled' : ''}><i class="fas fa-utensils"></i></button>
+                <button class="orders-action-btn bg-brown" onclick="updateStatus('${order.orderId}', 'Packed')" ${isPastStatus(order.status, 'Packed') ? 'disabled' : ''}><i class="fas fa-box"></i></button>
+                <button class="orders-action-btn bg-green" onclick="updateStatus('${order.orderId}', 'Delivered')" ${isPastStatus(order.status, 'Delivered') ? 'disabled' : ''}><i class="fas fa-truck"></i></button>
+                <button class="orders-action-btn bg-red" onclick="updateStatus('${order.orderId}', 'Cancelled')" ${isPastStatus(order.status, 'Cancelled') ? 'disabled' : ''}><i class="fas fa-times"></i></button>
+            </div>
         `;
-        card.appendChild(buttonContainer);
 
-        container.appendChild(card);
+        // Append all cells to row
+        row.appendChild(customerCell);
+        row.appendChild(contactCell);
+        row.appendChild(deliveryCell);
+        row.appendChild(itemsCell);
+        row.appendChild(amountCell);
+        row.appendChild(statusCell);
+        row.appendChild(actionsCell);
+
+        container.appendChild(row);
     });
 }
 

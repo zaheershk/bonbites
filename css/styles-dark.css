@@ -344,213 +344,137 @@ button.remove-item {
     background-color: #ad805b;
 }
 
-#orders-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
+/* Orders Table Specific Styles - Minimal additions to existing CSS */
+.orders-row {
+    border-bottom: 1px solid #eee;
 }
 
-.card {
-    width: 300px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 10px;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #fff;
-    color: #444;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.orders-row:hover {
+    background-color: #f8f9fa;
 }
 
-.card ul {
-    list-style-type: none;
+.orders-row:last-child {
+    border-bottom: none;
+}
+
+.orders-customer-cell {
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 12px 8px;
+    vertical-align: top;
+}
+
+.orders-contact-cell {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    padding: 12px 8px;
+    vertical-align: top;
+}
+
+.orders-delivery-cell {
+    font-size: 0.8rem;
+    padding: 12px 8px;
+    vertical-align: top;
+}
+
+.orders-items-cell {
+    padding: 12px 8px;
+    vertical-align: top;
+    max-width: 250px;
+}
+
+.orders-items-list {
+    list-style: none;
     padding: 0;
+    margin: 0;
 }
 
-.button-container {
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    /* This will ensure buttons are spaced out over the container width */
-    align-items: center;
-    /* Aligns buttons centered vertically */
-    gap: 10px;
-    /* Adds spacing between the elements inside the flex container */
+.orders-items-list li {
+    padding: 2px 0;
+    font-size: 0.8rem;
+    color: #555;
 }
 
-.big-button,
-.small-button {
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #fff;
-    font-size: 16px;
-    flex: 1;
-    /* Allows the buttons to grow and fill the space, respecting the gap */
-}
-
-.small-button {
-    flex: none;
-    /* This will prevent the cancel button from growing */
-    width: 20%;
-    /* Smaller width, can adjust percentage based on design preference */
-    padding: 15px;
-}
-
-.bg-red {
-    background-color: #f44336;
-}
-
-.bg-blue {
-    background-color: #3cbeed;
-}
-
-.bg-brown {
-    background-color: #c0843f;
-}
-
-.bg-green {
-    background-color: #4CAF50;
-}
-
-.small-button:disabled {
-    background-color: #c0c0c0;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.big-button {
-    padding: 15px;
-    /* More padding for a larger button */
-    background-color: #4CAF50;
-    /* Green color */
-}
-
-button i {
-    margin-right: 8px;
-}
-
-.menu-header,
-.menu-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #033c3b;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 5px;
-    max-width: 750px;
-    width: calc(100% - 40px);
-    margin: auto;
-}
-
-.menu-hf-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    font-family: "Playwrite NG Modern", serif;
-    font-size: 1.5rem;
-    font-weight: normal;
-    width: 100%;
-}
-
-.menu-footer-text {
-    font-size: 1rem;
-}
-
-.menu-footer a {
-    color: #a99bf3;
-}
-
-.menu-segment {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-top: 30px;
-    margin-bottom: 30px;
-}
-
-.menu-segment-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: radial-gradient(circle, #e08d79, #ab6e56, #775144);
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    margin-top: 5px;
-    padding: 7px;
-    font-size: 18px;
-    max-width: 750px;
-    width: calc(100% - 40px);
-}
-
-.menu-product-card {
-    display: flex;
-    align-items: center;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    margin-top: 5px;
-    padding: 10px 5px;
-    max-width: 750px;
-    width: calc(100% - 40px);
-    color: #444;
-}
-
-.menu-product-image {
-    flex: 0 0 80px;
-    height: 80px;
-    margin-right: 10px;
-}
-
-.menu-product-details {
-    flex: 1;
-    padding: 0 10px;
-    color: #666;
-    font-size: 0.85rem;
-}
-
-.menu-product-details h3 {
-    margin-bottom: 4px;
-    color: #242ae9;
-    font-size: 0.95rem;
-    line-height: 1.1;
-}
-
-.menu-product-details p {
-    margin-bottom: 2px;
-    line-height: 1.2;
-}
-
-.menu-product-price {
-    flex: 0 0 70px;
+.orders-amount-cell {
+    font-weight: 700;
+    color: #c1464c;
     text-align: right;
-    padding: 0 10px;
-    color: #242ae9;
-    font-size: 0.95rem;
+    padding: 12px 8px;
+    vertical-align: top;
 }
 
-.menu-product-logo {
-    flex: 0 0 20px;
-    width: 25px;
-    height: 25px;
+.orders-status-cell {
     text-align: center;
-    padding: 0 7px;
+    padding: 12px 8px;
+    vertical-align: top;
 }
 
-@media print {
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+}
 
-    .menu-segment,
-    .menu-segment-title,
-    .menu-product-card {
-        page-break-inside: avoid;
-        /* Avoid page break inside these elements */
-    }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-cooking { background: #d1ecf1; color: #0c5460; }
+.status-packed { background: #f8d7da; color: #721c24; }
+.status-delivered { background: #d4edda; color: #155724; }
+.status-cancelled { background: #f5c6cb; color: #721c24; }
+
+.orders-actions-cell {
+    text-align: center;
+    padding: 12px 8px;
+    vertical-align: top;
+}
+
+.orders-action-buttons {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+/* Reuse existing small-button class with color overrides */
+.orders-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: white;
+}
+
+.orders-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.orders-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.bg-blue { background: #3498db; }
+.bg-brown { background: #8b4513; }
+.bg-green { background: #27ae60; }
+.bg-red { background: #e74c3c; }
+
+#ordersTable th {
+    text-align: left;
+}
+
+#ordersTable td {
+    text-align: left;
 }
 
 /* General table styles */
