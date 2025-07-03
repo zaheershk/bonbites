@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: #28282B;
-    color: #fff;
+    background: #f8f9fa;
+    color: #333;
     margin: 0;
     padding: 0;
     line-height: 1.4;
@@ -166,7 +166,7 @@ body {
 
 .mobile-segment h3 {
     background: none;
-    color: white;
+    color: #2c3e50;
     padding: 8px 0;
     margin: 0 0 12px 0;
     font-size: 1.1rem;
@@ -936,8 +936,7 @@ body {
 @media (min-width: 768px) {
     /* Container for centering mobile layout */
     body {
-        background: #28282B;
-        color: #fff;
+        background: #f0f2f5;
         display: flex;
         justify-content: center;
         align-items: flex-start;
