@@ -359,14 +359,7 @@ button.remove-item {
 
 .orders-customer-cell {
     font-weight: 600;
-    color: #2c3e50;
-    padding: 12px 8px;
-    vertical-align: top;
-}
-
-.orders-contact-cell {
-    font-size: 0.8rem;
-    color: #7f8c8d;
+    color: #242ae9;
     padding: 12px 8px;
     vertical-align: top;
 }
@@ -1279,48 +1272,6 @@ th[data-sort-order]:not([data-sort-order=""]):before {
     box-shadow: 0 0 5px rgba(223, 160, 107, 0.5);
 }
 
-/* Make sure the search box gets full width on smaller screens */
-@media (max-width: 768px) {
-    .search-container {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-
-    .admin-tiles {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        padding: 0 15px;
-    }
-    
-    .admin-tile {
-        height: 100px;
-        padding: 12px;
-    }
-    
-    .admin-tile i:first-child {
-        font-size: 1.3rem;
-        margin-bottom: 6px;
-    }
-    
-    .admin-tile h3 {
-        font-size: 0.85rem;
-        margin-bottom: 8px;
-    }
-    
-    .admin-tile p {
-        font-size: 0.7rem;
-    }
-    
-    .toggle-container p {
-        font-size: 0.7rem;
-    }
-    
-    .store-status-toggle {
-        font-size: 1.1rem;
-    }
-}
-
 /* Variations styling */
 
 .variations-section {
@@ -2030,6 +1981,45 @@ td .fa-info-circle {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+    .search-container {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .admin-tiles {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0 15px;
+    }
+    
+    .admin-tile {
+        height: 100px;
+        padding: 12px;
+    }
+    
+    .admin-tile i:first-child {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .admin-tile h3 {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    
+    .admin-tile p {
+        font-size: 0.7rem;
+    }
+    
+    .toggle-container p {
+        font-size: 0.7rem;
+    }
+    
+    .store-status-toggle {
+        font-size: 1.1rem;
+    }
+    
     .page-actions {
         margin: 15px 0;
     }
@@ -2072,6 +2062,32 @@ td .fa-info-circle {
     
     .prep-item-quantity {
         font-size: 1rem;
+    }
+
+    .orders-action-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+    
+    .orders-action-buttons {
+        gap: 2px; /* Reduced from 4px */
+    }
+    
+    /* Reduce padding in table cells on mobile */
+    .orders-customer-cell,
+    .orders-delivery-cell,
+    .orders-items-cell,
+    .orders-amount-cell,
+    .orders-status-cell,
+    .orders-actions-cell {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+    }
+    
+    /* Make items column narrower on mobile */
+    .orders-delivery-cell {
+        max-width: 50px;
     }
 }
 

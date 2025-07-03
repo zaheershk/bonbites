@@ -46,13 +46,9 @@ async function loadOrders() {
         customerCell.className = 'orders-customer-cell';
         customerCell.innerHTML = `
             <div>${order.customerName}</div>
-            <div style="font-size: 0.75rem; color: #7f8c8d; margin-top: 2px;">Flat: ${order.customerFlat}</div>
+            <div style="font-size: 0.75rem; color:rgb(61, 68, 68); margin-top: 2px;">Flat: ${order.customerFlat}</div>
+            <div style="font-size: 0.75rem; color:rgb(61, 68, 68); margin-top: 2px;">Phone: ${order.phoneNumber}</div>
         `;
-
-        // Contact Cell
-        const contactCell = document.createElement('td');
-        contactCell.className = 'orders-contact-cell';
-        contactCell.textContent = order.phoneNumber;
 
         // Delivery Cell
         const deliveryCell = document.createElement('td');
@@ -98,7 +94,6 @@ async function loadOrders() {
 
         // Append all cells to row
         row.appendChild(customerCell);
-        row.appendChild(contactCell);
         row.appendChild(deliveryCell);
         row.appendChild(itemsCell);
         row.appendChild(amountCell);
