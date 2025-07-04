@@ -341,8 +341,8 @@ body {
 }
 
 .about-header h2 {
-    margin: 0 0 15px 0;
-    font-size: 1.4rem;
+    margin: 0 0 2px 0;
+    font-size: 1.2rem;
 }
 
 .about-family-pic {
@@ -353,9 +353,7 @@ body {
 .about-family-pic img {
     width: 140px;
     height: 160px;
-    /* border-radius: 8px; */
     object-fit: cover;
-    /* border: 3px solid rgba(255,255,255,0.2); */
 }
 
 .about-text {
