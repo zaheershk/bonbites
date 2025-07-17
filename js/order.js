@@ -221,7 +221,7 @@ function createMobileProductCard(product) {
         <div class="mobile-product-info">
             <div class="product-name">${product.name}</div>
             <div class="product-ingredients">${product.ingredients}</div>
-            <div class="product-description"><strong>Serving:</strong> ${product.description}</div>
+            <div class="product-description"><strong>${product.description}</strong></div>
             <div class="product-price">${priceDisplay}</div>
         </div>
         <div class="mobile-product-right">
