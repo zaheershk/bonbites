@@ -549,6 +549,8 @@ async function placeOnlineOrder(orderData) {
             email: orderData.email,
             phone: orderData.phone,
             deliverySlot: orderData.deliverySlot,
+            deliveryType: orderData.deliveryType,
+            pickupLocation: orderData.pickupLocation,
             items: orderData.items,
             totalAmount: orderData.totalAmount,
             userAgent: user_agt,
