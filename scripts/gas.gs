@@ -227,7 +227,7 @@ function getOrders() {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  const lastColumnIndex = 12;
+  const lastColumnIndex = 14;
 
   // Make sure to calculate the number of rows properly to avoid retrieving non-existent data
   const numRows = sheet.getLastRow() - 1;
@@ -253,8 +253,8 @@ function getOrders() {
         totalAmount: row[7],
         status: row[8],
         timestamp: row[9],
-        deliveryType: row[10],
-        pickupLocation: row[11]
+        deliveryType: row[12] || 'delivery',
+        pickupLocation: row[13] || null
       });
     }
   });
@@ -722,7 +722,7 @@ function generateOrderId() {
   return orderId;
 }
 
-function sendConfirmationEmail(email, name, flat, orderId, items, totalAmount, deliverySlot, deliveryType, pickupLocation) {
+function sendConfirmationEmail(email, name, flat, orderId, items, totalAmount, deliverySlot, deliveryType = 'delivery', pickupLocation = null) {
   const subject = `[BonBites] Food Order Confirmation`;
 
   let body = `
@@ -767,9 +767,8 @@ function sendConfirmationEmail(email, name, flat, orderId, items, totalAmount, d
                 </p>
                 <ul>
                     ${deliveryType === 'pickup' 
-                        ? `<li>Your order will be ready for pickup at <strong>${pickupLocation}</strong> during your selected slot <strong>${deliverySlot}</strong></li>`
-                        : `<li>Your order will be delivered to ${flat} as per your preferred slot <strong>${deliverySlot}</strong></li>
-                           <li>In case you are unavailable during that time, kindly pick-up the food from <strong>E-502</strong>, when possible.</li>`
+                        ? '<li>Your order will be ready for pickup at <strong>' + (pickupLocation || 'Tower E Lobby') + '</strong> during your selected slot <strong>' + deliverySlot + '</strong></li>'
+                        : '<li>Your order will be delivered to ' + flat + ' as per your preferred slot <strong>' + deliverySlot + '</strong></li><li>In case you are unavailable during that time, kindly pick-up the food from <strong>E-502</strong>, when possible.</li>'
                     }
                     <li>In case of item unavailability or delivery delay from our side, we will notify you ASAP.</li>
                 </ul>

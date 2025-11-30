@@ -1,5 +1,5 @@
 // Shared constants
-const API_URL = 'https://script.google.com/macros/s/AKfycbzXpEFzEm9iwHTY7_M-KZ2K4aYp0wC5Ipjvggz0_Zm3jlf8rdo-IEruwlt_RLk0UDpy/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzTw7e4oxuHlG_KTWdwKmcGd8UAM05ly_tzNoHZhfMh97St2Lc7qXfMPb2JM_fFaNGl/exec';
 
 // Common utility functions
 function showLoader(visible) {
