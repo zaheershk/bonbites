@@ -53,7 +53,11 @@ async function loadOrders() {
         // Delivery Cell
         const deliveryCell = document.createElement('td');
         deliveryCell.className = 'orders-delivery-cell';
-        deliveryCell.textContent = order.deliverySlot;
+        const deliveryType = order.deliveryType || 'delivery';
+        const deliveryText = deliveryType === 'pickup' 
+            ? `Pickup: ${order.pickupLocation || 'N/A'} at ${order.deliverySlot}`
+            : `Delivery to ${order.customerFlat} at ${order.deliverySlot}`;
+        deliveryCell.textContent = deliveryText;
 
         // Items Cell
         const itemsCell = document.createElement('td');

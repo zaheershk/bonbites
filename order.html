@@ -85,10 +85,24 @@
                     </div>
 
                     <div class="mobile-form-group">
-                        <label class="mobile-form-label" for="mobile-delivery-time">Delivery Time *</label>
+                        <label class="mobile-form-label">Delivery Type *</label>
+                        <div class="mobile-delivery-type-options">
+                            <label class="mobile-radio-label">
+                                <input type="radio" name="deliveryType" value="delivery" checked>
+                                <span>Home Delivery</span>
+                            </label>
+                            <label class="mobile-radio-label" id="pickup-option">
+                                <input type="radio" name="deliveryType" value="pickup">
+                                <span>Pick Up</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mobile-form-group">
+                        <label class="mobile-form-label" for="mobile-delivery-time">Delivery/Pickup Time *</label>
                         <div id="mobile-deliverySlotsContainer">
                             <select id="mobile-delivery-time-dropdown" class="mobile-form-input" required>
-                                <option value="">[Select Delivery Time]</option>
+                                <option value="">[Select Time]</option>
                             </select>
                         </div>
                     </div>

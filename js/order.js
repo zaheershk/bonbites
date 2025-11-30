@@ -27,6 +27,12 @@ function getDeliverySlots() {
         .then(data => {
             localStorage.setItem('deliverySlots', JSON.stringify(data));
             window.deliverySlots = data || {};
+            
+            // Hide pickup option if not enabled
+            const pickupOption = document.getElementById('pickup-option');
+            if (pickupOption && !data.enabled) {
+                pickupOption.style.display = 'none';
+            }
         });
 }
 
@@ -109,6 +115,12 @@ function setupMobileEventListeners() {
 
     if (optionsClose) optionsClose.addEventListener('click', closeMobileOptions);
     if (addSelectedBtn) addSelectedBtn.addEventListener('click', addSelectedMobileOptions);
+
+    // Delivery type radio buttons
+    const deliveryTypeRadios = document.querySelectorAll('input[name="deliveryType"]');
+    deliveryTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateMobileDeliverySlots);
+    });
 
     // Customer form
     const customerForm = document.getElementById('mobile-customer-form');
@@ -470,27 +482,20 @@ function updateMobileDeliverySlots() {
     const deliveryDropdown = document.getElementById('mobile-delivery-time-dropdown');
     if (!deliveryDropdown) return;
 
-    const segments = new Set(cart.map(item => item.segment));
+    const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+    let availableSlots = [];
 
-    let allDeliverySlots = [];
-    segments.forEach(segment => {
-        if (window.deliverySlots[segment]) {
-            allDeliverySlots = allDeliverySlots.concat(deliverySlots[segment]);
-        }
-    });
-
-    allDeliverySlots.sort((a, b) => a.localeCompare(b));
-
-    let pmOptions = allDeliverySlots.filter(option => option.includes('PM'));
-    if (pmOptions.length > 0 && pmOptions.length !== allDeliverySlots.length) {
-        allDeliverySlots = pmOptions;
+    if (deliveryType === 'delivery') {
+        availableSlots = window.deliverySlots.delivery || [];
+    } else if (deliveryType === 'pickup') {
+        availableSlots = window.deliverySlots.pickup.slots || [];
     }
 
-    deliveryDropdown.innerHTML = '<option value="">[Select Delivery Time]</option>';
-    allDeliverySlots.forEach(option => {
+    deliveryDropdown.innerHTML = '<option value="">[Select Time]</option>';
+    availableSlots.forEach(slot => {
         const optionEl = document.createElement('option');
-        optionEl.value = option;
-        optionEl.textContent = option;
+        optionEl.value = slot.trim();
+        optionEl.textContent = slot.trim();
         deliveryDropdown.appendChild(optionEl);
     });
 }
@@ -504,6 +509,7 @@ function handleMobileOrderSubmission(e) {
     const phone = formData.get('phone').trim();
     const email = formData.get('email').trim();
     const deliverySlot = document.getElementById('mobile-delivery-time-dropdown').value;
+    const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
 
     if (!name || !flat || !phone || !email || !deliverySlot) {
         showMobileToast('Please fill in all required fields');
@@ -520,7 +526,9 @@ function handleMobileOrderSubmission(e) {
         flat: flat,
         email: email,
         phone: phone,
+        deliveryType: deliveryType,
         deliverySlot: deliverySlot,
+        pickupLocation: deliveryType === 'pickup' ? window.deliverySlots.pickup.location : null,
         items: cart,
         totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     };
