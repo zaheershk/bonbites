@@ -4,11 +4,15 @@ let user_ip = '';
 let mobileShowingCart = false;
 let mobileShowingOptions = false;
 let currentOptionsProduct = null;
+let settings = {};
 
 async function initMobileApp() {
     // capture user info
     user_agt = navigator.userAgent;
     user_ip = await fetchIPAddress();
+
+    // fetch settings
+    settings = await fetchAppSettings();
 
     setupMobileEventListeners();
     getDeliverySlots();
@@ -165,8 +169,27 @@ function loadMobileProducts() {
         segments[product.segment].push(product);
     });
 
+    // Get segment sort order from settings
+    let segmentNames = Object.keys(segments);
+    if (settings && settings.SegmentsSortOrder) {
+        const sortOrder = settings.SegmentsSortOrder.split(',').map(s => s.trim());
+        segmentNames.sort((a, b) => {
+            const indexA = sortOrder.indexOf(a);
+            const indexB = sortOrder.indexOf(b);
+            if (indexA === -1 && indexB === -1) {
+                return a.localeCompare(b); // both not in order, sort alphabetically
+            } else if (indexA === -1) {
+                return 1; // a not in order, b is, b comes first
+            } else if (indexB === -1) {
+                return -1; // b not in order, a is, a comes first
+            } else {
+                return indexA - indexB; // both in order, sort by index
+            }
+        });
+    }
+
     // Create segments
-    Object.keys(segments).forEach(segmentName => {
+    segmentNames.forEach(segmentName => {
         const segmentDiv = document.createElement('div');
         segmentDiv.className = 'mobile-segment';
 

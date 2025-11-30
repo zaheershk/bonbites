@@ -40,3 +40,13 @@ async function fetchIPAddress() {
         return 'unknown';
     }
 }
+
+async function fetchAppSettings() {
+    try {
+        const response = await fetch(API_URL + '?type=appsettings');
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch app settings:', error);
+        return {};
+    }
+}
